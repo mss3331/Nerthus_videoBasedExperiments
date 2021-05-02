@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import os
 import copy
 import time
-
+from tqdm import tqdm
 
 def train_model(model, dataloaders, criterion, optimizer,device, num_epochs=25, is_inception=False):
     since = time.time()
@@ -23,8 +23,7 @@ def train_model(model, dataloaders, criterion, optimizer,device, num_epochs=25, 
 
     for epoch in range(num_epochs):
         print('Epoch {}/{}'.format(epoch, num_epochs - 1))
-        print('-' * 10)
-
+        print('-' * 10,flush=True)
         # Each epoch has a training and validation phase
         for phase in ['train', 'val']:
             if phase == 'train':
@@ -36,7 +35,8 @@ def train_model(model, dataloaders, criterion, optimizer,device, num_epochs=25, 
             running_corrects = 0
 
             # Iterate over data.
-            for inputs, labels in dataloaders[phase]:
+            pbar = tqdm(dataloaders[phase], total=len(dataloaders[phase]))
+            for inputs, labels in pbar:
                 inputs = inputs.to(device)
                 labels = labels.to(device)
 
@@ -70,6 +70,10 @@ def train_model(model, dataloaders, criterion, optimizer,device, num_epochs=25, 
                 # statistics
                 running_loss += loss.item() * inputs.size(0)
                 running_corrects += torch.sum(preds == labels.data)
+                pbar.set_postfix({phase+' Epoch': epoch,
+                                  'running Loss': loss.item(),
+                                  'running acc': torch.sum(preds == labels.data).item()/inputs.size(0),
+                                  })
 
             epoch_loss = running_loss / len(dataloaders[phase].dataset)
             epoch_acc = running_corrects.double() / len(dataloaders[phase].dataset)

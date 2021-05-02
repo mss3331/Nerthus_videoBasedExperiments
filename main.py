@@ -14,23 +14,9 @@ def run():
 
     print("device = ",device)
 
-    data_dir = r"C:\Users\Mahmood_Haithami\Downloads\JDownloader\Databases\Nerthus\frameBased\frameBased_randomShuffle2"
-    # Models to choose from [resnet18,resnet50, alexnet, vgg, squeezenet, densenet, inception
-    # Myresnet50,RN]
-    model_name = "resnet50"
-    # Number of classes in the dataset
-    num_classes = 4
-    batch_size = 8
-    #batch_size = 16
-    # Number of epochs to train for
-    num_epochs = 10
-    # Flag for feature extracting. When False, we finetune the whole model,
-    #   when True we only update the reshaped layer params
-    feature_extract = False
-    half_freez = False
 
     # Initialize the model for this run
-    model_ft, input_size = helpers.initialize_model(model_name, num_classes, feature_extract, use_pretrained=True)
+    model_ft, input_size = helpers.initialize_model(model_name, num_classes, feature_extract, use_pretrained=use_pretrained)
     # print(model_ft)
     # exit(0)
     # Send the model to GPU
@@ -54,4 +40,21 @@ if __name__ == '__main__':
     np.random.seed(0)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
+
+    data_dir = r"C:\Users\Mahmood_Haithami\Downloads\JDownloader\Databases\Nerthus\frameBased\frameBased_randomShuffle2"
+    # Models to choose from [resnet18,resnet50, alexnet, vgg, squeezenet, densenet, inception
+    # Myresnet50,RN,stridedConv]
+    model_name = "stridedConv_GRU"
+    # Number of classes in the dataset
+    num_classes = 4
+    batch_size = 8
+    # batch_size = 16
+    # Number of epochs to train for
+    num_epochs = 10
+    # Flag for feature extracting. When False, we finetune the whole model,
+    #   when True we only update the reshaped layer params
+    feature_extract = False
+    half_freez = False
+    use_pretrained = False
+
     run()

@@ -5,7 +5,7 @@ import torch.nn as nn
 import torch.optim as optim
 import numpy as np
 import os
-from models import RN, MyResNet
+from models import RN, MyResNet, stridedConv
 from torchvision import datasets, models, transforms
 import matplotlib.pyplot as plt
 
@@ -100,7 +100,12 @@ def initialize_model(model_name, num_classes, feature_extract,use_pretrained=Tru
         num_ftrs = model_ft.fc.in_features
         model_ft.fc = nn.Linear(num_ftrs,num_classes)
         input_size = 299
-
+    elif model_name == "stridedConv":
+        model_ft = stridedConv.stridedConv(num_classes)
+        input_size = (576,720)
+    elif model_name == "stridedConv_GRU":
+        model_ft = stridedConv.stridedConv_GRU(num_classes)
+        input_size = (576, 720)
     else:
         print("Invalid model name, exiting...")
         exit()
@@ -159,6 +164,7 @@ def set_requires_grad_get_optimizer(feature_extract,model_ft,half_freez):
     return optimizer_ft
 
 def get_dataloaders(input_size,batch_size,data_dir):
+
     data_transforms = get_transform_conf(input_size=input_size)
     print("Initializing Datasets and Dataloaders...")
     # Create training and validation datasets
@@ -166,7 +172,7 @@ def get_dataloaders(input_size,batch_size,data_dir):
                       for x in ['train', 'val']}
     # Create training and validation dataloaders
     dataloaders_dict = {
-        x: torch.utils.data.DataLoader(image_datasets[x], batch_size=batch_size, shuffle=True, num_workers=4)
+        x: torch.utils.data.DataLoader(image_datasets[x], batch_size=batch_size, shuffle=False, num_workers=4)
         for x in ['train', 'val']}
     return dataloaders_dict
 
