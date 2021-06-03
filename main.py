@@ -40,17 +40,19 @@ if __name__ == '__main__':
     np.random.seed(0)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
-
-    data_dir = r"C:\Users\Mahmood_Haithami\Downloads\JDownloader\Databases\Nerthus\frameBased\frameBased_randomShuffle2"
+    # torch.autograd.set_detect_anomaly(True)
+    data_dir = r"E:\Databases\Nerthus\frameBased\frameBased_randomShuffle2"
+    # Colab
+    # data_dir = "/content/frameBased_randomShuffle1"
     # Models to choose from [resnet18,resnet50, alexnet, vgg, squeezenet, densenet, inception
-    # Myresnet50,RN,stridedConv]
-    model_name = "stridedConv_GRU"
+    # Myresnet50,RN,stridedConv,ZhoDenseNet]
+    model_name = "densenet"
     # Number of classes in the dataset
     num_classes = 4
-    batch_size = 8
+    batch_size = 16
     # batch_size = 16
     # Number of epochs to train for
-    num_epochs = 10
+    num_epochs = 100
     # Flag for feature extracting. When False, we finetune the whole model,
     #   when True we only update the reshaped layer params
     feature_extract = False

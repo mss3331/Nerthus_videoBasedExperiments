@@ -5,7 +5,7 @@ import torch.nn as nn
 import torch.optim as optim
 import numpy as np
 import os
-from models import RN, MyResNet, stridedConv
+from models import RN, MyResNet, stridedConv, ZhoDenseNet
 from torchvision import datasets, models, transforms
 import matplotlib.pyplot as plt
 
@@ -106,6 +106,9 @@ def initialize_model(model_name, num_classes, feature_extract,use_pretrained=Tru
     elif model_name == "stridedConv_GRU":
         model_ft = stridedConv.stridedConv_GRU(num_classes)
         input_size = (576, 720)
+    elif model_name == "ZhoDenseNet":
+        model_ft = ZhoDenseNet.ZhoDenseNet(num_classes)
+        input_size = (256, 256)
     else:
         print("Invalid model name, exiting...")
         exit()
@@ -130,9 +133,10 @@ def get_transform_conf(input_size):
     }
     return data_transforms
 
-def set_requires_grad_get_optimizer(feature_extract,model_ft,half_freez):
+def set_requires_grad_get_optimizer(feature_extract,model_ft,half_freez,print_params=False):
     params_to_update = model_ft.parameters()
-    print("Params to learn:")
+    if print_params:
+        print("Params to learn:")
     if feature_extract and not half_freez:
         params_to_update = []
         for name,param in model_ft.named_parameters():
@@ -144,8 +148,9 @@ def set_requires_grad_get_optimizer(feature_extract,model_ft,half_freez):
         for param in model_ft.parameters():
             param.requires_grad = True
             params_to_update.append(param)
-        print("The total number of parameters = {}".format(len(params_to_update)))
-        print("param.requires_grad = False for the first half of Network")
+        if print_params:
+            print("The total number of parameters = {}".format(len(params_to_update)))
+            print("param.requires_grad = False for the first half of Network")
         stop=1
         for i in range(len(params_to_update)):
             params_to_update[i].requires_grad = False
@@ -153,14 +158,16 @@ def set_requires_grad_get_optimizer(feature_extract,model_ft,half_freez):
             if stop > int(len(params_to_update)/6*5):#if half the wieghts is reached stop
                 break
         del params_to_update[0:int(len(params_to_update)/6*5)+1]
-        print("Total of learnable parameters={}".format(len(params_to_update)))
+        if print_params:
+            print("Total of learnable parameters={}".format(len(params_to_update)))
     for name,param in model_ft.named_parameters():
         if param.requires_grad == True:
-            print("\t",name)
+            if print_params:
+                print("\t",name)
 
 
     # Observe that all parameters are being optimized
-    optimizer_ft = optim.SGD(params_to_update, lr=0.001, momentum=0.9)
+    optimizer_ft = optim.SGD(params_to_update, lr=0.01, momentum=0.9)
     return optimizer_ft
 
 def get_dataloaders(input_size,batch_size,data_dir):
