@@ -2,9 +2,9 @@
 import torch
 import torchvision
 import helpers
+import helpers_dataloading
 import train_model
 import numpy as np
-from torchvision import datasets, models, transforms
 
 def run():
     print("PyTorch Version: ",torch.__version__)
@@ -21,11 +21,15 @@ def run():
     # exit(0)
     # Send the model to GPU
     model_ft = model_ft.to(device)
-
+    # for name,param in model_ft.named_parameters():
+    #     if param.requires_grad == True:
+    #         print("\t",name)
+    # print('nothing to print')
+    # exit(0)
     # Print the model we just instantiated
     print("the used model is ",model_name)
 
-    dataloaders_dict = helpers.get_dataloaders(input_size,batch_size,data_dir)
+    dataloaders_dict = helpers_dataloading.get_dataloaders(input_size,batch_size,data_dir)
 
     criterion = helpers.get_criterion()
     optimizer_ft = helpers.set_requires_grad_get_optimizer(feature_extract,model_ft,half_freez)
@@ -46,10 +50,10 @@ if __name__ == '__main__':
     # data_dir = "/content/frameBased_randomShuffle1"
     # Models to choose from [resnet18,resnet50, alexnet, vgg, squeezenet, densenet, inception
     # Myresnet50,RN,stridedConv,ZhoDenseNet]
-    model_name = "densenet"
+    model_name = "RN"
     # Number of classes in the dataset
     num_classes = 4
-    batch_size = 16
+    batch_size = 8
     # batch_size = 16
     # Number of epochs to train for
     num_epochs = 100
@@ -57,6 +61,6 @@ if __name__ == '__main__':
     #   when True we only update the reshaped layer params
     feature_extract = False
     half_freez = False
-    use_pretrained = False
+    use_pretrained = True
 
     run()

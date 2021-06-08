@@ -1,34 +1,65 @@
 import torchvision.models as models
+import torch
 import torch.nn as nn
-
 class ResNet50_FE(nn.Module):
-            def __init__(self,pretrained=True):
-                super(ResNet50_FE, self).__init__()
-                original_ResNet50 = models.resnet50(pretrained=pretrained)
-                # self.activation_36 = nn.Sequential(*list(original_ResNet50.children())[:-1])
-                self.activation_0 = nn.Sequential(*list(original_ResNet50.children())[:6])
-                print(self.activation_0)
-                # self.activation_1 = nn.Sequential(*list(original_ResNet50.children())[6])
-                self.activation_1 = nn.Sequential(*list(original_ResNet50.children())[6][:2])
-                print(self.activation_1)
-                self.activation_2 = nn.Sequential(*list(original_ResNet50.children())[7])
-                print(self.activation_2)
+    def set_parameter_requires_grad(self,model, feature_extracting):
+        if feature_extracting:
+            for param in model.parameters():
+                param.requires_grad = False
 
-                # print(len(list(original_ResNet50.children())))
-                # print(list(original_ResNet50.children()))
-                # exit(0)
-                # self.features = nn.Sequential(
-                #     # stop at conv4
-                #     *list(original_ResNet50.features.children())[:-3]
-                # )
-            def forward(self, x):
-                # x=self.activation_36(x)
-                # print("activation_36",x.shape)
-                x= self.activation_0(x)
-                print("activation_0",x.shape)
-                x = self.activation_1(x)
-                print("activation_1", x.shape)
-                x = self.activation_2(x)
-                print("activation_2", x.shape)
+    def __init__(self,num_classes=4,pretrained=True):
+        super(ResNet50_FE, self).__init__()
+        self.original_ResNet50 = models.resnet50(pretrained=pretrained)
+        self.set_parameter_requires_grad(self.original_ResNet50, feature_extracting=True)
 
-                return x
+
+        self.layers =list(self.original_ResNet50.children())[:-1]
+        del (self.layers[7:])
+        # Encoding
+        self.project1 = nn.Sequential (nn.Conv2d(1024,32,1),nn.BatchNorm2d(32), nn.ReLU(),nn.Dropout(0.25), nn.MaxPool2d(2))
+        self.project2 = nn.Sequential (nn.Conv2d(1024,32,1),nn.BatchNorm2d(32), nn.ReLU(),nn.Dropout(0.25), nn.MaxPool2d(2))
+        # RN
+
+        #LSTM
+        self.lstm = nn.LSTM(input_size=1,hidden_size=300,batch_first=True)
+        #FC layers + classification layer
+        self.fc1 = nn.Linear(300,256)
+        self.fc2 = nn.Linear(256,128)
+        self.fc3 = nn.Linear(128,num_classes)
+
+
+    def forward(self, x):
+
+        x_featerMaps = []
+        for i,layer in enumerate(self.layers):
+
+            if i ==6:
+                # print("layer"+str(i)+" composed of:")
+                for j,sub_layer in enumerate(layer):
+                    # print(sub_layer)
+                    if j == 0 or j == 5:
+                        x= sub_layer(x)
+                        x_featerMaps.append(x)
+                    else: x = sub_layer(x)
+                    # if j ==0:
+                    # print("  after sub_layer" + str(j) + " the shape is ", x.shape)
+            else:
+                # print("before layer" + str(i) + "the shape is ", x.shape)
+                x = layer(x)
+                # print("before layer" + str(i) + "the shape is ", x.shape)
+
+        x1=self.project1(x_featerMaps[0])
+        x2=self.project1(x_featerMaps[1])
+        ###############################
+                   #RN HERE
+        ###############################
+        x_RN = (x1+x2).flatten(1).unsqueeze(-1)
+        x_RN, (hidden, cell)  = self.lstm(x_RN) #h_n = (1, batch, hidden_size)
+        hidden = hidden.squeeze(0)
+        output = self.fc1(hidden)
+        output = self.fc2(output)
+        output = self.fc3(output)
+        # print(output.shape)
+        # print(x_RN.shape)
+
+        return output
