@@ -1,7 +1,12 @@
 import torch
 import os
+import glob
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+from PIL import Image
 from torchvision import datasets, transforms
-
+from torch.utils.data import Dataset
 
 def get_transform_conf(input_size):
     data_transforms = {
@@ -32,19 +37,85 @@ def get_dataloaders(input_size,batch_size,data_dir):
         x: torch.utils.data.DataLoader(image_datasets[x], batch_size=batch_size, shuffle=False, num_workers=4)
         for x in ['train', 'val']}
     return dataloaders_dict
-def get_dataloaders_SubVideoBased():
+def get_dataloaders_SubVideoBased(input_size,batch_size,data_dir):
     # Create Dataset for each video
-    #list of subvideos:
+    '''list of subvideos:
     #class 0 = [1_0_0, 1_0_1, 2_0_0, 2_0_1, 2_0_2]
-    #class 1 = [3_1_0, 3_1_1, 3_1_2,4_1_0, 4_1_1,5_1_0, 5_1_1, 5_1_2,6_1_0, 6_1_1, 6_1_2,7_1_0, 7_1_1,
-    # 8_1_0, 8_1_1, 8_1_2,9_1_0, 9_1_1, 9_1_2, 10_1_0, 10_1_1, 10_1_2,11_1_0, 11_1_1, 12_1_0, 12_1_1]
-    #class 2 = [13_2_0, 13_2_1, 14_2_0, 14_2_1, 15_2_0, 15_2_1, 15_2_2, 16_2_0, 16_2_1]
-    #class 3 = [17_3_0, 17_3_1, 17_3_2, 18_3_0, 18_3_1, 19_3_0, 19_3_1, 20_3_0, 20_3_1, 20_3_2, 21_3_0, 21_3_1]
+     class 1 = [3_1_0, 3_1_1, 3_1_2,4_1_0, 4_1_1,5_1_0, 5_1_1, 5_1_2,6_1_0, 6_1_1, 6_1_2,7_1_0, 7_1_1,
+                8_1_0, 8_1_1, 8_1_2,9_1_0, 9_1_1, 9_1_2, 10_1_0, 10_1_1, 10_1_2,11_1_0, 11_1_1, 12_1_0, 12_1_1]
+     class 2 = [13_2_0, 13_2_1, 14_2_0, 14_2_1, 15_2_0, 15_2_1, 15_2_2, 16_2_0, 16_2_1]
+     class 3 = [17_3_0, 17_3_1, 17_3_2, 18_3_0, 18_3_1, 19_3_0, 19_3_1, 20_3_0, 20_3_1, 20_3_2, 21_3_0, 21_3_1]'''
 
+
+    data_dirEntery_list = list[os.scandir(data_dir)]
     #train
-
+    class_0 = ["2_0_0", "2_0_1", "2_0_2"]
+    class_1 = ["3_1_0", "3_1_1", "3_1_2"]
+    class_2 = ["15_2_0", "15_2_1", "15_2_2"]
+    class_3 = ["17_3_0", "17_3_1", "17_3_2"]
+    class_0_train_dataset = []
+    for subvideo_name in class_0:
+        #create a dataset based on subvideo_name
+        pass
     #val
 
     # Create Dataloaders
 
     pass
+
+class Nerthus_SubVideo_Dataset(Dataset):
+    def __init__(self, imageDir,targetSize,load_to_RAM= False):
+
+        self.imageList = glob.glob(imageDir +'/*.jpg')
+        self.imageList.sort()
+        self.labels = np.arange(len(self.imageList))
+        print((self.imageList[0].split("score_")[1].split("-")[0]))
+        self.labels[:] = int((self.imageList[0].split("_")[-2].split("-")[0])) # C:\...\0\bowel_20_score_3-1_00000001
+        self.target_labels = torch.from_numpy(self.labels)
+
+        self.targetSize = targetSize
+        self.tensor_images = []
+
+        self.load_to_RAM = load_to_RAM
+        if self.load_to_RAM:# load all data to RAM for faster fetching
+            print("Loading dataset to RAM...")
+            self.tensor_images = [self.get_tensor_image(image_path) for image_path in self.imageList]
+            print("Finish loading dataset to RAM")
+
+    def __getitem__(self, index):
+        if self.load_to_RAM:#if images are loaded to the RAM copy them, otherwise, read them
+            x = self.tensor_images[index]
+        else:
+            x=self.get_tensor_image(self.imageList[index])
+
+        return x, self.target_labels[index], self.imageList[index]
+
+    def __len__(self):
+        return len(self.imageList)
+
+    def get_tensor_image(self, image_path):
+        '''this function get image path and return transformed tensor image'''
+        preprocess = transforms.Compose([
+            # transforms.Resize((384, 288), 2),
+            transforms.Resize(self.targetSize, 2),
+            transforms.ToTensor()])
+            # transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
+        X = Image.open(image_path).convert('RGB')
+        X = preprocess(X)
+        return X
+
+def show_random_samples(training_data):
+    figure = plt.figure(figsize=(16, 8))
+    cols, rows = 6, 6
+    for i in range(1, cols * rows + 1):
+        # sample_idx = torch.randint(len(training_data), size=(1,)).item()
+        sample_idx = i-1+107
+        if sample_idx == 125:
+            print(sample_idx)
+        img, label, file_path = training_data[sample_idx]
+        figure.add_subplot(rows, cols, i)
+        name = file_path.split("\\")[-1].split("_")[-1]
+        plt.title(str(label.item())+":"+name)
+        plt.axis("off")
+        plt.imshow(img.permute(1, 2, 0) )
+    plt.show()

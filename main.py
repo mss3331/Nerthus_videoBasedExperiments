@@ -45,7 +45,8 @@ if __name__ == '__main__':
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
     # torch.autograd.set_detect_anomaly(True)
-    data_dir = r"E:\Databases\Nerthus\frameBased\frameBased_randomShuffle2"
+    # data_dir = r"E:\Databases\Nerthus\frameBased\frameBased_randomShuffle2"
+    data_dir = r"E:\Databases\Nerthus\SubVideoBased_not_splitted_into_trainVal"
     # Colab
     # data_dir = "/content/frameBased_randomShuffle1"
     # Models to choose from [resnet18,resnet50, alexnet, vgg, squeezenet, densenet, inception
