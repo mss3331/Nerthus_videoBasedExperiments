@@ -133,11 +133,12 @@ def storeBestResults(best_resuls_dic,epoch,prediction_list,target_list,image_nam
     best_resuls_dic["val_pred"] = prediction_list
     best_resuls_dic["val_target"] = target_list
     best_resuls_dic["val_images"] = image_name_list
-    best_resuls_dic["precision_recall_fscore_support"] = sk.precision_recall_fscore_support(target_list, prediction_list, average='macro')
+    best_resuls_dic["precision_recall_fscore_support"] = sk.precision_recall_fscore_support(target_list, prediction_list, average='micro')
     target_names = ['class 0', 'class 1', 'class 2', 'class 3']
     best_resuls_dic["summary"] = sk.classification_report(target_list,prediction_list, target_names=target_names,output_dict=True)
     pandas.DataFrame(best_resuls_dic["summary"]).transpose().to_excel("./results/summary_report.xlsx")
     rows = "prediction_list,target_list,correct,image_name_list".split(",")
     pandas.DataFrame((prediction_list,target_list,prediction_list==target_list,image_name_list),index=rows).transpose().to_excel("./results/results.xlsx")
+    # pandas.DataFrame((best_resuls_dic["precision_recall_fscore_support"])).transpose().to_excel("./results/precision_recall_fscore_support.xlsx")
 
 

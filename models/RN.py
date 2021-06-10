@@ -49,9 +49,14 @@ class ResNet50_FE(nn.Module):
                 # print("before layer" + str(i) + "the shape is ", x.shape)
 
         x1=self.project1(x_featerMaps[0])
-        x2=self.project1(x_featerMaps[1])
+        x2=self.project2(x_featerMaps[1])
         ###############################
                    #RN HERE
+        x1 = x1.flatten()
+        x2 = x2.flatten()
+        print(x1.shape)
+        x_cat = torch.cat((x1,x2))
+        print(x_cat.shape)
         ###############################
         x_RN = (x1+x2).flatten(1).unsqueeze(-1)
         x_RN, (hidden, cell)  = self.lstm(x_RN) #h_n = (1, batch, hidden_size)
