@@ -36,8 +36,8 @@ def run():
     optimizer_ft = helpers.set_requires_grad_get_optimizer(feature_extract,model_ft,half_freez)
     # Train and evaluate
     model_ft, results_dic = train_model.train_model(model_ft, dataloaders_dict, criterion, optimizer_ft,device=device, num_epochs=num_epochs,
-                                 is_inception=(model_name == "inception"))
-    helpers.plot_result(num_epochs=num_epochs,results_dic=results_dic)
+                                 is_inception=(model_name == "inception"),model_name=model_name)
+
 
 
 if __name__ == '__main__':
@@ -58,7 +58,7 @@ if __name__ == '__main__':
     batch_size = 8
     # batch_size = 16
     # Number of epochs to train for
-    num_epochs = 100
+    num_epochs = 5
     # Flag for feature extracting. When False, we finetune the whole model,
     #   when True we only update the reshaped layer params
     feature_extract = False

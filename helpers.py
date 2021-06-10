@@ -163,7 +163,7 @@ def get_criterion():
 
 
 
-def plot_result(num_epochs,results_dic):
+def plot_result(num_epochs,results_dic, model_name):
 
     # Plot the training curves of validation accuracy & loss
     val_acc = [h.cpu().numpy() for h in results_dic["val_acc_history"]]
@@ -184,4 +184,5 @@ def plot_result(num_epochs,results_dic):
     plt.yticks(np.arange(0,1.5, 0.1))
     plt.legend()
     plt.grid(True)
-    plt.show()
+    plt.savefig("./results/"+model_name+".png")
+    plt.clf()
