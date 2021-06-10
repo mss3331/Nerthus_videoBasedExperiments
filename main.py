@@ -58,7 +58,7 @@ if __name__ == '__main__':
     batch_size = 8
     # batch_size = 16
     # Number of epochs to train for
-    num_epochs = 1
+    num_epochs = 10
     # Flag for feature extracting. When False, we finetune the whole model,
     #   when True we only update the reshaped layer params
     feature_extract = False

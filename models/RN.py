@@ -19,7 +19,8 @@ class ResNet50_FE(nn.Module):
         self.project1 = nn.Sequential (nn.Conv2d(1024,32,1),nn.BatchNorm2d(32), nn.ReLU(),nn.Dropout(0.25), nn.MaxPool2d(2))
         self.project2 = nn.Sequential (nn.Conv2d(1024,32,1),nn.BatchNorm2d(32), nn.ReLU(),nn.Dropout(0.25), nn.MaxPool2d(2))
         # RN
-
+        self.fc_rn1 = nn.Linear(3136,1568)
+        self.fc_rn2 = nn.Linear(1568,300)
         #LSTM
         self.lstm = nn.LSTM(input_size=1,hidden_size=300,batch_first=True)
         #FC layers + classification layer
@@ -52,13 +53,18 @@ class ResNet50_FE(nn.Module):
         x2=self.project2(x_featerMaps[1])
         ###############################
                    #RN HERE
-        x1 = x1.flatten()
-        x2 = x2.flatten()
-        print(x1.shape)
-        x_cat = torch.cat((x1,x2))
-        print(x_cat.shape)
+
+        x1 = x1.flatten(start_dim=1)
+        x2 = x2.flatten(start_dim=1)
+
+        x_cat = torch.cat((x1,x2),1)
+
+        x_RN = self.fc_rn1(x_cat)
+        x_RN = self.fc_rn2(x_RN)
+        x_RN = x_RN.unsqueeze(-1) # (8,300)====> (8,300,1) == (batch,seq_len,input)
+
         ###############################
-        x_RN = (x1+x2).flatten(1).unsqueeze(-1)
+            #The fully connected layers
         x_RN, (hidden, cell)  = self.lstm(x_RN) #h_n = (1, batch, hidden_size)
         hidden = hidden.squeeze(0)
         output = self.fc1(hidden)
