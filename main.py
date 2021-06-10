@@ -29,7 +29,8 @@ def run():
     # Print the model we just instantiated
     print("the used model is ",model_name)
 
-    dataloaders_dict = helpers_dataloading.get_dataloaders(input_size,batch_size,data_dir)
+    # dataloaders_dict = helpers_dataloading.get_dataloaders(input_size,batch_size,data_dir)
+    dataloaders_dict = helpers_dataloading.get_dataloaders_SubVideoBased(input_size,batch_size,data_dir,shuffle=True)
 
     criterion = helpers.get_criterion()
     optimizer_ft = helpers.set_requires_grad_get_optimizer(feature_extract,model_ft,half_freez)

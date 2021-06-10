@@ -151,7 +151,7 @@ def set_requires_grad_get_optimizer(feature_extract,model_ft,half_freez,print_pa
 
 
     # Observe that all parameters are being optimized
-    optimizer_ft = optim.SGD(params_to_update, lr=0.01, momentum=0.9)
+    optimizer_ft = optim.SGD(params_to_update, lr=0.001, momentum=0.9)
     return optimizer_ft
 
 

@@ -36,7 +36,7 @@ def train_model(model, dataloaders, criterion, optimizer,device, num_epochs=25, 
 
             # Iterate over data.
             pbar = tqdm(dataloaders[phase], total=len(dataloaders[phase]))
-            for inputs, labels in pbar:
+            for inputs, labels, filenames in pbar:
                 inputs = inputs.to(device)
                 labels = labels.to(device)
 
@@ -58,6 +58,9 @@ def train_model(model, dataloaders, criterion, optimizer,device, num_epochs=25, 
                         loss = loss1 + 0.4 *loss2
                     else:
                         outputs = model(inputs)
+                        # print(outputs.shape, labels.shape)
+                        # print(labels)
+                        # exit(0)
                         loss = criterion(outputs, labels)
 
                     _, preds = torch.max(outputs, 1)
