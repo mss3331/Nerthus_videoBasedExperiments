@@ -15,7 +15,7 @@ import copy
 import time
 from tqdm import tqdm
 
-def train_model(model, dataloaders, criterion, optimizer,device,model_name,
+def train_model(model, dataloaders, criterion, optimizer,device,model_name,colab_dir,
                 num_epochs=25, is_inception=False):
     since = time.time()
 
@@ -100,14 +100,14 @@ def train_model(model, dataloaders, criterion, optimizer,device,model_name,
                 best_acc = epoch_acc
                 best_model_wts = copy.deepcopy(model.state_dict())
                 best_optimizer_wts = copy.deepcopy(optimizer.state_dict())
-                storeBestResults(best_resuls_dic,epoch,prediction_list,target_list,image_name_list)
+                storeBestResults(best_resuls_dic,epoch,prediction_list,target_list,image_name_list,colab_dir)
                 print("Saving best Checkpoint")
                 torch.save({
                     'best_epoch_num': epoch,
                     'best_model_wts': best_model_wts,
                     'best_optimizer_wts': best_optimizer_wts,
                     'best_val_acc': best_acc},
-                    './checkpoints/' +model_name+ '.pth')
+                    colab_dir+'/checkpoints/' +model_name+ '.pth')
 
             storeResults(phase,results_dic,epoch_acc,epoch_loss)
             if phase == 'val':
@@ -115,7 +115,7 @@ def train_model(model, dataloaders, criterion, optimizer,device,model_name,
 
         print()
 
-        helpers.plot_result(num_epochs=epoch+1, results_dic=results_dic, model_name=model_name)
+        helpers.plot_result(num_epochs=epoch+1,results_dic=results_dic, model_name=model_name, colab_dir=colab_dir)
     time_elapsed = time.time() - since
     print('Training complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
     print('Best val Acc: {:4f}'.format(best_acc))
@@ -128,7 +128,7 @@ def storeResults(phase,results_dic,epoch_acc,epoch_loss):
     results_dic[phase+"_acc_history"].append(epoch_acc)
     results_dic[phase+"_loss_history"].append(epoch_loss)
 
-def storeBestResults(best_resuls_dic,epoch,prediction_list,target_list,image_name_list):
+def storeBestResults(best_resuls_dic,epoch,prediction_list,target_list,image_name_list,colab_dir):
     best_resuls_dic["Epoch"] = epoch
     best_resuls_dic["val_pred"] = prediction_list
     best_resuls_dic["val_target"] = target_list
@@ -136,9 +136,9 @@ def storeBestResults(best_resuls_dic,epoch,prediction_list,target_list,image_nam
     best_resuls_dic["precision_recall_fscore_support"] = sk.precision_recall_fscore_support(target_list, prediction_list, average='micro')
     target_names = ['class 0', 'class 1', 'class 2', 'class 3']
     best_resuls_dic["summary"] = sk.classification_report(target_list,prediction_list, target_names=target_names,output_dict=True)
-    pandas.DataFrame(best_resuls_dic["summary"]).transpose().to_excel("./results/summary_report.xlsx")
+    pandas.DataFrame(best_resuls_dic["summary"]).transpose().to_excel(colab_dir+"/results/summary_report.xlsx")
     rows = "prediction_list,target_list,correct,image_name_list".split(",")
-    pandas.DataFrame((prediction_list,target_list,prediction_list==target_list,image_name_list),index=rows).transpose().to_excel("./results/results.xlsx")
+    pandas.DataFrame((prediction_list,target_list,prediction_list==target_list,image_name_list),index=rows).transpose().to_excel(colab_dir+"/results/results.xlsx")
     # pandas.DataFrame((best_resuls_dic["precision_recall_fscore_support"])).transpose().to_excel("./results/precision_recall_fscore_support.xlsx")
 
 

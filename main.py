@@ -35,7 +35,8 @@ def run():
     criterion = helpers.get_criterion()
     optimizer_ft = helpers.set_requires_grad_get_optimizer(feature_extract,model_ft,half_freez)
     # Train and evaluate
-    model_ft, results_dic = train_model.train_model(model_ft, dataloaders_dict, criterion, optimizer_ft,device=device, num_epochs=num_epochs,
+    model_ft, results_dic = train_model.train_model(model_ft, dataloaders_dict, criterion, optimizer_ft,colab_dir,
+                                                    device=device, num_epochs=num_epochs,
                                  is_inception=(model_name == "inception"),model_name=model_name)
 
 
@@ -45,10 +46,16 @@ if __name__ == '__main__':
     np.random.seed(0)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
+
     # torch.autograd.set_detect_anomaly(True)
     # data_dir = r"E:\Databases\Nerthus\frameBased\frameBased_randomShuffle2"
     data_dir = r"E:\Databases\Nerthus\SubVideoBased_not_splitted_into_trainVal"
     # Colab
+    colab_dir = "."
+    run_in_colab = True
+    if run_in_colab:
+        data_dir = r"/content/Nerthus/SubVideoBased_not_splitted_into_trainVal"
+        colab_dir = "/content/Nerthus_videoBasedExperiments/"
     # data_dir = "/content/frameBased_randomShuffle1"
     # Models to choose from [resnet18,resnet50, alexnet, vgg, squeezenet, densenet, inception
     # Myresnet50,RN,stridedConv,ZhoDenseNet, ResNet50_GRU]
