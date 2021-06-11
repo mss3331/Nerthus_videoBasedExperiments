@@ -30,7 +30,7 @@ def run():
     print("the used model is ",model_name)
 
     # dataloaders_dict = helpers_dataloading.get_dataloaders(input_size,batch_size,data_dir)
-    dataloaders_dict = helpers_dataloading.get_dataloaders_SubVideoBased(input_size,batch_size,data_dir,shuffle=True)
+    dataloaders_dict = helpers_dataloading.get_dataloaders_SubVideoBased(input_size,batch_size,data_dir,shuffle=False)
 
     criterion = helpers.get_criterion()
     optimizer_ft = helpers.set_requires_grad_get_optimizer(feature_extract,model_ft,half_freez)
@@ -51,8 +51,8 @@ if __name__ == '__main__':
     # Colab
     # data_dir = "/content/frameBased_randomShuffle1"
     # Models to choose from [resnet18,resnet50, alexnet, vgg, squeezenet, densenet, inception
-    # Myresnet50,RN,stridedConv,ZhoDenseNet]
-    model_name = "RN"
+    # Myresnet50,RN,stridedConv,ZhoDenseNet, ResNet50_GRU]
+    model_name = "ResNet50_GRU"
     # Number of classes in the dataset
     num_classes = 4
     batch_size = 8

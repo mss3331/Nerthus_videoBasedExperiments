@@ -5,7 +5,7 @@ import torch.nn as nn
 import torch.optim as optim
 import numpy as np
 import os
-from models import RN, MyResNet, stridedConv, ZhoDenseNet
+from models import RN, MyResNet, stridedConv, ZhoDenseNet, ResNet50_GRU
 from torchvision import datasets, models, transforms
 import matplotlib.pyplot as plt
 
@@ -38,9 +38,12 @@ def initialize_model(model_name, num_classes, feature_extract,use_pretrained=Tru
         input_size = 224
     elif model_name == "RN":
         model_ft = RN.ResNet50_FE(pretrained=use_pretrained)
-        set_parameter_requires_grad(model_ft, feature_extract)
+        # set_parameter_requires_grad(model_ft, feature_extract)
         # num_ftrs = model_ft.original_ResNet50.fc.in_features
         # model_ft.fc = nn.Linear(num_ftrs, num_classes)
+        input_size = 224
+    elif model_name == "ResNet50_GRU":
+        model_ft = ResNet50_GRU.ResNet50_GRU(pretrained=use_pretrained)
         input_size = 224
     elif model_name == "resnet18":
         """ Resnet18
