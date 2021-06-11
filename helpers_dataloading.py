@@ -39,18 +39,18 @@ def get_dataloaders(input_size,batch_size,data_dir):
         for x in ['train', 'val']}
     return dataloaders_dict
 
-def createDataSetFromList(data_dir,input_size,folders_name):
+def createDataSetFromList(data_dir,input_size,folders_name,load_to_RAM):
     '''Recieve lsit of folder names and return a concatinated dataset'''
 
     dataset_list = []
     for subvideo_name in folders_name:
         # create a dataset based on subvideo_name
-        dataset_list.append(Nerthus_SubVideo_Dataset(data_dir + subvideo_name, input_size))
+        dataset_list.append(Nerthus_SubVideo_Dataset(data_dir + subvideo_name, input_size,load_to_RAM))
     dataset = ConcatDataset(dataset_list)
 
     return dataset
 
-def get_dataloaders_SubVideoBased(input_size,batch_size,data_dir, shuffle=False):
+def get_dataloaders_SubVideoBased(input_size,batch_size,data_dir, load_to_RAM, shuffle=False):
     # Create Dataset for each video
     '''list of subvideos:
     #class 0 = [1_0_0, 1_0_1, 2_0_0, 2_0_1, 2_0_2]
@@ -66,7 +66,7 @@ def get_dataloaders_SubVideoBased(input_size,batch_size,data_dir, shuffle=False)
                "/1/3_1_0", "/1/3_1_1", "/1/3_1_2", #class 1
                "/2/15_2_0", "/2/15_2_1", "/2/15_2_2", #class 2
                "/3/17_3_0", "/3/17_3_1", "/3/17_3_2"] #class 3
-    train_dataset = createDataSetFromList(data_dir,input_size,train_folders)
+    train_dataset = createDataSetFromList(data_dir,input_size,train_folders,load_to_RAM)
     print("Training images:", len(train_dataset))
     # show_random_samples(train_dataset,924)
 
@@ -76,7 +76,7 @@ def get_dataloaders_SubVideoBased(input_size,batch_size,data_dir, shuffle=False)
                      "/2/13_2_0", "/2/13_2_1", # class 2
                      "/3/18_3_0", "/3/18_3_1", ]  # class 3
     # Create Dataloaders
-    val_dataset = createDataSetFromList(data_dir,input_size,val_folders)
+    val_dataset = createDataSetFromList(data_dir,input_size,val_folders,load_to_RAM)
     print("Val images:", len(val_dataset))
 
     image_datasets = {'train':train_dataset, 'val':val_dataset}
