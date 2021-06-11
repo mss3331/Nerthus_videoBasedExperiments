@@ -7,6 +7,9 @@ import train_model
 import numpy as np
 import torch.optim as optim
 
+def print_hyperparameters():
+    print("learning_rate{},num_classes{},batch_size{},num_epochs{}".format(learning_rate,num_classes,batch_size,num_epochs))
+
 def run():
     print("PyTorch Version: ",torch.__version__)
     print("Torchvision Version: ",torchvision.__version__)
@@ -42,6 +45,8 @@ def run():
 
 
 
+
+
 if __name__ == '__main__':
     torch.manual_seed(0)
     np.random.seed(0)
@@ -66,6 +71,7 @@ if __name__ == '__main__':
     num_classes = 4
     batch_size = 8
     num_epochs = 10
+    print_hyperparameters()
     # Flag for feature extracting. When False, we finetune the whole model,
     #   when True we only update the reshaped layer params
     feature_extract = False
@@ -73,3 +79,4 @@ if __name__ == '__main__':
     use_pretrained = True
 
     run()
+
