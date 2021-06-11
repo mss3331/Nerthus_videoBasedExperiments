@@ -68,10 +68,10 @@ if __name__ == '__main__':
     # Myresnet50,RN,stridedConv,ZhoDenseNet, ResNet50_GRU]
     model_name = "ResNet50_GRU"
     # Number of classes in the dataset
-    learning_rate = 0.00001
+    learning_rate = 0.01
     num_classes = 4
     batch_size = 256
-    num_epochs = 10
+    num_epochs = 300
     load_to_RAM = True
     print_hyperparameters()
     # Flag for feature extracting. When False, we finetune the whole model,
