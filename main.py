@@ -5,6 +5,7 @@ import helpers
 import helpers_dataloading
 import train_model
 import numpy as np
+import torch.optim as optim
 
 def run():
     print("PyTorch Version: ",torch.__version__)
@@ -33,7 +34,8 @@ def run():
     dataloaders_dict = helpers_dataloading.get_dataloaders_SubVideoBased(input_size,batch_size,data_dir,shuffle=False)
 
     criterion = helpers.get_criterion()
-    optimizer_ft = helpers.set_requires_grad_get_optimizer(feature_extract,model_ft,half_freez)
+    # optimizer_ft = helpers.set_requires_grad_get_optimizer(feature_extract,model_ft,half_freez)
+    optimizer_ft = optim.SGD(model_ft.parameters(), lr=learning_rate, momentum=0.9)
     # Train and evaluate
     model_ft, results_dic = train_model.train_model(model_ft, dataloaders_dict, criterion, optimizer_ft,device,model_name,colab_dir,
                                                     num_epochs=num_epochs,is_inception=(model_name == "inception"))
@@ -60,10 +62,9 @@ if __name__ == '__main__':
     # Myresnet50,RN,stridedConv,ZhoDenseNet, ResNet50_GRU]
     model_name = "ResNet50_GRU"
     # Number of classes in the dataset
+    learning_rate = 0.001
     num_classes = 4
     batch_size = 8
-    # batch_size = 16
-    # Number of epochs to train for
     num_epochs = 10
     # Flag for feature extracting. When False, we finetune the whole model,
     #   when True we only update the reshaped layer params

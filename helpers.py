@@ -2,7 +2,7 @@ from __future__ import print_function
 from __future__ import division
 import torch
 import torch.nn as nn
-import torch.optim as optim
+
 import numpy as np
 import os
 from models import RN, MyResNet, stridedConv, ZhoDenseNet, ResNet50_GRU
@@ -154,8 +154,7 @@ def set_requires_grad_get_optimizer(feature_extract,model_ft,half_freez,print_pa
 
 
     # Observe that all parameters are being optimized
-    optimizer_ft = optim.SGD(params_to_update, lr=0.001, momentum=0.9)
-    return optimizer_ft
+
 
 
 

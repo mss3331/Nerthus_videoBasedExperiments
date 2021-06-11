@@ -82,7 +82,7 @@ def get_dataloaders_SubVideoBased(input_size,batch_size,data_dir, shuffle=False)
     image_datasets = {'train':train_dataset, 'val':val_dataset}
 
     dataloaders_dict = {
-        x: torch.utils.data.DataLoader(image_datasets[x], batch_size=batch_size, shuffle=shuffle, num_workers=4)
+        x: torch.utils.data.DataLoader(image_datasets[x], batch_size=batch_size, shuffle=shuffle, num_workers=2)
         for x in ['train', 'val']}
     # show_random_samples(list(dataloaders_dict['train'])[0],0)
     return dataloaders_dict
