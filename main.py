@@ -35,9 +35,8 @@ def run():
     criterion = helpers.get_criterion()
     optimizer_ft = helpers.set_requires_grad_get_optimizer(feature_extract,model_ft,half_freez)
     # Train and evaluate
-    model_ft, results_dic = train_model.train_model(model_ft, dataloaders_dict, criterion, optimizer_ft,colab_dir,
-                                                    device=device, num_epochs=num_epochs,
-                                 is_inception=(model_name == "inception"),model_name=model_name)
+    model_ft, results_dic = train_model.train_model(model_ft, dataloaders_dict, criterion, optimizer_ft,device,model_name,colab_dir,
+                                                    num_epochs=num_epochs,is_inception=(model_name == "inception"))
 
 
 
