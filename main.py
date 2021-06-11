@@ -10,6 +10,7 @@ import torch.optim as optim
 def print_hyperparameters():
     print("learning_rate {}\n,num_classes {}\n,batch_size {}\n"
           ",num_epochs {}\n load_to_RAM {}".format(learning_rate,num_classes,batch_size,num_epochs,load_to_RAM))
+    print("model_name = ",model_name)
 
 def run():
     print("PyTorch Version: ",torch.__version__)
