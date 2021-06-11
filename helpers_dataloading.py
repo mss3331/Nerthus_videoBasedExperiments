@@ -123,7 +123,7 @@ class Nerthus_SubVideo_Dataset(Dataset):
         '''this function get image path and return transformed tensor image'''
         preprocess = transforms.Compose([
             # transforms.Resize((384, 288), 2),
-            transforms.Resize(self.targetSize, 2),
+            transforms.Resize(self.targetSize),
             transforms.CenterCrop(self.targetSize),
             transforms.ToTensor()])
             # transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
