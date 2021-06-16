@@ -11,6 +11,7 @@ def print_hyperparameters():
     print("learning_rate {}\n,num_classes {}\n,batch_size {}\n"
           ",num_epochs {}\n load_to_RAM {}".format(learning_rate,num_classes,batch_size,num_epochs,load_to_RAM))
     print("model_name = ",model_name)
+    print("shuffle= ", shuffle)
 
 def run():
     print("PyTorch Version: ",torch.__version__)
@@ -36,7 +37,7 @@ def run():
     print("the used model is ",model_name)
 
     # dataloaders_dict = helpers_dataloading.get_dataloaders(input_size,batch_size,data_dir)
-    dataloaders_dict = helpers_dataloading.get_dataloaders_SubVideoBased(input_size,batch_size,data_dir,load_to_RAM, shuffle=False)
+    dataloaders_dict = helpers_dataloading.get_dataloaders_SubVideoBased(input_size,batch_size,data_dir,load_to_RAM, shuffle=shuffle)
 
     criterion = helpers.get_criterion()
     # optimizer_ft = helpers.set_requires_grad_get_optimizer(feature_extract,model_ft,half_freez)
@@ -69,11 +70,12 @@ if __name__ == '__main__':
     # Myresnet50,RN,stridedConv,ZhoDenseNet, ResNet50_GRU]
     model_name = "ResNet50_GRU"
     # Number of classes in the dataset
-    learning_rate = 0.01
+    learning_rate = 0.001
     num_classes = 4
     batch_size = 256
     num_epochs = 300
     load_to_RAM = True
+    shuffle = True
     print_hyperparameters()
     # Flag for feature extracting. When False, we finetune the whole model,
     #   when True we only update the reshaped layer params

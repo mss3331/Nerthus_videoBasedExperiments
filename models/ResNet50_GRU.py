@@ -10,7 +10,7 @@ class ResNet50_GRU(nn.Module):
     def __init__(self,num_classes=4,pretrained=True):
         super(ResNet50_GRU, self).__init__()
         self.original_ResNet50 = models.resnet50(pretrained=pretrained)
-        self.set_parameter_requires_grad(self.original_ResNet50, feature_extracting=True) # freeze all the parameters
+        self.set_parameter_requires_grad(self.original_ResNet50, feature_extracting=False) # freeze all the parameters
 
 
         self.layers =list(self.original_ResNet50.children()) # seperate the layers
