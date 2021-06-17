@@ -63,7 +63,7 @@ if __name__ == '__main__':
     data_dir = r"E:\Databases\Nerthus\SubVideoBased_not_splitted_into_trainVal"
     # Colab
     colab_dir = "."
-    run_in_colab = False
+    run_in_colab = True
     if run_in_colab:
         data_dir = r"/content/Nerthus/SubVideoBased_not_splitted_into_trainVal"
         colab_dir = "/content/Nerthus_videoBasedExperiments/"
@@ -74,9 +74,9 @@ if __name__ == '__main__':
     # Number of classes in the dataset
     learning_rate = 0.01
     num_classes = 4
-    batch_size = 156
+    batch_size = 256
     num_epochs = 300
-    load_to_RAM = False
+    load_to_RAM = True
     shuffle = False
     feature_extract = True
     half_freez = False

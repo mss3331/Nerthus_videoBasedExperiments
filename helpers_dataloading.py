@@ -66,11 +66,10 @@ def get_dataloaders_SubVideoBased(input_size,batch_size,data_dir, load_to_RAM, s
                "/1/3_1_0", "/1/3_1_1", "/1/3_1_2", #class 1
                "/2/15_2_0", "/2/15_2_1", "/2/15_2_2", #class 2
                "/3/17_3_0", "/3/17_3_1", "/3/17_3_2"] #class 3
-    # testing split sequence
-    train_folders = ["/0/2_0_0", "/1/3_1_0","/0/2_0_1",  # class 0
-                     "/0/2_0_2", "/1/3_1_1", "/1/3_1_2",  # class 1
-                     "/2/15_2_0", "/2/15_2_1", "/2/15_2_2",  # class 2
-                     "/3/17_3_0", "/3/17_3_1", "/3/17_3_2"]  # class 3
+    # random sequence
+    # train_folders = ["/0/2_0_0", "/1/3_1_0","/2/15_2_0","/3/17_3_0","/0/2_0_2",
+    #                   "/3/17_3_2","/2/15_2_2","/1/3_1_2","/2/15_2_1",
+    #                   "/0/2_0_1","/3/17_3_1","/1/3_1_1" ]  # class 3
     train_dataset = createDataSetFromList(data_dir,input_size,train_folders,load_to_RAM)
     print("Training images:", len(train_dataset))
     # show_random_samples(train_dataset,924)
