@@ -37,7 +37,6 @@ class ResNet50_GRU(nn.Module):
 
         output, hidden = self.gruUnit(output)
         output = output.squeeze()
-        print(output.shape)
         output = self.fc(output)
         return output
 
@@ -48,7 +47,7 @@ class ResNet50_h_initialized_GRU(nn.Module):
                 param.requires_grad = False
 
     def __init__(self, num_classes=4, pretrained=True, resnet50=True, feature_extract=True):
-        super(ResNet50_GRU, self).__init__()
+        super(ResNet50_h_initialized_GRU, self).__init__()
         if resnet50:
             self.original_ResNet = models.resnet50(pretrained=pretrained)
         else:
@@ -83,7 +82,7 @@ class ResNet50_h_initialized_GRU(nn.Module):
             output_sequences_gru.append(output)
         # ---------------------------------------------------------------------------------
         output = torch.cat(output_sequences_gru)
-        print(output.shape)
+        # print(output.shape)
         output = self.fc(output)
         return output
 
@@ -102,7 +101,11 @@ class ResNet50_h_initialized_GRU(nn.Module):
             if temp != frame_label: #a potential split is at this index
                 split_indecies.append(i)
                 temp = frame_label
-        del(split_indecies[0])#the first index is always 0 since and we dont want to split the beginin
+
+        if len(split_indecies) == 1:#if the labels are homogeneous (batch has only one label)
+            return (x,)
+
+        del(split_indecies[0])#the first index is always 0 since and we dont want to split the begining
         split_indecies.append(len(labels)-split_indecies[-1])
         # print(labels)
         # print(torch.split(x,split_indecies)[0].shape)

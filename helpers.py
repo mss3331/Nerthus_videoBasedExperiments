@@ -48,6 +48,12 @@ def initialize_model(model_name, num_classes, feature_extract,use_pretrained=Tru
     elif model_name == "ResNet101_GRU":
         model_ft = ResNet50_GRU.ResNet50_GRU(pretrained=use_pretrained,resnet50=False,feature_extract=feature_extract)
         input_size = 224
+    elif model_name == "ResNet50_h_initialized_GRU":
+        model_ft = ResNet50_GRU.ResNet50_h_initialized_GRU(pretrained=use_pretrained, resnet50=True, feature_extract=feature_extract)
+        input_size = 224
+    elif model_name == "ResNet101_h_initialized_GRU":
+        model_ft = ResNet50_GRU.ResNet50_h_initialized_GRU(pretrained=use_pretrained, resnet50=False, feature_extract=feature_extract)
+        input_size = 224
     elif model_name == "resnet18":
         """ Resnet18
         """
