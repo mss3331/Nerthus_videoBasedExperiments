@@ -43,7 +43,10 @@ def initialize_model(model_name, num_classes, feature_extract,use_pretrained=Tru
         # model_ft.fc = nn.Linear(num_ftrs, num_classes)
         input_size = 224
     elif model_name == "ResNet50_GRU":
-        model_ft = ResNet50_GRU.ResNet50_GRU(pretrained=use_pretrained)
+        model_ft = ResNet50_GRU.ResNet50_GRU(pretrained=use_pretrained,feature_extract=feature_extract)
+        input_size = 224
+    elif model_name == "ResNet101_GRU":
+        model_ft = ResNet50_GRU.ResNet50_GRU(pretrained=use_pretrained,resnet50=False,feature_extract=feature_extract)
         input_size = 224
     elif model_name == "resnet18":
         """ Resnet18
