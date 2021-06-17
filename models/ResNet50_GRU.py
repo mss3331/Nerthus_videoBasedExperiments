@@ -1,44 +1,46 @@
 import torchvision.models as models
 import torch
 import torch.nn as nn
+import numpy as np
+
+
 class ResNet50_GRU(nn.Module):
-    def set_parameter_requires_grad(self,model, feature_extract):
+    def set_parameter_requires_grad(self, model, feature_extract):
         if feature_extract:
             for param in model.parameters():
                 param.requires_grad = False
 
-    def __init__(self,num_classes=4,pretrained=True, resnet50=True, feature_extract =True):
+    def __init__(self, num_classes=4, pretrained=True, resnet50=True, feature_extract=True):
         super(ResNet50_GRU, self).__init__()
         if resnet50:
             self.original_ResNet = models.resnet50(pretrained=pretrained)
         else:
             self.original_ResNet = models.resnet101(pretrained=pretrained)
-        self.set_parameter_requires_grad(self.original_ResNet, feature_extract=feature_extract) #if True freeze all the parameters
+        self.set_parameter_requires_grad(self.original_ResNet,
+                                         feature_extract=feature_extract)  # if True freeze all the parameters
 
-
-        self.layers =list(self.original_ResNet.children()) # seperate the layers
-
-
+        self.layers = list(self.original_ResNet.children())  # seperate the layers
 
         # self.layers.insert(9, self.gruUnit)
 
         self.Encoder = nn.Sequential(*self.layers[:-1])  # combine all layers
-        self.gruUnit = nn.GRU(input_size=2048, hidden_size=2048)  # expected input is (seq_len, batch, input_size) (8, 1, 2048)
+        self.gruUnit = nn.GRU(input_size=2048,
+                              hidden_size=2048)  # expected input is (seq_len, batch, input_size) (8, 1, 2048)
         self.fc = nn.Linear(2048, num_classes)  # modify the last fc layer
         # print(self.layers)
         # exit(0)
 
-
     def forward(self, x, labels):
-        output = self.Encoder(x) #=> (Batch, C, 1, 1) due to the adaptive average pooling
+        output = self.Encoder(x)  # => (Batch, C, 1, 1) due to the adaptive average pooling
         # print(x.shape)
-        output= output.squeeze() #=> (Batch, C)
-        output = output.unsqueeze(1) #=> (batch, 1, C) := (seq, batch, input)
+        output = output.squeeze()  # => (Batch, C)
+        output = output.unsqueeze(1)  # => (batch, 1, C) := (seq, batch, input)
 
         output, hidden = self.gruUnit(output)
         output = output.squeeze()
         output = self.fc(output)
         return output
+
 
 class ResNet50_h_initialized_GRU(nn.Module):
     def set_parameter_requires_grad(self, model, feature_extract):
@@ -95,19 +97,27 @@ class ResNet50_h_initialized_GRU(nn.Module):
             array of tensors'''
         # print(x.shape)
         split_indecies = []
-        temp = -1
-        for i in range(len(x)): # for each label
+        count = 0
+        temp = labels[0].item()
+        for i in range(len(x)):  # for each label
             frame_label = labels[i].item()
-            if temp != frame_label: #a potential split is at this index
-                split_indecies.append(i)
+
+            if temp != frame_label:  # a potential split is at this index
+                split_indecies.append(count)
+                count = 0
                 temp = frame_label
+            count += 1
+        split_indecies.append(count)
 
-        if len(split_indecies) == 1:#if the labels are homogeneous (batch has only one label)
+        if len(split_indecies) == 1:  # if the labels are homogeneous (batch has only one label)
             return (x,)
-
-        del(split_indecies[0])#the first index is always 0 since and we dont want to split the begining
-        split_indecies.append(len(labels)-split_indecies[-1])
+        # print(split_indecies)
+        # # del(split_indecies[0])#the first index is always 0 since and we dont want to split the begining
+        # # split_indecies.append(len(labels)-np.sum(split_indecies))
         # print(labels)
+
+        # print(torch.split(labels,split_indecies))
+        # exit(0)
         # print(torch.split(x,split_indecies)[0].shape)
         # print(torch.split(x,split_indecies)[1].shape)
-        return torch.split(x,split_indecies,dim=0)
+        return torch.split(x, split_indecies, dim=0)
