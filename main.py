@@ -12,6 +12,8 @@ def print_hyperparameters():
           ",num_epochs {}\n load_to_RAM {}".format(learning_rate,num_classes,batch_size,num_epochs,load_to_RAM))
     print("model_name = ",model_name)
     print("shuffle= ", shuffle)
+    print("feature_extract",feature_extract)
+    print("pretrained=", use_pretrained)
 
 def run():
     print("PyTorch Version: ",torch.__version__)
@@ -72,16 +74,18 @@ if __name__ == '__main__':
     # Number of classes in the dataset
     learning_rate = 0.01
     num_classes = 4
-    batch_size = 256
+    batch_size = 156
     num_epochs = 300
     load_to_RAM = False
-    shuffle = True
+    shuffle = False
+    feature_extract = True
+    half_freez = False
+    use_pretrained = True
     print_hyperparameters()
     # Flag for feature extracting. When False, we finetune the whole model,
     #   when True we only update the reshaped layer params
-    feature_extract = False
-    half_freez = False
-    use_pretrained = True
+
+
 
     run()
 

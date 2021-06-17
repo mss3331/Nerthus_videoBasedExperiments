@@ -67,7 +67,10 @@ def train_model(model, dataloaders, criterion, optimizer,device,model_name,colab
                         loss2 = criterion(aux_outputs, labels)
                         loss = loss1 + 0.4 *loss2
                     else:
-                        outputs = model(inputs)
+                        if model_name.find("GRU")>=0:
+                            outputs = model(inputs, labels)
+                        else:
+                            outputs = model(inputs)
                         # print(outputs.shape, labels.shape)
                         # print(labels)
                         # exit(0)
