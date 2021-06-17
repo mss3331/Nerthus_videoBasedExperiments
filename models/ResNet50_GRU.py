@@ -2,18 +2,18 @@ import torchvision.models as models
 import torch
 import torch.nn as nn
 class ResNet50_GRU(nn.Module):
-    def set_parameter_requires_grad(self,model, feature_extracting):
-        if feature_extracting:
+    def set_parameter_requires_grad(self,model, feature_extract):
+        if feature_extract:
             for param in model.parameters():
                 param.requires_grad = False
 
-    def __init__(self,num_classes=4,pretrained=True, resnet50=True, feature_extracting =True):
+    def __init__(self,num_classes=4,pretrained=True, resnet50=True, feature_extract =True):
         super(ResNet50_GRU, self).__init__()
         if resnet50:
             self.original_ResNet = models.resnet50(pretrained=pretrained)
         else:
             self.original_ResNet = models.resnet101(pretrained=pretrained)
-        self.set_parameter_requires_grad(self.original_ResNet, feature_extracting=feature_extracting) #if True freeze all the parameters
+        self.set_parameter_requires_grad(self.original_ResNet, feature_extract=feature_extract) #if True freeze all the parameters
 
 
         self.layers =list(self.original_ResNet.children()) # seperate the layers
