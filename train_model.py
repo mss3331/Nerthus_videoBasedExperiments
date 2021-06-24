@@ -21,7 +21,7 @@ def train_model(model, dataloaders, criterion, optimizer,device,model_name,colab
 
     results_dic= {"val_acc_history":[],"train_acc_history":[],
                   "val_loss_history":[],"train_loss_history":[]}
-    best_resuls_dic= {"Epoch":[],"val_pred":[],"val_target":[],
+    best_results_dic= {"Epoch":[],"val_pred":[],"val_target":[],
                       "val_images":[],"precision_recall_fscore_support":[]}
 
     best_model_wts = copy.deepcopy(model.state_dict())
@@ -103,7 +103,7 @@ def train_model(model, dataloaders, criterion, optimizer,device,model_name,colab
                 best_acc = epoch_acc
                 best_model_wts = copy.deepcopy(model.state_dict())
                 best_optimizer_wts = copy.deepcopy(optimizer.state_dict())
-                storeBestResults(best_resuls_dic,epoch,prediction_list,target_list,image_name_list,colab_dir)
+                storeBestResults(best_results_dic,epoch,prediction_list,target_list,image_name_list,colab_dir)
                 print("Saving best Checkpoint")
                 torch.save({
                     'best_epoch_num': epoch,
@@ -131,15 +131,17 @@ def storeResults(phase,results_dic,epoch_acc,epoch_loss):
     results_dic[phase+"_acc_history"].append(epoch_acc)
     results_dic[phase+"_loss_history"].append(epoch_loss)
 
-def storeBestResults(best_resuls_dic,epoch,prediction_list,target_list,image_name_list,colab_dir):
-    best_resuls_dic["Epoch"] = epoch
-    best_resuls_dic["val_pred"] = prediction_list
-    best_resuls_dic["val_target"] = target_list
-    best_resuls_dic["val_images"] = image_name_list
-    best_resuls_dic["precision_recall_fscore_support"] = sk.precision_recall_fscore_support(target_list, prediction_list, average='micro')
+def storeBestResults(best_results_dic, epoch, prediction_list, target_list, image_name_list, colab_dir):
+    best_results_dic["Epoch"] = epoch
+    best_results_dic["val_pred"] = prediction_list
+    best_results_dic["val_target"] = target_list
+    best_results_dic["val_images"] = image_name_list
+    best_results_dic["precision_recall_fscore_support"] = sk.precision_recall_fscore_support(target_list, prediction_list, average='micro')
+    best_results_dic["confusion"] = sk.confusion_matrix(y_true=target_list, y_pred=prediction_list)
     target_names = ['class 0', 'class 1', 'class 2', 'class 3']
-    best_resuls_dic["summary"] = sk.classification_report(target_list,prediction_list, target_names=target_names,output_dict=True)
-    pandas.DataFrame(best_resuls_dic["summary"]).transpose().to_excel(colab_dir+"/results/summary_report.xlsx")
+    best_results_dic["summary"] = sk.classification_report(target_list, prediction_list, target_names=target_names, output_dict=True)
+    pandas.DataFrame(best_results_dic["summary"]).transpose().to_excel(colab_dir + "/results/summary_report.xlsx")
+    pandas.DataFrame(best_results_dic["confusion"]).transpose().to_excel(colab_dir + "/results/confusion.xlsx")
     rows = "prediction_list,target_list,correct,image_name_list".split(",")
     pandas.DataFrame((prediction_list,target_list,prediction_list==target_list,image_name_list),index=rows).transpose().to_excel(colab_dir+"/results/results.xlsx")
     # pandas.DataFrame((best_resuls_dic["precision_recall_fscore_support"])).transpose().to_excel("./results/precision_recall_fscore_support.xlsx")
