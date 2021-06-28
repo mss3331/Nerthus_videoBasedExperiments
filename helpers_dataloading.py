@@ -140,7 +140,7 @@ class Nerthus_SubVideo_Dataset(Dataset):
         if self.load_to_RAM:# load all data to RAM for faster fetching
             print("Loading dataset to RAM...")
             self.tensor_images = [self.get_tensor_image(image_path) for image_path in self.imageList]
-            print("Finish loading dataset to RAM")
+            # print("Finish loading dataset to RAM")
 
     def __getitem__(self, index):
         if self.load_to_RAM:#if images are loaded to the RAM copy them, otherwise, read them

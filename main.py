@@ -78,9 +78,9 @@ if __name__ == '__main__':
     # Myresnet50,RN,stridedConv,ZhoDenseNet, ResNet50_GRU, ResNet101_GRU, ResNet50_h_initialized_GRU]
     model_name = "ZhoDenseNet"
     # Number of classes in the dataset
-    learning_rate = 0.01
+    learning_rate = 0.001
     num_classes = 4
-    batch_size = 256
+    batch_size = 150
     num_epochs = 300
     load_to_RAM = False
     shuffle = True
