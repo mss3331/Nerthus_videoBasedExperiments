@@ -194,7 +194,7 @@ def plot_result(num_epochs,results_dic, model_name,colab_dir):
     plt.title("Accuracy & Loss")
     plt.xlabel("Epochs")
     plt.ylabel("Validation Accuracy")
-    plt.figure(figsize=(40, 20))
+    plt.figure(figsize=(20, 10))
     plt.plot(range(1,num_epochs+1),val_acc,"b",label="Validation Acc")
     plt.plot(range(1,num_epochs+1),val_loss,"--b",label="Validation Loss")
     plt.plot(range(1,num_epochs+1),train_acc,"k",label="Train Acc")
