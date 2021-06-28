@@ -11,7 +11,7 @@ class ZhoDenseNet(nn.Module):
 
         self.flatten = nn.Flatten()
         self.fc1 = nn.Sequential(nn.Linear(56448, 1024), nn.ReLU(), nn.BatchNorm1d(1024))
-        self.fc2 = nn.Sequential(nn.Linear(1024, 4), nn.Dropout(0.5))
+        self.fc2 = nn.Sequential(nn.Dropout(0.5),nn.Linear(1024, 4))
 
 
 
@@ -42,7 +42,7 @@ class ZhoDenseNet2(nn.Module):
 
         self.flatten = nn.Flatten()
         self.fc1 = nn.Sequential(nn.Linear(56448, 1024), nn.ReLU(), nn.BatchNorm1d(1024))
-        self.fc2 = nn.Sequential(nn.Linear(57472, 4), nn.Dropout(0.5))
+        self.fc2 = nn.Sequential(nn.Dropout(0.5),nn.Linear(57472, 4))
 
 
 
