@@ -206,3 +206,5 @@ def plot_result(num_epochs,results_dic, model_name,colab_dir):
     plt.grid(True)
     plt.savefig(colab_dir+"/results/"+model_name+".png")
     plt.clf()
+    plt.close('all')
+
