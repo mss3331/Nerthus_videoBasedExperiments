@@ -14,6 +14,9 @@ def print_hyperparameters():
     print("shuffle= ", shuffle)
     print("feature_extract",feature_extract)
     print("pretrained=", use_pretrained)
+    if shuffle_entire_subvideos:
+        print("This dataset will be shuffled and distributed to train\\val based on "
+              "subvideos as in the Original Nerthus paper")
 
 def run():
     print("PyTorch Version: ",torch.__version__)
@@ -39,7 +42,10 @@ def run():
     print("the used model is ",model_name)
 
     # dataloaders_dict = helpers_dataloading.get_dataloaders(input_size,batch_size,data_dir)
-    dataloaders_dict = helpers_dataloading.get_dataloaders_SubVideoBased(input_size,batch_size,data_dir,load_to_RAM, shuffle=shuffle)
+    # dataloaders_dict = helpers_dataloading.get_dataloaders_SubVideoBased(input_size,batch_size,data_dir,load_to_RAM, shuffle=shuffle)
+    dataloaders_dict = helpers_dataloading.get_dataloaders_SubVideoBased(input_size,batch_size,data_dir,load_to_RAM
+                                                                         , shuffle=shuffle
+                                                                         , shuffle_entire_subvideos=shuffle_entire_subvideos)
 
     criterion = helpers.get_criterion()
     # optimizer_ft = helpers.set_requires_grad_get_optimizer(feature_extract,model_ft,half_freez)
@@ -66,19 +72,20 @@ if __name__ == '__main__':
     run_in_colab = True
     if run_in_colab:
         data_dir = r"/content/Nerthus/SubVideoBased_not_splitted_into_trainVal"
-        colab_dir = "/content/Nerthus_videoBasedExperiments/"
+        colab_dir = "/content/Nerthus_videoBasedExperiments/" # base folder for where to store the results
     # data_dir = "/content/frameBased_randomShuffle1"
     # Models to choose from [resnet18,resnet50, alexnet, vgg, squeezenet, densenet, inception
     # Myresnet50,RN,stridedConv,ZhoDenseNet, ResNet50_GRU, ResNet101_GRU, ResNet50_h_initialized_GRU]
-    model_name = "ResNet50_h_initialized_GRU"
+    model_name = "ZhoDenseNet"
     # Number of classes in the dataset
     learning_rate = 0.01
     num_classes = 4
     batch_size = 256
     num_epochs = 300
-    load_to_RAM = True
-    shuffle = False
-    feature_extract = True
+    load_to_RAM = False
+    shuffle = True
+    shuffle_entire_subvideos = True # if true, the train and val would have shuffeled videos as in the Original Nerthus paper
+    feature_extract = False
     half_freez = False
     use_pretrained = True
     print_hyperparameters()

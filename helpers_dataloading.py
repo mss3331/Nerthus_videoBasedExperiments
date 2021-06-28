@@ -50,7 +50,27 @@ def createDataSetFromList(data_dir,input_size,folders_name,load_to_RAM):
 
     return dataset
 
-def get_dataloaders_SubVideoBased(input_size,batch_size,data_dir, load_to_RAM, shuffle=False):
+
+def _get_all_folders_name():
+    class_0 =['/0/1_0_0', '/0/1_0_1', '/0/2_0_0', '/0/2_0_1', '/0/2_0_2']
+
+    class_1 =['/1/3_1_0', '/1/3_1_1', '/1/3_1_2', '/1/4_1_0', '/1/4_1_1',
+              '/1/5_1_0', '/1/5_1_1', '/1/5_1_2', '/1/6_1_0', '/1/6_1_1',
+              '/1/6_1_2', '/1/7_1_0', '/1/7_1_1', '/1/8_1_0', '/1/8_1_1',
+              '/1/8_1_2', '/1/9_1_0', '/1/9_1_1', '/1/9_1_2', '/1/10_1_0',
+              '/1/10_1_1', '/1/10_1_2', '/1/11_1_0', '/1/11_1_1', '/1/12_1_0',
+              '/1/12_1_1']
+
+    class_2 =['/2/13_2_0', '/2/13_2_1', '/2/14_2_0', '/2/14_2_1', '/2/15_2_0',
+              '/2/15_2_1', '/2/15_2_2', '/2/16_2_0', '/2/16_2_1']
+
+    class_3 =['/3/17_3_0', '/3/17_3_1', '/3/17_3_2', '/3/18_3_0', '/3/18_3_1',
+              '/3/19_3_0', '/3/19_3_1', '/3/20_3_0', '/3/20_3_1', '/3/20_3_2',
+              '/3/21_3_0', '/3/21_3_1']
+    return class_0+class_1+class_2+class_3
+
+
+def get_dataloaders_SubVideoBased(input_size,batch_size,data_dir, load_to_RAM, shuffle=False,shuffle_entire_subvideos=False):
     # Create Dataset for each video
     '''list of subvideos:
     #class 0 = [1_0_0, 1_0_1, 2_0_0, 2_0_1, 2_0_2]
@@ -66,23 +86,33 @@ def get_dataloaders_SubVideoBased(input_size,batch_size,data_dir, load_to_RAM, s
                "/1/3_1_0", "/1/3_1_1", "/1/3_1_2", #class 1
                "/2/15_2_0", "/2/15_2_1", "/2/15_2_2", #class 2
                "/3/17_3_0", "/3/17_3_1", "/3/17_3_2"] #class 3
-    # random sequence
-    # train_folders = ["/0/2_0_0", "/1/3_1_0","/2/15_2_0","/3/17_3_0","/0/2_0_2",
-    #                   "/3/17_3_2","/2/15_2_2","/1/3_1_2","/2/15_2_1",
-    #                   "/0/2_0_1","/3/17_3_1","/1/3_1_1" ]  # class 3
-    train_dataset = createDataSetFromList(data_dir,input_size,train_folders,load_to_RAM)
-    print("Training images:", len(train_dataset))
-    # show_random_samples(train_dataset,924)
-
-    #val
+    # val
     val_folders = ["/0/1_0_0", "/0/1_0_1",  # class 0
-                     "/1/4_1_0", "/1/4_1_1",  # class 1
-                     "/2/13_2_0", "/2/13_2_1", # class 2
-                     "/3/18_3_0", "/3/18_3_1", ]  # class 3
-    # Create Dataloaders
-    val_dataset = createDataSetFromList(data_dir,input_size,val_folders,load_to_RAM)
-    print("Val images:", len(val_dataset))
+                   "/1/4_1_0", "/1/4_1_1",  # class 1
+                   "/2/13_2_0", "/2/13_2_1",  # class 2
+                   "/3/18_3_0", "/3/18_3_1", ]  # class 3
 
+    # if true, don't consider this split, concat train\val folders, and shuffle the subvideos
+    if shuffle_entire_subvideos:
+        folders = _get_all_folders_name()
+        videos_len = len(folders)
+        print("number of subvideos involved the experiment =",videos_len)
+        np.random.seed(0)
+        np.random.shuffle(folders)
+        np.random.seed(0)
+        train_folders = folders[:videos_len//2]#50% for train and the rest of val
+        val_folders = folders[videos_len//2:]
+        # print(train_folders)
+        # print(val_folders)
+        # exit(0)
+
+    # Create Dataloaders
+    train_dataset = createDataSetFromList(data_dir, input_size, train_folders, load_to_RAM)
+    val_dataset = createDataSetFromList(data_dir, input_size, val_folders, load_to_RAM)
+    print("Training images:", len(train_dataset))
+    print("Val images:", len(val_dataset))
+    # show_random_samples(train_dataset,0)
+    # exit(0)
     image_datasets = {'train':train_dataset, 'val':val_dataset}
 
     dataloaders_dict = {
@@ -144,6 +174,7 @@ def show_random_samples(training_data,offset):
         if sample_idx == 125:
             print(sample_idx)
         img, label, file_path = training_data[sample_idx]
+
         figure.add_subplot(rows, cols, i)
         name = file_path.split("\\")[-1].split("_")[-1]
         plt.title(str(label.item())+":"+name)
