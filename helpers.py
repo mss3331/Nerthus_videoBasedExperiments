@@ -121,6 +121,9 @@ def initialize_model(model_name, num_classes, feature_extract,use_pretrained=Tru
     elif model_name == "ZhoDenseNet":
         model_ft = ZhoDenseNet.ZhoDenseNet(num_classes)
         input_size = (256, 256)
+    elif model_name == "ZhoDenseNet2":
+        model_ft = ZhoDenseNet.ZhoDenseNet2(num_classes)
+        input_size = (256, 256)
     else:
         print("Invalid model name, exiting...")
         exit()

@@ -69,18 +69,19 @@ if __name__ == '__main__':
     data_dir = r"E:\Databases\Nerthus\SubVideoBased_not_splitted_into_trainVal"
     # Colab
     colab_dir = "."
-    run_in_colab = True
+    run_in_colab = False
     if run_in_colab:
         data_dir = r"/content/Nerthus/SubVideoBased_not_splitted_into_trainVal"
         colab_dir = "/content/Nerthus_videoBasedExperiments/" # base folder for where to store the results
     # data_dir = "/content/frameBased_randomShuffle1"
     # Models to choose from [resnet18,resnet50, alexnet, vgg, squeezenet, densenet, inception
     # Myresnet50,RN,stridedConv,ZhoDenseNet, ResNet50_GRU, ResNet101_GRU, ResNet50_h_initialized_GRU]
-    model_name = "ZhoDenseNet"
+    model_name = "ZhoDenseNet2"
     # Number of classes in the dataset
     learning_rate = 0.001
     num_classes = 4
     batch_size = 150
+    batch_size = 15
     num_epochs = 300
     load_to_RAM = False
     shuffle = True
