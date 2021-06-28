@@ -185,10 +185,16 @@ def plot_result(num_epochs,results_dic, model_name,colab_dir):
     train_acc = [h.cpu().numpy() for h in results_dic["train_acc_history"]]
     train_loss = [h for h in results_dic["train_loss_history"]]
 
-
+    plt.rc('xtick', labelsize=20)
+    plt.rc('ytick', labelsize=20)
+    font = {'family': 'normal',
+            'weight': 'bold',
+            'size': 22}
+    plt.rc('font', **font)
     plt.title("Accuracy & Loss")
     plt.xlabel("Epochs")
     plt.ylabel("Validation Accuracy")
+    plt.figure(figsize=(40, 20))
     plt.plot(range(1,num_epochs+1),val_acc,"b",label="Validation Acc")
     plt.plot(range(1,num_epochs+1),val_loss,"--b",label="Validation Loss")
     plt.plot(range(1,num_epochs+1),train_acc,"k",label="Train Acc")
