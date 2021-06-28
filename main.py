@@ -69,7 +69,7 @@ if __name__ == '__main__':
     data_dir = r"E:\Databases\Nerthus\SubVideoBased_not_splitted_into_trainVal"
     # Colab
     colab_dir = "."
-    run_in_colab = False
+    run_in_colab = True
     if run_in_colab:
         data_dir = r"/content/Nerthus/SubVideoBased_not_splitted_into_trainVal"
         colab_dir = "/content/Nerthus_videoBasedExperiments/" # base folder for where to store the results
@@ -81,7 +81,6 @@ if __name__ == '__main__':
     learning_rate = 0.001
     num_classes = 4
     batch_size = 150
-    batch_size = 15
     num_epochs = 300
     load_to_RAM = False
     shuffle = True
