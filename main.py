@@ -14,9 +14,11 @@ def print_hyperparameters():
     print("shuffle= ", shuffle)
     print("feature_extract",feature_extract)
     print("pretrained=", use_pretrained)
-    if shuffle_entire_subvideos:
+    if shuffle_entire_subvideos == "True":
         print("This dataset will be shuffled and distributed to train\\val based on "
               "subvideos as in the Original Nerthus paper")
+    elif shuffle_entire_subvideos == "Equal":
+        print("video1_0 for train and video1_1 for val, we expect 100% val accuracy")
 
 def run():
     print("PyTorch Version: ",torch.__version__)
@@ -76,15 +78,16 @@ if __name__ == '__main__':
     # data_dir = "/content/frameBased_randomShuffle1"
     # Models to choose from [resnet18,resnet50, alexnet, vgg, squeezenet, densenet, inception
     # Myresnet50,RN,stridedConv,ZhoDenseNet, ResNet50_GRU, ResNet101_GRU, ResNet50_h_initialized_GRU]
-    model_name = "ZhoDenseNet2"
+    model_name = "ZhoDenseNet1"
     # Number of classes in the dataset
     learning_rate = 0.001
     num_classes = 4
     batch_size = 150
     num_epochs = 300
-    load_to_RAM = False
+    load_to_RAM = True
     shuffle = True
-    shuffle_entire_subvideos = True # if true, the train and val would have shuffeled videos as in the Original Nerthus paper
+    #shuffle_entire_subvideos = either True, Equal (video1_0 for train and video1_1 for val), None
+    shuffle_entire_subvideos = "Equal" # if true, the train and val would have shuffeled videos as in the Original Nerthus paper
     feature_extract = False
     half_freez = False
     use_pretrained = True

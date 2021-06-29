@@ -22,7 +22,7 @@ class ZhoDenseNet(nn.Module):
         x = self.flatten(x)
         x = self.fc1(x)
         x = self.fc2(x)
-        x = nn.functional.softmax(x)
+        # x = nn.functional.softmax(x)
         return x
 
 
@@ -56,7 +56,7 @@ class ZhoDenseNet2(nn.Module):
         x = torch.cat((x1,x),dim=1)
         # print(x.shape)
         x = self.fc2(x)
-        x = nn.functional.softmax(x)
+        # x = nn.functional.softmax(x)
         return x
 
 

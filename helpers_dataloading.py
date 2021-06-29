@@ -93,7 +93,7 @@ def get_dataloaders_SubVideoBased(input_size,batch_size,data_dir, load_to_RAM, s
                    "/3/18_3_0", "/3/18_3_1", ]  # class 3
 
     # if true, don't consider this split, concat train\val folders, and shuffle the subvideos
-    if shuffle_entire_subvideos:
+    if shuffle_entire_subvideos == "True":
         folders = _get_all_folders_name()
         videos_len = len(folders)
         print("number of subvideos involved the experiment =",videos_len)
@@ -102,6 +102,14 @@ def get_dataloaders_SubVideoBased(input_size,batch_size,data_dir, load_to_RAM, s
         np.random.seed(0)
         train_folders = folders[:videos_len//2]#50% for train and the rest of val
         val_folders = folders[videos_len//2:]
+    elif shuffle_entire_subvideos == "Equal":
+        folders = _get_all_folders_name()
+        videos_len = len(folders)
+        print("number of subvideos involved the experiment =", videos_len)
+        # print("video1_0 for train and video1_1 for val, we expect 100% val accuracy")
+        train_folders = folders[::2]  # 50% for train and the rest of val
+        val_folders = folders[1::2]
+
         # print(train_folders)
         # print(val_folders)
         # exit(0)
@@ -111,7 +119,9 @@ def get_dataloaders_SubVideoBased(input_size,batch_size,data_dir, load_to_RAM, s
     val_dataset = createDataSetFromList(data_dir, input_size, val_folders, load_to_RAM)
     print("Training images:", len(train_dataset))
     print("Val images:", len(val_dataset))
-    # show_random_samples(train_dataset,0)
+    # show_random_samples(train_dataset, 0)
+    # show_random_samples(val_dataset, 0)
+    # # show_random_samples(train_dataset,0)
     # exit(0)
     image_datasets = {'train':train_dataset, 'val':val_dataset}
 
