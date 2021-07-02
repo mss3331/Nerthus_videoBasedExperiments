@@ -126,15 +126,14 @@ def get_dataloaders_SubVideoBased(input_size,batch_size,data_dir, load_to_RAM, s
 
     # data_dirEntery_list = list[os.scandir(data_dir)]
     #train
-    train_folders = ["/0/2_0_0", "/0/2_0_1", "/0/2_0_2", #class 0
-               "/1/3_1_0", "/1/3_1_1", "/1/3_1_2", #class 1
-               "/2/15_2_0", "/2/15_2_1", "/2/15_2_2", #class 2
-               "/3/17_3_0", "/3/17_3_1", "/3/17_3_2"] #class 3
-    # val
+    train_folders = ["/0/2_0_0", "/0/2_0_1", "/0/2_0_2",  # class 0
+                     "/1/3_1_0", "/1/3_1_1", "/1/3_1_2", "/1/5_1_0", "/1/5_1_1", "/1/5_1_2",  # class 1
+                     "/2/14_2_0", "/2/14_2_1", "/2/15_2_0", "/2/15_2_1", "/2/15_2_2",  # class 2
+                     "/3/17_3_0", "/3/17_3_1", "/3/17_3_2", "/3/19_3_0", "/3/19_3_1", ]  # class 3
     val_folders = ["/0/1_0_0", "/0/1_0_1",  # class 0
-                   "/1/4_1_0", "/1/4_1_1",  # class 1
-                   "/2/13_2_0", "/2/13_2_1",  # class 2
-                   "/3/18_3_0", "/3/18_3_1", ]  # class 3
+                   "/1/4_1_0", "/1/4_1_1", "/1/6_1_0", "/1/6_1_1", "/1/6_1_2",  # class 1
+                   "/2/16_2_0", "/2/16_2_1", "/2/13_2_0", "/2/13_2_1",  # class 2
+                   "/3/18_3_0", "/3/18_3_1", "/3/20_3_0", "/3/20_3_1", "/3/20_3_2", ]  # class 3
 
     # if true, don't consider this split, concat train\val folders, and shuffle the subvideos
     if shuffle_entire_subvideos != None:
