@@ -67,11 +67,12 @@ def _get_all_folders_name():
     class_3 =['/3/17_3_0', '/3/17_3_1', '/3/17_3_2', '/3/18_3_0', '/3/18_3_1',
               '/3/19_3_0', '/3/19_3_1', '/3/20_3_0', '/3/20_3_1', '/3/20_3_2',
               '/3/21_3_0', '/3/21_3_1']
-    return class_0+class_1+class_2+class_3
+    return (class_0,class_1,class_2,class_3)
 
 def howToSplitSubVideos (train_folders, val_folders, shuffle_entire_subvideos, data_dir, input_size, load_to_RAM):
     folders = _get_all_folders_name()
-    videos_len = len(folders)
+    folders_combined = np.concatenate(folders)
+    videos_len = len(folders_combined)
     print("number of subvideos involved the experiment =", videos_len)
 
     # shuffle the entire dataset into train\val frame 0.8 means 80% for training
@@ -79,7 +80,7 @@ def howToSplitSubVideos (train_folders, val_folders, shuffle_entire_subvideos, d
         '''This function split train test randomely'''
         print("dataset is splitted randomely")
         TTR = float(shuffle_entire_subvideos.split(" ")[-1])
-        dataset = createDataSetFromList(data_dir, input_size, folders, load_to_RAM)
+        dataset = createDataSetFromList(data_dir, input_size, folders_combined, load_to_RAM)
         dataset_size = len(dataset)
         np.random.seed(0)
         dataset_permutation = np.random.permutation(dataset_size)
@@ -92,14 +93,20 @@ def howToSplitSubVideos (train_folders, val_folders, shuffle_entire_subvideos, d
     # if true, don't consider this split, concat train\val folders, and shuffle the subvideos
     if shuffle_entire_subvideos == "True":
         np.random.seed(0)
-        np.random.shuffle(folders)
+        np.random.shuffle(folders_combined)
         np.random.seed(0)
-        train_folders = folders[:videos_len // 2]  # 50% for train and the rest of val
-        val_folders = folders[videos_len // 2:]
+        train_folders = folders_combined[:videos_len // 2]  # 50% for train and the rest of val
+        val_folders = folders_combined[videos_len // 2:]
     elif shuffle_entire_subvideos == "Equal":
         # print("video1_0 for train and video1_1 for val, we expect 100% val accuracy")
-        train_folders = folders[::2]  # 50% for train and the rest of val
-        val_folders = folders[1::2]
+        train_folders=[]
+        val_folders=[]
+        for class_folder in folders: #folders = (class_0, class_1, class_2, class_3)
+            train_folders+=class_folder[::2]  # 50% for train and the rest of val
+            val_folders+=class_folder[1::2]
+        print(train_folders)
+        print(val_folders)
+
 
     train_dataset = createDataSetFromList(data_dir, input_size, train_folders, load_to_RAM)
     val_dataset = createDataSetFromList(data_dir, input_size, val_folders, load_to_RAM)

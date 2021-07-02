@@ -52,6 +52,7 @@ def run():
     criterion = helpers.get_criterion()
     # optimizer_ft = helpers.set_requires_grad_get_optimizer(feature_extract,model_ft,half_freez)
     optimizer_ft = optim.SGD(model_ft.parameters(), lr=learning_rate, momentum=0.9)
+    optimizer_ft = optim.Adam(model_ft.parameters(), lr=learning_rate) #only for Zho
     # Train and evaluate
     model_ft, results_dic = train_model.train_model(model_ft, dataloaders_dict, criterion, optimizer_ft,device,model_name,colab_dir,
                                                     num_epochs=num_epochs,is_inception=(model_name == "inception"))
@@ -78,16 +79,17 @@ if __name__ == '__main__':
     # data_dir = "/content/frameBased_randomShuffle1"
     # Models to choose from [resnet18,resnet50, alexnet, vgg, squeezenet, densenet, inception
     # Myresnet50,RN,stridedConv,ZhoDenseNet, ResNet50_GRU, ResNet101_GRU, ResNet50_h_initialized_GRU]
-    model_name = "ZhoDenseNet1"
+    model_name = "ZhoDenseNet"
     # Number of classes in the dataset
     learning_rate = 0.001
     num_classes = 4
     batch_size = 150
+    batch_size = 32 #only for Zho
     num_epochs = 150
     load_to_RAM = True
     shuffle = True
     #shuffle_entire_subvideos = either None, True, Equal (video1_0 for train and video1_1 for val), Frame 0.5 means 50% for train and 50% for val
-    shuffle_entire_subvideos = "Frame 0.5" # if true, the train and val would have shuffeled videos as in the Original Nerthus paper
+    shuffle_entire_subvideos = "Equal" # if true, the train and val would have shuffeled videos as in the Original Nerthus paper
     feature_extract = False
     half_freez = False
     use_pretrained = True
