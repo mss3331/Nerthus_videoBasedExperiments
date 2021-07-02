@@ -83,11 +83,11 @@ if __name__ == '__main__':
     learning_rate = 0.001
     num_classes = 4
     batch_size = 150
-    num_epochs = 300
+    num_epochs = 150
     load_to_RAM = True
     shuffle = True
-    #shuffle_entire_subvideos = either True, Equal (video1_0 for train and video1_1 for val), None
-    shuffle_entire_subvideos = "Equal" # if true, the train and val would have shuffeled videos as in the Original Nerthus paper
+    #shuffle_entire_subvideos = either None, True, Equal (video1_0 for train and video1_1 for val), Frame 0.5 means 50% for train and 50% for val
+    shuffle_entire_subvideos = "Frame 0.5" # if true, the train and val would have shuffeled videos as in the Original Nerthus paper
     feature_extract = False
     half_freez = False
     use_pretrained = True
