@@ -1,14 +1,18 @@
 import torchvision.models as models
 import torch
 import torch.nn as nn
-class ResNet50_FE(nn.Module):
+class ResNet50_RN(nn.Module):
     def set_parameter_requires_grad(self,model, feature_extracting):
         if feature_extracting:
             for param in model.parameters():
                 param.requires_grad = False
+    def getProject(self):
+        return nn.Sequential (nn.Flatten(start_dim=2), nn.Conv1d(1024,32,3,padding=1),
+                              nn.BatchNorm1d(32), nn.ReLU(),nn.MaxPool1d(2),
+                              nn.Dropout(0.25), nn.Flatten(start_dim=1))
 
     def __init__(self,num_classes=4,pretrained=True):
-        super(ResNet50_FE, self).__init__()
+        super(ResNet50_RN, self).__init__()
         self.original_ResNet50 = models.resnet50(pretrained=pretrained)
         self.set_parameter_requires_grad(self.original_ResNet50, feature_extracting=True)
 
@@ -16,11 +20,12 @@ class ResNet50_FE(nn.Module):
         self.layers =list(self.original_ResNet50.children())[:-1]
         del (self.layers[7:])
         # Encoding
-        self.project1 = nn.Sequential (nn.Conv2d(1024,32,1),nn.BatchNorm2d(32), nn.ReLU(),nn.Dropout(0.25), nn.MaxPool2d(2))
-        self.project2 = nn.Sequential (nn.Conv2d(1024,32,1),nn.BatchNorm2d(32), nn.ReLU(),nn.Dropout(0.25), nn.MaxPool2d(2))
+        self.project1 = self.getProject()
+        self.project2 = self.getProject()
         # RN
-        self.fc_rn1 = nn.Linear(3136,1568)
-        self.fc_rn2 = nn.Linear(1568,300)
+        # self.fc_rn1 = nn.Linear(6272,1568)
+        # self.fc_rn2 = nn.Linear(1568,300)
+        self.relational_network = _RelationalNetwork(in_features=6272,out_features=6272//2,num_layers=3) #e.g. [32, 6272] ==> [32, 6272//2]
         #LSTM
         self.lstm = nn.LSTM(input_size=1,hidden_size=300,batch_first=True)
         #FC layers + classification layer
@@ -53,15 +58,10 @@ class ResNet50_FE(nn.Module):
         x2=self.project2(x_featerMaps[1])
         ###############################
                    #RN HERE
-
-        x1 = x1.flatten(start_dim=1)
-        x2 = x2.flatten(start_dim=1)
-
-        x_cat = torch.cat((x1,x2),1)
-
-        x_RN = self.fc_rn1(x_cat)
-        x_RN = self.fc_rn2(x_RN)
-        x_RN = x_RN.unsqueeze(-1) # (8,300)====> (8,300,1) == (batch,seq_len,input)
+        # x_RN = self.fc_rn1(x_cat)
+        # x_RN = self.fc_rn2(x_RN)
+        x_RN = self.relational_network(x1, x2)
+        x_RN = x_RN.unsqueeze(-1) # (32,300)====> (32,300,1) == (batch,seq_len,input)
 
         ###############################
             #The fully connected layers
@@ -74,3 +74,23 @@ class ResNet50_FE(nn.Module):
         # print(x_RN.shape)
 
         return output
+
+class _RelationalNetwork(nn.Module):
+    def mlp(self,in_features,out_features,num_layers):
+        layers=[]
+        for i in range(num_layers):
+            layers.append(nn.Linear(in_features, out_features))
+            in_features = out_features
+
+        return nn.Sequential(*layers), out_features
+
+    def __init__(self,in_features, out_features, num_layers):
+        super(_RelationalNetwork, self).__init__()
+        # self.in_features = in_features
+        # self.num_layers=num_layers
+        # self.shrink_rate=shrink_rate
+        self.network1, out_features = self.mlp(in_features,out_features,num_layers)
+
+    def forward(self, x1, x2):
+        x_cat = torch.cat((x1, x2), 1)
+        return self.network1(x_cat)

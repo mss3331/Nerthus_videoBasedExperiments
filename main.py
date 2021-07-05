@@ -73,13 +73,14 @@ if __name__ == '__main__':
     # Colab
     colab_dir = "."
     run_in_colab = True
+    run_in_colab = False
     if run_in_colab:
         data_dir = r"/content/Nerthus/SubVideoBased_not_splitted_into_trainVal"
         colab_dir = "/content/Nerthus_videoBasedExperiments/" # base folder for where to store the results
     # data_dir = "/content/frameBased_randomShuffle1"
     # Models to choose from [resnet18,resnet50, alexnet, vgg, squeezenet, densenet, inception
     # Myresnet50,RN,stridedConv,ZhoDenseNet, ResNet50_GRU, ResNet101_GRU, ResNet50_h_initialized_GRU]
-    model_name = "ZhoDenseNet"
+    model_name = "RN"
     # Number of classes in the dataset
     learning_rate = 0.001
     num_classes = 4
@@ -87,10 +88,11 @@ if __name__ == '__main__':
     batch_size = 32 #only for Zho
     num_epochs = 150
     load_to_RAM = True
+    load_to_RAM = False
     shuffle = True
     #shuffle_entire_subvideos = either None, True, Equal (video1_0 for train and video1_1 for val), Frame 0.5 means 50% for train and 50% for val
     shuffle_entire_subvideos = "Equal" # if true, the train and val would have shuffeled videos as in the Original Nerthus paper
-    feature_extract = False
+    feature_extract = True
     half_freez = False
     use_pretrained = True
     print_hyperparameters()
