@@ -19,6 +19,8 @@ def print_hyperparameters():
               "subvideos as in the Original Nerthus paper")
     elif shuffle_entire_subvideos == "Equal":
         print("video1_0 for train and video1_1 for val, we expect 100% val accuracy")
+    if data_dir.find("kvasir")>=0:
+        print("*"*20,"Kvasir Dataset is used here not Nerthus", "*"*20)
 
 def run():
     print("PyTorch Version: ",torch.__version__)
@@ -45,14 +47,21 @@ def run():
 
     # dataloaders_dict = helpers_dataloading.get_dataloaders(input_size,batch_size,data_dir)
     # dataloaders_dict = helpers_dataloading.get_dataloaders_SubVideoBased(input_size,batch_size,data_dir,load_to_RAM, shuffle=shuffle)
-    dataloaders_dict = helpers_dataloading.get_dataloaders_SubVideoBased(input_size,batch_size,data_dir,load_to_RAM
+    if data_dir.find("kvasir")>=0:
+        dataloaders_dict = helpers_dataloading.get_dataloaders_Kvasir(input_size,batch_size,data_dir,shuffle)
+    else:
+        dataloaders_dict = helpers_dataloading.get_dataloaders_SubVideoBased(input_size,batch_size,data_dir,load_to_RAM
                                                                          , shuffle=shuffle
                                                                          , shuffle_entire_subvideos=shuffle_entire_subvideos)
-
+    # print(len(list(dataloaders_dict["train"])[0]))
+    # exit(0)
     criterion = helpers.get_criterion()
     # optimizer_ft = helpers.set_requires_grad_get_optimizer(feature_extract,model_ft,half_freez)
     optimizer_ft = optim.SGD(model_ft.parameters(), lr=learning_rate, momentum=0.9)
-    optimizer_ft = optim.Adam(model_ft.parameters(), lr=learning_rate) #only for Zho
+    if model_name.find("Zho")>=0:
+        optimizer_ft = optim.Adam(model_ft.parameters(), lr=learning_rate) #only for Zho
+    elif model_name.find("RN"):
+        optimizer_ft = optim.RMSProp(model_ft.parameters(), lr=learning_rate, weight_decay=8*10**-8) #only for Zho
     # Train and evaluate
     model_ft, results_dic = train_model.train_model(model_ft, dataloaders_dict, criterion, optimizer_ft,device,model_name,colab_dir,
                                                     num_epochs=num_epochs,is_inception=(model_name == "inception"))
@@ -70,12 +79,14 @@ if __name__ == '__main__':
     # torch.autograd.set_detect_anomaly(True)
     # data_dir = r"E:\Databases\Nerthus\frameBased\frameBased_randomShuffle2"
     data_dir = r"E:\Databases\Nerthus\SubVideoBased_not_splitted_into_trainVal"
+    data_dir = r"E:\Databases\kvasir-dataset-v2"
     # Colab
     colab_dir = "."
     run_in_colab = True
-    run_in_colab = False
+    # run_in_colab = False
     if run_in_colab:
-        data_dir = r"/content/Nerthus/SubVideoBased_not_splitted_into_trainVal"
+        data_dir = "/content/Nerthus/SubVideoBased_not_splitted_into_trainVal"
+        data_dir = "/content/kvasir-dataset-v2/"
         colab_dir = "/content/Nerthus_videoBasedExperiments/" # base folder for where to store the results
     # data_dir = "/content/frameBased_randomShuffle1"
     # Models to choose from [resnet18,resnet50, alexnet, vgg, squeezenet, densenet, inception
@@ -84,9 +95,12 @@ if __name__ == '__main__':
     # Number of classes in the dataset
     learning_rate = 0.001
     num_classes = 4
+    if data_dir.find("kvasir")>=0:
+        num_classes = 8
     batch_size = 150
     batch_size = 32 #only for Zho
     num_epochs = 150
+    num_epochs = 100 #only for RN
     load_to_RAM = True
     load_to_RAM = False
     shuffle = True

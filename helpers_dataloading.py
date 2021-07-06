@@ -39,6 +39,30 @@ def get_dataloaders(input_size,batch_size,data_dir):
         for x in ['train', 'val']}
     return dataloaders_dict
 
+def get_dataloaders_Kvasir(input_size,batch_size,data_dir,shuffle):
+    TTR = 0.5
+    data_transforms = get_transform_conf(input_size=input_size)
+    print("Initializing Datasets and Dataloaders...")
+    # Create training and validation datasets
+    kvasir_dataset = datasets.ImageFolder(data_dir, data_transforms["train"])
+
+    dataset_size = len(kvasir_dataset)
+    np.random.seed(0)
+    dataset_permutation = np.random.permutation(dataset_size)
+    np.random.seed(0)
+    train_dataset = torch.utils.data.Subset(kvasir_dataset, dataset_permutation[:int(TTR * dataset_size)])
+    val_dataset = torch.utils.data.Subset(kvasir_dataset, dataset_permutation[int(TTR * dataset_size):])
+    print("Training images:", len(train_dataset))
+    print("Val images:", len(val_dataset))
+    print("training indices {}\n val indices {}".format(train_dataset.indices[:5], val_dataset.indices[:5]))
+    train_val_dataset = {"train":train_dataset, "val":val_dataset}
+
+    # Create training and validation dataloaders
+    dataloaders_dict = {
+        x: torch.utils.data.DataLoader(train_val_dataset[x], batch_size=batch_size, shuffle=shuffle, num_workers=2)
+        for x in ['train', 'val']}
+    return dataloaders_dict
+
 def createDataSetFromList(data_dir,input_size,folders_name,load_to_RAM):
     '''Recieve lsit of folder names and return a concatinated dataset'''
 

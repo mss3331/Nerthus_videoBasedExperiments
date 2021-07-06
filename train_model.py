@@ -45,7 +45,9 @@ def train_model(model, dataloaders, criterion, optimizer,device,model_name,colab
             count = 0
             # Iterate over data.
             pbar = tqdm(dataloaders[phase], total=len(dataloaders[phase]))
-            for inputs, labels, filenames in pbar:
+            # for inputs, labels, filenames in pbar:
+            for inputs, labels in pbar: # this line is only for kvasir
+                filenames = [i for i in range(len(labels))]
                 inputs = inputs.to(device)
                 labels = labels.to(device)
                 target_list = np.concatenate((target_list,labels.clone().detach().cpu().numpy()))
