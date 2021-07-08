@@ -13,10 +13,11 @@ import matplotlib.pyplot as plt
 import os
 import copy
 import time
+import helpers_dataloading
 from tqdm import tqdm
 
 def train_model(model, dataloaders, criterion, optimizer,device,model_name,colab_dir,
-                num_epochs=25, is_inception=False):
+                num_epochs, is_inception,extra_args):
     since = time.time()
 
     results_dic= {"val_acc_history":[],"train_acc_history":[],
@@ -45,9 +46,9 @@ def train_model(model, dataloaders, criterion, optimizer,device,model_name,colab
             count = 0
             # Iterate over data.
             pbar = tqdm(dataloaders[phase], total=len(dataloaders[phase]))
-            # for inputs, labels, filenames in pbar:
-            for inputs, labels in pbar: # this line is only for kvasir
-                filenames = [i for i in range(len(labels))]
+            for inputs, labels, filenames in pbar:
+            # for inputs, labels in pbar: # this line is only for kvasir
+            #     filenames = [i for i in range(len(labels))] # this line is only for kvasir
                 inputs = inputs.to(device)
                 labels = labels.to(device)
                 target_list = np.concatenate((target_list,labels.clone().detach().cpu().numpy()))
@@ -121,6 +122,11 @@ def train_model(model, dataloaders, criterion, optimizer,device,model_name,colab
         print()
 
         helpers.plot_result(num_epochs=epoch+1,results_dic=results_dic, model_name=model_name, colab_dir=colab_dir)
+
+        if model_name.find("GRU")>=0 and epoch%9==0:
+            print("we need to shuffle sub-videos, hence new dataloader is created")
+            dataloaders = helpers_dataloading.get_dataloaders_SubVideoBased(*extra_args)
+
     time_elapsed = time.time() - since
     print('Training complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
     print('Best val Acc: {:4f}'.format(best_acc))

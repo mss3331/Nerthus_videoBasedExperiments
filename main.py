@@ -14,6 +14,7 @@ def print_hyperparameters():
     print("shuffle= ", shuffle)
     print("feature_extract",feature_extract)
     print("pretrained=", use_pretrained)
+    print("shuffle_entire_subvideos=",shuffle_entire_subvideos)
     if shuffle_entire_subvideos == "True":
         print("This dataset will be shuffled and distributed to train\\val based on "
               "subvideos as in the Original Nerthus paper")
@@ -58,13 +59,14 @@ def run():
     criterion = helpers.get_criterion()
     # optimizer_ft = helpers.set_requires_grad_get_optimizer(feature_extract,model_ft,half_freez)
     optimizer_ft = optim.SGD(model_ft.parameters(), lr=learning_rate, momentum=0.9)
-    if model_name.find("Zho")>=0:
-        optimizer_ft = optim.Adam(model_ft.parameters(), lr=learning_rate) #only for Zho
-    elif model_name.find("RN"):
-        optimizer_ft = optim.RMSProp(model_ft.parameters(), lr=learning_rate, weight_decay=8*10**-8) #only for Zho
+    # if model_name.find("Zho")>=0:
+    #     optimizer_ft = optim.Adam(model_ft.parameters(), lr=learning_rate) #only for Zho
+    # elif model_name.find("RN"):
+    #     optimizer_ft = optim.RMSProp(model_ft.parameters(), lr=learning_rate, weight_decay=8*10**-8) #only for Zho
     # Train and evaluate
+    extra_args = (input_size,batch_size,data_dir, load_to_RAM, shuffle,shuffle_entire_subvideos)
     model_ft, results_dic = train_model.train_model(model_ft, dataloaders_dict, criterion, optimizer_ft,device,model_name,colab_dir,
-                                                    num_epochs=num_epochs,is_inception=(model_name == "inception"))
+                                                    num_epochs=num_epochs,is_inception=(model_name == "inception"),extra_args=extra_args)
 
 
 
@@ -79,33 +81,36 @@ if __name__ == '__main__':
     # torch.autograd.set_detect_anomaly(True)
     # data_dir = r"E:\Databases\Nerthus\frameBased\frameBased_randomShuffle2"
     data_dir = r"E:\Databases\Nerthus\SubVideoBased_not_splitted_into_trainVal"
-    data_dir = r"E:\Databases\kvasir-dataset-v2"
+    # data_dir = r"E:\Databases\kvasir-dataset-v2"
     # Colab
     colab_dir = "."
     run_in_colab = True
     # run_in_colab = False
     if run_in_colab:
         data_dir = "/content/Nerthus/SubVideoBased_not_splitted_into_trainVal"
-        data_dir = "/content/kvasir-dataset-v2/"
+        # data_dir = "/content/kvasir-dataset-v2/"
         colab_dir = "/content/Nerthus_videoBasedExperiments/" # base folder for where to store the results
     # data_dir = "/content/frameBased_randomShuffle1"
     # Models to choose from [resnet18,resnet50, alexnet, vgg, squeezenet, densenet, inception
     # Myresnet50,RN,stridedConv,ZhoDenseNet, ResNet50_GRU, ResNet101_GRU, ResNet50_h_initialized_GRU]
-    model_name = "RN"
+    model_name = "ResNet50_GRU"
     # Number of classes in the dataset
-    learning_rate = 0.001
+    learning_rate = 0.0001
     num_classes = 4
     if data_dir.find("kvasir")>=0:
         num_classes = 8
-    batch_size = 150
-    batch_size = 32 #only for Zho
+    batch_size = 200
+    # batch_size = 150
+    # batch_size = 32 #only for Zho
     num_epochs = 150
-    num_epochs = 100 #only for RN
+    # num_epochs = 100 #only for RN
     load_to_RAM = True
-    load_to_RAM = False
-    shuffle = True
-    #shuffle_entire_subvideos = either None, True, Equal (video1_0 for train and video1_1 for val), Frame 0.5 means 50% for train and 50% for val
-    shuffle_entire_subvideos = "Equal" # if true, the train and val would have shuffeled videos as in the Original Nerthus paper
+    # load_to_RAM = False
+    shuffle = False
+    #shuffle_entire_subvideos = either None, True, Equal (video1_0 for train and video1_1 for val), Frame 0.5 means 50% for train and 50% for val.
+    # "None Shuffle" means consider the base dataset but shuffle the training folder
+    #shuffle_entire_subvideos = [None, True, Equal, Frame 0.5, None Shuffle]
+    shuffle_entire_subvideos = "None Shuffle" # if true, the train and val would have shuffeled videos as in the Original Nerthus paper
     feature_extract = True
     half_freez = False
     use_pretrained = True

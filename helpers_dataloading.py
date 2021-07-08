@@ -128,8 +128,11 @@ def howToSplitSubVideos (train_folders, val_folders, shuffle_entire_subvideos, d
         for class_folder in folders: #folders = (class_0, class_1, class_2, class_3)
             train_folders+=class_folder[::2]  # 50% for train and the rest of val
             val_folders+=class_folder[1::2]
-        print(train_folders)
-        print(val_folders)
+    elif shuffle_entire_subvideos == "None Shuffle":#shuffle the order of the train volder
+        np.random.shuffle(train_folders)
+
+    print(train_folders)
+    print(val_folders)
 
 
     train_dataset = createDataSetFromList(data_dir, input_size, train_folders, load_to_RAM)
