@@ -20,6 +20,7 @@ def print_hyperparameters():
               "subvideos as in the Original Nerthus paper")
     elif shuffle_entire_subvideos == "Equal":
         print("video1_0 for train and video1_1 for val, we expect 100% val accuracy")
+    print("EntireSubVideo", EntireSubVideo)
     if data_dir.find("kvasir")>=0:
         print("*"*20,"Kvasir Dataset is used here not Nerthus", "*"*20)
 
@@ -53,7 +54,12 @@ def run():
     else:
         dataloaders_dict = helpers_dataloading.get_dataloaders_SubVideoBased(input_size,batch_size,data_dir,load_to_RAM
                                                                          , shuffle=shuffle
-                                                                         , shuffle_entire_subvideos=shuffle_entire_subvideos)
+                                                                         , shuffle_entire_subvideos=shuffle_entire_subvideos
+                                                                         , EntireSubVideo=True)
+    # if EntireSubVideo:
+    #     trainDataset = dataloaders_dict["train"].dataset
+    #     valDataset = dataloaders_dict["val"].dataset
+    #     dataloaders_dict = {"train":trainDataset,"val":valDataset}
     # print(len(list(dataloaders_dict["train"])[0]))
     # exit(0)
     criterion = helpers.get_criterion()
@@ -95,22 +101,26 @@ if __name__ == '__main__':
     # Myresnet50,RN,stridedConv,ZhoDenseNet, ResNet50_GRU, ResNet101_GRU, ResNet50_h_initialized_GRU]
     model_name = "ResNet50_GRU"
     # Number of classes in the dataset
-    learning_rate = 0.0001
+    learning_rate = 0.001
     num_classes = 4
     if data_dir.find("kvasir")>=0:
         num_classes = 8
-    batch_size = 200
+    batch_size = 2
     # batch_size = 150
     # batch_size = 32 #only for Zho
     num_epochs = 150
     # num_epochs = 100 #only for RN
     load_to_RAM = True
-    # load_to_RAM = False
-    shuffle = False
+    load_to_RAM = False
+    shuffle = True
     #shuffle_entire_subvideos = either None, True, Equal (video1_0 for train and video1_1 for val), Frame 0.5 means 50% for train and 50% for val.
     # "None Shuffle" means consider the base dataset but shuffle the training folder
     #shuffle_entire_subvideos = [None, True, Equal, Frame 0.5, None Shuffle]
     shuffle_entire_subvideos = "None Shuffle" # if true, the train and val would have shuffeled videos as in the Original Nerthus paper
+    # if EntireSubVideo= true, load entire subvideo as one instance.
+    # and shuffle =True means that shuffle the subvideos rather than shuffle the frames in the subvideo
+    # and batch_size = 3 means load 3 subvideos
+    EntireSubVideo = "True"
     feature_extract = True
     half_freez = False
     use_pretrained = True

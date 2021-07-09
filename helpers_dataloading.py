@@ -9,6 +9,19 @@ from PIL import Image
 from torchvision import datasets, transforms
 from torch.utils.data import Dataset
 
+def my_collate(data):
+    #data is a list of batches each batch contains imgs,labels,file_names
+    imgs = []
+    labels = []
+    file_names = []
+    for subvideo in data:
+        imgs +=subvideo[0]
+        labels +=subvideo[1]
+        file_names +=subvideo[2]
+    imgs = torch.stack(imgs)
+    labels = torch.stack(labels)
+    return [imgs, labels, file_names]
+
 def get_transform_conf(input_size):
     data_transforms = {
         'train': transforms.Compose([
@@ -63,13 +76,16 @@ def get_dataloaders_Kvasir(input_size,batch_size,data_dir,shuffle):
         for x in ['train', 'val']}
     return dataloaders_dict
 
-def createDataSetFromList(data_dir,input_size,folders_name,load_to_RAM):
+def createDataSetFromList(data_dir,input_size,folders_name,load_to_RAM,EntireSubVideo=True):
     '''Recieve lsit of folder names and return a concatinated dataset'''
 
     dataset_list = []
     for subvideo_name in folders_name:
         # create a dataset based on subvideo_name
-        dataset_list.append(Nerthus_SubVideo_Dataset(data_dir + subvideo_name, input_size,load_to_RAM))
+        if EntireSubVideo:
+            dataset_list.append(Nerthus_EntireSubVideo_Dataset(data_dir + subvideo_name, input_size,load_to_RAM))
+        else:
+            dataset_list.append(Nerthus_SubVideo_Dataset(data_dir + subvideo_name, input_size, load_to_RAM))
     dataset = ConcatDataset(dataset_list)
 
     return dataset
@@ -93,7 +109,7 @@ def _get_all_folders_name():
               '/3/21_3_0', '/3/21_3_1']
     return (class_0,class_1,class_2,class_3)
 
-def howToSplitSubVideos (train_folders, val_folders, shuffle_entire_subvideos, data_dir, input_size, load_to_RAM):
+def howToSplitSubVideos (train_folders, val_folders, shuffle_entire_subvideos, data_dir, input_size, load_to_RAM,EntireSubVideo):
     folders = _get_all_folders_name()
     folders_combined = np.concatenate(folders)
     videos_len = len(folders_combined)
@@ -104,7 +120,7 @@ def howToSplitSubVideos (train_folders, val_folders, shuffle_entire_subvideos, d
         '''This function split train test randomely'''
         print("dataset is splitted randomely")
         TTR = float(shuffle_entire_subvideos.split(" ")[-1])
-        dataset = createDataSetFromList(data_dir, input_size, folders_combined, load_to_RAM)
+        dataset = createDataSetFromList(data_dir, input_size, folders_combined, load_to_RAM,EntireSubVideo)
         dataset_size = len(dataset)
         np.random.seed(0)
         dataset_permutation = np.random.permutation(dataset_size)
@@ -141,7 +157,8 @@ def howToSplitSubVideos (train_folders, val_folders, shuffle_entire_subvideos, d
     return train_dataset, val_dataset
 
 
-def get_dataloaders_SubVideoBased(input_size,batch_size,data_dir, load_to_RAM, shuffle=False,shuffle_entire_subvideos=False):
+def get_dataloaders_SubVideoBased(input_size,batch_size,data_dir, load_to_RAM,
+                                  shuffle=False,shuffle_entire_subvideos=False, EntireSubVideo=True):
     # Create Dataset for each video
     '''list of subvideos:
     #class 0 = [1_0_0, 1_0_1, 2_0_0, 2_0_1, 2_0_2]
@@ -167,7 +184,7 @@ def get_dataloaders_SubVideoBased(input_size,batch_size,data_dir, load_to_RAM, s
         train_dataset, val_dataset = howToSplitSubVideos(train_folders, val_folders,
                                                          shuffle_entire_subvideos,
                                                          data_dir, input_size,
-                                                         load_to_RAM)
+                                                         load_to_RAM, EntireSubVideo)
 
     print("Training images:", len(train_dataset))
     print("Val images:", len(val_dataset))
@@ -176,9 +193,11 @@ def get_dataloaders_SubVideoBased(input_size,batch_size,data_dir, load_to_RAM, s
     # # show_random_samples(train_dataset,0)
     # exit(0)
     image_datasets = {'train':train_dataset, 'val':val_dataset}
+    collate_fn = None
+    if EntireSubVideo: collate_fn = my_collate
     # Create Dataloaders
     dataloaders_dict = {
-        x: torch.utils.data.DataLoader(image_datasets[x], batch_size=batch_size, shuffle=shuffle, num_workers=2)
+        x: torch.utils.data.DataLoader(image_datasets[x], batch_size=batch_size, shuffle=shuffle,collate_fn=collate_fn, num_workers=2)
         for x in ['train', 'val']}
     # show_random_samples(list(dataloaders_dict['train'])[0],0)
     return dataloaders_dict
@@ -221,10 +240,57 @@ class Nerthus_SubVideo_Dataset(Dataset):
             # transforms.Resize((384, 288), 2),
             transforms.Resize(self.targetSize),
             transforms.CenterCrop(self.targetSize),
-            transforms.ToTensor()])
-            # transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
         X = Image.open(image_path).convert('RGB')
         X = preprocess(X)
+        return X
+
+class Nerthus_EntireSubVideo_Dataset(Dataset):
+    def __init__(self, imageDir,targetSize,load_to_RAM= False):
+
+        self.imageList = glob.glob(imageDir +'/*.jpg')
+        self.imageList.sort()
+        # self.labels = np.arange(len(self.imageList))
+        # print((self.imageList[0].split("score_")[1].split("-")[0]))
+        self.target_labels = torch.empty(len(self.imageList), dtype=torch.long)
+        # self.labels[:] = np.long((self.imageList[0].split("_")[-2].split("-")[0])) # C:\...\0\bowel_20_score_3-1_00000001
+        # self.target_labels = torch.from_numpy(self.labels)
+        self.target_labels[:] = int(self.imageList[0].split("_")[-2].split("-")[0])
+        self.targetSize = targetSize
+        self.tensor_images = []
+
+        self.load_to_RAM = load_to_RAM
+        if self.load_to_RAM:# load all data to RAM for faster fetching
+            print("Loading dataset to RAM...")
+            self.tensor_images = [self.get_tensor_image(image_path) for image_path in self.imageList]
+            # print("Finish loading dataset to RAM")
+
+    def __getitem__(self, index):
+        if self.load_to_RAM:#if images are loaded to the RAM copy them, otherwise, read them
+            x = self.tensor_images
+        else:
+            x=self.get_tensor_image(self.imageList[:])
+
+        return torch.stack(x), self.target_labels, self.imageList
+
+    def __len__(self):
+        return 1#len(self.imageList)
+
+    def get_tensor_image(self, image_path, multiple_paths =False):
+        '''this function get image path and return transformed tensor image'''
+        preprocess = transforms.Compose([
+            # transforms.Resize((384, 288), 2),
+            transforms.Resize(self.targetSize),
+            transforms.CenterCrop(self.targetSize),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
+        if multiple_paths:
+            X = Image.open(image_path).convert('RGB')
+            X = preprocess(X)
+        else:
+            X = [preprocess(Image.open(image).convert('RGB')) for image in image_path]
+
         return X
 
 def show_random_samples(training_data,offset):

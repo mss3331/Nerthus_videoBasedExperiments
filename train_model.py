@@ -47,6 +47,7 @@ def train_model(model, dataloaders, criterion, optimizer,device,model_name,colab
             # Iterate over data.
             pbar = tqdm(dataloaders[phase], total=len(dataloaders[phase]))
             for inputs, labels, filenames in pbar:
+                print(labels)
             # for inputs, labels in pbar: # this line is only for kvasir
             #     filenames = [i for i in range(len(labels))] # this line is only for kvasir
                 inputs = inputs.to(device)
@@ -123,7 +124,7 @@ def train_model(model, dataloaders, criterion, optimizer,device,model_name,colab
 
         helpers.plot_result(num_epochs=epoch+1,results_dic=results_dic, model_name=model_name, colab_dir=colab_dir)
 
-        if model_name.find("GRU")>=0 and epoch%9==0:
+        if model_name.find("GRU")>=0 and (epoch+1)%10==0:
             print("we need to shuffle sub-videos, hence new dataloader is created")
             dataloaders = helpers_dataloading.get_dataloaders_SubVideoBased(*extra_args)
 
