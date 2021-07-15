@@ -91,7 +91,7 @@ if __name__ == '__main__':
     # Colab
     colab_dir = "."
     run_in_colab = True
-    run_in_colab = False
+    # run_in_colab = False
     if run_in_colab:
         data_dir = "/content/Nerthus/SubVideoBased_not_splitted_into_trainVal"
         # data_dir = "/content/kvasir-dataset-v2/"
@@ -112,7 +112,7 @@ if __name__ == '__main__':
     num_epochs = 150
     # num_epochs = 100 #only for RN
     load_to_RAM = True
-    load_to_RAM = False
+    # load_to_RAM = False
     shuffle = True
     #shuffle_entire_subvideos = either None, True, Equal (video1_0 for train and video1_1 for val), Frame 0.5 means 50% for train and 50% for val.
     # "None Shuffle" means consider the base dataset but shuffle the training folder

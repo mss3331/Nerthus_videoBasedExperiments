@@ -39,6 +39,7 @@ def train_model(model, dataloaders, criterion, optimizer,device,model_name,colab
                 model.eval()   # Set model to evaluate mode
 
             running_loss = 0.0
+            number_of_frames = 0
             running_corrects = 0
             prediction_list = []
             target_list = []
@@ -93,14 +94,15 @@ def train_model(model, dataloaders, criterion, optimizer,device,model_name,colab
 
                 # statistics
                 running_loss += loss.item() * inputs.size(0)
+                number_of_frames += inputs.size(0)
                 running_corrects += torch.sum(preds == labels.data)
                 pbar.set_postfix({phase+' Epoch': str(epoch)+"/"+str(num_epochs-1),
-                                  'running Loss': running_loss / len(dataloaders[phase].dataset),
+                                  'running Loss': running_loss / number_of_frames,
                                   'running acc': np.mean(prediction_list==target_list).round(5)#torch.sum(preds == labels.data).item()/inputs.size(0),
                                   })
 
-            epoch_loss = running_loss / len(dataloaders[phase].dataset)
-            epoch_acc = running_corrects.double() / len(dataloaders[phase].dataset)
+            epoch_loss = running_loss / number_of_frames
+            epoch_acc = running_corrects.double() / number_of_frames
 
             # print('{} Loss: {:.4f} Acc: {:.4f}'.format(phase, epoch_loss, epoch_acc))
 
