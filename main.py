@@ -55,7 +55,7 @@ def run():
         dataloaders_dict = helpers_dataloading.get_dataloaders_SubVideoBased(input_size,batch_size,data_dir,load_to_RAM
                                                                          , shuffle=shuffle
                                                                          , shuffle_entire_subvideos=shuffle_entire_subvideos
-                                                                         , EntireSubVideo=True)
+                                                                         , EntireSubVideo=EntireSubVideo)
     # if EntireSubVideo:
     #     trainDataset = dataloaders_dict["train"].dataset
     #     valDataset = dataloaders_dict["val"].dataset
@@ -91,7 +91,7 @@ if __name__ == '__main__':
     # Colab
     colab_dir = "."
     run_in_colab = True
-    # run_in_colab = False
+    run_in_colab = False
     if run_in_colab:
         data_dir = "/content/Nerthus/SubVideoBased_not_splitted_into_trainVal"
         # data_dir = "/content/kvasir-dataset-v2/"
@@ -99,7 +99,8 @@ if __name__ == '__main__':
     # data_dir = "/content/frameBased_randomShuffle1"
     # Models to choose from [resnet18,resnet50, alexnet, vgg, squeezenet, densenet, inception
     # Myresnet50,RN,stridedConv,ZhoDenseNet, ResNet50_GRU, ResNet101_GRU, ResNet50_h_initialized_GRU]
-    model_name = "ResNet50_GRU"
+    # Owais_ResNet18_LSTM,MlpMixer
+    model_name = "MlpMixer"
     # Number of classes in the dataset
     learning_rate = 0.001
     num_classes = 4
@@ -120,7 +121,7 @@ if __name__ == '__main__':
     # if EntireSubVideo= true, load entire subvideo as one instance.
     # and shuffle =True means that shuffle the subvideos rather than shuffle the frames in the subvideo
     # and batch_size = 3 means load 3 subvideos
-    EntireSubVideo = "True"
+    EntireSubVideo = True
     feature_extract = True
     half_freez = False
     use_pretrained = True

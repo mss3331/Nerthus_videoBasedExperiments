@@ -4,7 +4,6 @@ import torch.nn as nn
 import numpy as np
 
 
-
 class ResNet50_GRU(nn.Module):
     def set_parameter_requires_grad(self, model, feature_extract):
         if feature_extract:

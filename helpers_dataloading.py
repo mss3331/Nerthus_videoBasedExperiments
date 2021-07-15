@@ -14,13 +14,15 @@ def my_collate(data):
     imgs = []
     labels = []
     file_names = []
+    subvideo_lengths = []
     for subvideo in data:
         imgs +=subvideo[0]
         labels +=subvideo[1]
         file_names +=subvideo[2]
+        subvideo_lengths.append(len(subvideo[1]))
     imgs = torch.stack(imgs)
     labels = torch.stack(labels)
-    return [imgs, labels, file_names]
+    return [imgs, labels, file_names, subvideo_lengths]
 
 def get_transform_conf(input_size):
     data_transforms = {
@@ -76,7 +78,7 @@ def get_dataloaders_Kvasir(input_size,batch_size,data_dir,shuffle):
         for x in ['train', 'val']}
     return dataloaders_dict
 
-def createDataSetFromList(data_dir,input_size,folders_name,load_to_RAM,EntireSubVideo=True):
+def createDataSetFromList(data_dir,input_size,folders_name,load_to_RAM,EntireSubVideo):
     '''Recieve lsit of folder names and return a concatinated dataset'''
 
     dataset_list = []
@@ -151,8 +153,8 @@ def howToSplitSubVideos (train_folders, val_folders, shuffle_entire_subvideos, d
     print(val_folders)
 
 
-    train_dataset = createDataSetFromList(data_dir, input_size, train_folders, load_to_RAM)
-    val_dataset = createDataSetFromList(data_dir, input_size, val_folders, load_to_RAM)
+    train_dataset = createDataSetFromList(data_dir, input_size, train_folders, load_to_RAM,EntireSubVideo)
+    val_dataset = createDataSetFromList(data_dir, input_size, val_folders, load_to_RAM,EntireSubVideo)
 
     return train_dataset, val_dataset
 

@@ -5,7 +5,7 @@ import torch.nn as nn
 
 import numpy as np
 import os
-from models import RN, MyResNet, stridedConv, ZhoDenseNet, ResNet50_GRU
+from models import RN, MyResNet, stridedConv, ZhoDenseNet, ResNet50_GRU, Owais, MLP_Mixer
 from torchvision import datasets, models, transforms
 import matplotlib.pyplot as plt
 
@@ -43,7 +43,14 @@ def initialize_model(model_name, num_classes, feature_extract,use_pretrained=Tru
         # model_ft.fc = nn.Linear(num_ftrs, num_classes)
         input_size = 224
     elif model_name == "ResNet50_GRU":
-        model_ft = ResNet50_GRU.ResNet50_GRU(pretrained=use_pretrained,feature_extract=feature_extract)
+        model_ft = ResNet50_GRU.ResNet50_GRU(pretrained=use_pretrained,feature_extract=feature_extract,num_classes=num_classes)
+        input_size = 224
+    elif model_name == "Owais_ResNet18_LSTM":
+        model_ft = Owais.Owais_ResNet18_LSTM(pretrained=use_pretrained,feature_extract=feature_extract,num_classes=num_classes)
+        input_size = 224
+    elif model_name == "MlpMixer":
+        model_ft = MLP_Mixer.MlpMixer(tokens_mlp_dim=None, channels_mlp_dim=None, n_classes=num_classes,
+                                      n_blocks=5, pretrained = True, feature_extract = True)
         input_size = 224
     elif model_name == "ResNet101_GRU":
         model_ft = ResNet50_GRU.ResNet50_GRU(pretrained=use_pretrained,resnet50=False,feature_extract=feature_extract)
