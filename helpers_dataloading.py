@@ -112,16 +112,18 @@ def _get_all_folders_name(data_dir, is_subsub_videos):
     # if is_subsub_videos:#include sub sub videos such as 1_0_1_3
     #     class_0 +=[]
     # return (class_0,class_1,class_2,class_3)
-    all_classes_dir = glob.glob(data_dir + "\\*\\")  # list all folders
+    all_classes_dir = glob.glob(data_dir + "/*/")  # list all folders
     folders = []
     for class_dir in all_classes_dir:
-        folders += glob.glob(class_dir + "\\*\\")  # list all sub videos name
+        temp =  glob.glob(class_dir + "/*/")  # list all sub videos name
+        temp = ["/"+"/".join(folder.split("\\")[-3:]) for folder in temp]
+        folders += temp
 
     return folders
 
 def howToSplitSubVideos (train_folders, val_folders, shuffle_entire_subvideos, data_dir, input_size,
                          load_to_RAM,EntireSubVideo, is_subsub_videos):
-    folders = _get_all_folders_name(is_subsub_videos)
+    folders = _get_all_folders_name(data_dir, is_subsub_videos)
     # folders_combined = np.concatenate(folders)
     folders_combined = folders
     videos_len = len(folders_combined)
@@ -180,15 +182,15 @@ def get_base_dataset_train_val_folders_name (is_subsub_videos):
                    "/2/16_2_0", "/2/16_2_1", "/2/13_2_0", "/2/13_2_1",  # class 2
                    "/3/18_3_0", "/3/18_3_1", "/3/20_3_0", "/3/20_3_1", "/3/20_3_2", ]  # class 3
     if is_subsub_videos:#if the dataset splitted into further subsub videos then add those folders
-        train_folders += ["2_0_0_5","2_0_1_6",
-                          "3_1_0_9", "3_1_1_10", "5_1_0_12", "5_1_1_13",
-                          "14_2_0_5", "15_2_0_6", "15_2_1_7", "15_2_2_8",
-                          "17_3_0_3", "17_3_1_4", "19_3_0_7", "19_3_1_8"
+        train_folders += ["/0/2_0_0_5","/0/2_0_1_6",
+                          "/1/3_1_0_9", "/1/3_1_1_10", "/1/5_1_0_12", "/1/5_1_1_13",
+                          "/2/14_2_0_5", "/2/15_2_0_6", "/2/15_2_1_7", "/2/15_2_2_8",
+                          "/3/17_3_0_3", "/3/17_3_1_4", "/3/19_3_0_7", "/3/19_3_1_8"
                           ]
-        val_folders += ["1_0_0_3", "1_0_1_4",
-                        "4_1_0_11", "6_1_0_14", "6_1_1_15",
-                        "16_2_0_9", "13_2_0_3", "13_2_1_4",
-                        "18_3_0_5", "18_3_1_6", "20_3_0_9", "20_3_0_10"
+        val_folders += ["/0/1_0_0_3", "/0/1_0_1_4",
+                        "/1/4_1_0_11", "/1/6_1_0_14", "/1/6_1_1_15",
+                        "/2/16_2_0_9", "/2/13_2_0_3", "/2/13_2_1_4",
+                        "/3/18_3_0_5", "/3/18_3_1_6", "/3/20_3_0_9", "/3/20_3_1_10"
                         ]
     return (train_folders, val_folders)
 
@@ -284,6 +286,7 @@ class Nerthus_EntireSubVideo_Dataset(Dataset):
         self.target_labels = torch.empty(len(self.imageList), dtype=torch.long)
         # self.labels[:] = np.long((self.imageList[0].split("_")[-2].split("-")[0])) # C:\...\0\bowel_20_score_3-1_00000001
         # self.target_labels = torch.from_numpy(self.labels)
+        # print("ok",self.imageList[0].split("_"))
         self.target_labels[:] = int(self.imageList[0].split("_")[-2].split("-")[0])
         self.targetSize = targetSize
         self.tensor_images = []

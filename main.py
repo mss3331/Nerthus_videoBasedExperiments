@@ -87,12 +87,12 @@ if __name__ == '__main__':
 
     # torch.autograd.set_detect_anomaly(True)
     # data_dir = r"E:\Databases\Nerthus\frameBased\frameBased_randomShuffle2"
-    data_dir = r"E:\Databases\Nerthus\SubVideoBased_not_splitted_into_trainVal"
-    data_dir = r"E:\Databases\kvasir-dataset-v2"
+    data_dir = r"E:\Databases\Nerthus\SubSubVideoBased_not_splitted_into_trainVal"
+    # data_dir = r"E:\Databases\kvasir-dataset-v2"
     # Colab
     colab_dir = "."
     run_in_colab = True
-    run_in_colab = False
+    # run_in_colab = False
     if run_in_colab:
         data_dir = "/content/Nerthus/SubVideoBased_not_splitted_into_trainVal"
         # data_dir = "/content/kvasir-dataset-v2/"
@@ -101,13 +101,13 @@ if __name__ == '__main__':
     # Models to choose from [resnet18,resnet50, alexnet, vgg, squeezenet, densenet, inception
     # Myresnet50,RN,stridedConv,ZhoDenseNet, ResNet50_GRU, ResNet101_GRU, ResNet50_h_initialized_GRU]
     # Owais_ResNet18_LSTM,MlpMixer
-    model_name = "RN"
+    model_name = "ResNet50_GRU"
     # Number of classes in the dataset
     learning_rate = 0.001
     num_classes = 4
     if data_dir.find("kvasir")>=0:
         num_classes = 8
-    batch_size = 2
+    batch_size = 4
     # batch_size = 150
     # batch_size = 32 #only for Zho
     num_epochs = 150
@@ -120,11 +120,12 @@ if __name__ == '__main__':
     #shuffle_entire_subvideos = [None, True, Equal, Frame 0.5, None Shuffle]
     is_subsub_videos = True
     shuffle_entire_subvideos = "None Shuffle" # if true, the train and val would have shuffeled videos as in the Original Nerthus paper
+    # shuffle_entire_subvideos = "True"
     # if EntireSubVideo= true, load entire subvideo as one instance.
     # and shuffle =True means that shuffle the subvideos rather than shuffle the frames in the subvideo
     # and batch_size = 3 means load 3 subvideos
     EntireSubVideo = True
-    feature_extract = True
+    feature_extract = False
     half_freez = False
     use_pretrained = True
     print_hyperparameters()

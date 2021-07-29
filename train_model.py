@@ -47,7 +47,7 @@ def train_model(model, dataloaders, criterion, optimizer,device,model_name,colab
             count = 0
             # Iterate over data.
             pbar = tqdm(dataloaders[phase], total=len(dataloaders[phase]))
-            # for inputs, labels, filenames, subvideo_lengths in pbar:
+            for inputs, labels, filenames, subvideo_lengths in pbar:
                 # print(labels)
             # for inputs, labels in pbar: # this line is only for kvasir
             #     filenames = [i for i in range(len(labels))] # this line is only for kvasir
