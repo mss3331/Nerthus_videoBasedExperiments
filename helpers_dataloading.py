@@ -93,27 +93,37 @@ def createDataSetFromList(data_dir,input_size,folders_name,load_to_RAM,EntireSub
     return dataset
 
 
-def _get_all_folders_name():
-    class_0 =['/0/1_0_0', '/0/1_0_1', '/0/2_0_0', '/0/2_0_1', '/0/2_0_2']
+def _get_all_folders_name(data_dir, is_subsub_videos):
+    # class_0 =['/0/1_0_0', '/0/1_0_1', '/0/2_0_0', '/0/2_0_1', '/0/2_0_2']
+    #
+    # class_1 =['/1/3_1_0', '/1/3_1_1', '/1/3_1_2', '/1/4_1_0', '/1/4_1_1',
+    #           '/1/5_1_0', '/1/5_1_1', '/1/5_1_2', '/1/6_1_0', '/1/6_1_1',
+    #           '/1/6_1_2', '/1/7_1_0', '/1/7_1_1', '/1/8_1_0', '/1/8_1_1',
+    #           '/1/8_1_2', '/1/9_1_0', '/1/9_1_1', '/1/9_1_2', '/1/10_1_0',
+    #           '/1/10_1_1', '/1/10_1_2', '/1/11_1_0', '/1/11_1_1', '/1/12_1_0',
+    #           '/1/12_1_1']
+    #
+    # class_2 =['/2/13_2_0', '/2/13_2_1', '/2/14_2_0', '/2/14_2_1', '/2/15_2_0',
+    #           '/2/15_2_1', '/2/15_2_2', '/2/16_2_0', '/2/16_2_1']
+    #
+    # class_3 =['/3/17_3_0', '/3/17_3_1', '/3/17_3_2', '/3/18_3_0', '/3/18_3_1',
+    #           '/3/19_3_0', '/3/19_3_1', '/3/20_3_0', '/3/20_3_1', '/3/20_3_2',
+    #           '/3/21_3_0', '/3/21_3_1']
+    # if is_subsub_videos:#include sub sub videos such as 1_0_1_3
+    #     class_0 +=[]
+    # return (class_0,class_1,class_2,class_3)
+    all_classes_dir = glob.glob(data_dir + "\\*\\")  # list all folders
+    folders = []
+    for class_dir in all_classes_dir:
+        folders += glob.glob(class_dir + "\\*\\")  # list all sub videos name
 
-    class_1 =['/1/3_1_0', '/1/3_1_1', '/1/3_1_2', '/1/4_1_0', '/1/4_1_1',
-              '/1/5_1_0', '/1/5_1_1', '/1/5_1_2', '/1/6_1_0', '/1/6_1_1',
-              '/1/6_1_2', '/1/7_1_0', '/1/7_1_1', '/1/8_1_0', '/1/8_1_1',
-              '/1/8_1_2', '/1/9_1_0', '/1/9_1_1', '/1/9_1_2', '/1/10_1_0',
-              '/1/10_1_1', '/1/10_1_2', '/1/11_1_0', '/1/11_1_1', '/1/12_1_0',
-              '/1/12_1_1']
+    return folders
 
-    class_2 =['/2/13_2_0', '/2/13_2_1', '/2/14_2_0', '/2/14_2_1', '/2/15_2_0',
-              '/2/15_2_1', '/2/15_2_2', '/2/16_2_0', '/2/16_2_1']
-
-    class_3 =['/3/17_3_0', '/3/17_3_1', '/3/17_3_2', '/3/18_3_0', '/3/18_3_1',
-              '/3/19_3_0', '/3/19_3_1', '/3/20_3_0', '/3/20_3_1', '/3/20_3_2',
-              '/3/21_3_0', '/3/21_3_1']
-    return (class_0,class_1,class_2,class_3)
-
-def howToSplitSubVideos (train_folders, val_folders, shuffle_entire_subvideos, data_dir, input_size, load_to_RAM,EntireSubVideo):
-    folders = _get_all_folders_name()
-    folders_combined = np.concatenate(folders)
+def howToSplitSubVideos (train_folders, val_folders, shuffle_entire_subvideos, data_dir, input_size,
+                         load_to_RAM,EntireSubVideo, is_subsub_videos):
+    folders = _get_all_folders_name(is_subsub_videos)
+    # folders_combined = np.concatenate(folders)
+    folders_combined = folders
     videos_len = len(folders_combined)
     print("number of subvideos involved the experiment =", videos_len)
 
@@ -133,20 +143,21 @@ def howToSplitSubVideos (train_folders, val_folders, shuffle_entire_subvideos, d
         return train_dataset, val_dataset
 
     # if true, don't consider this split, concat train\val folders, and shuffle the subvideos
-    if shuffle_entire_subvideos == "True":
+    if shuffle_entire_subvideos == "True": #this is shuffling the Entire subvideos, we may get 100% val if we are lucky (i.e. video 1_0_1 train while 1_0_0 val)
         np.random.seed(0)
         np.random.shuffle(folders_combined)
         np.random.seed(0)
         train_folders = folders_combined[:videos_len // 2]  # 50% for train and the rest of val
         val_folders = folders_combined[videos_len // 2:]
-    elif shuffle_entire_subvideos == "Equal":
+    elif shuffle_entire_subvideos == "Equal": #Equal to original Nerthus splitting
         # print("video1_0 for train and video1_1 for val, we expect 100% val accuracy")
         train_folders=[]
         val_folders=[]
         for class_folder in folders: #folders = (class_0, class_1, class_2, class_3)
             train_folders+=class_folder[::2]  # 50% for train and the rest of val
             val_folders+=class_folder[1::2]
-    elif shuffle_entire_subvideos == "None Shuffle":#shuffle the order of the train volder
+        # the following is pointless since we are going to shuffle them using the dataloaders anyway
+    elif shuffle_entire_subvideos == "None Shuffle":#consider the current training subvide but only shuffle them.
         np.random.shuffle(train_folders)
 
     print(train_folders)
@@ -158,8 +169,31 @@ def howToSplitSubVideos (train_folders, val_folders, shuffle_entire_subvideos, d
 
     return train_dataset, val_dataset
 
+def get_base_dataset_train_val_folders_name (is_subsub_videos):
+    # train
+    train_folders = ["/0/2_0_0", "/0/2_0_1", "/0/2_0_2",  # class 0
+                     "/1/3_1_0", "/1/3_1_1", "/1/3_1_2", "/1/5_1_0", "/1/5_1_1", "/1/5_1_2",  # class 1
+                     "/2/14_2_0", "/2/14_2_1", "/2/15_2_0", "/2/15_2_1", "/2/15_2_2",  # class 2
+                     "/3/17_3_0", "/3/17_3_1", "/3/17_3_2", "/3/19_3_0", "/3/19_3_1", ]  # class 3
+    val_folders = ["/0/1_0_0", "/0/1_0_1",  # class 0
+                   "/1/4_1_0", "/1/4_1_1", "/1/6_1_0", "/1/6_1_1", "/1/6_1_2",  # class 1
+                   "/2/16_2_0", "/2/16_2_1", "/2/13_2_0", "/2/13_2_1",  # class 2
+                   "/3/18_3_0", "/3/18_3_1", "/3/20_3_0", "/3/20_3_1", "/3/20_3_2", ]  # class 3
+    if is_subsub_videos:#if the dataset splitted into further subsub videos then add those folders
+        train_folders += ["2_0_0_5","2_0_1_6",
+                          "3_1_0_9", "3_1_1_10", "5_1_0_12", "5_1_1_13",
+                          "14_2_0_5", "15_2_0_6", "15_2_1_7", "15_2_2_8",
+                          "17_3_0_3", "17_3_1_4", "19_3_0_7", "19_3_1_8"
+                          ]
+        val_folders += ["1_0_0_3", "1_0_1_4",
+                        "4_1_0_11", "6_1_0_14", "6_1_1_15",
+                        "16_2_0_9", "13_2_0_3", "13_2_1_4",
+                        "18_3_0_5", "18_3_1_6", "20_3_0_9", "20_3_0_10"
+                        ]
+    return (train_folders, val_folders)
 
-def get_dataloaders_SubVideoBased(input_size,batch_size,data_dir, load_to_RAM,
+
+def get_dataloaders_SubVideoBased(input_size,batch_size,data_dir, load_to_RAM,is_subsub_videos,
                                   shuffle=False,shuffle_entire_subvideos=False, EntireSubVideo=True):
     # Create Dataset for each video
     '''list of subvideos:
@@ -171,22 +205,14 @@ def get_dataloaders_SubVideoBased(input_size,batch_size,data_dir, load_to_RAM,
 
 
     # data_dirEntery_list = list[os.scandir(data_dir)]
-    #train
-    train_folders = ["/0/2_0_0", "/0/2_0_1", "/0/2_0_2",  # class 0
-                     "/1/3_1_0", "/1/3_1_1", "/1/3_1_2", "/1/5_1_0", "/1/5_1_1", "/1/5_1_2",  # class 1
-                     "/2/14_2_0", "/2/14_2_1", "/2/15_2_0", "/2/15_2_1", "/2/15_2_2",  # class 2
-                     "/3/17_3_0", "/3/17_3_1", "/3/17_3_2", "/3/19_3_0", "/3/19_3_1", ]  # class 3
-    val_folders = ["/0/1_0_0", "/0/1_0_1",  # class 0
-                   "/1/4_1_0", "/1/4_1_1", "/1/6_1_0", "/1/6_1_1", "/1/6_1_2",  # class 1
-                   "/2/16_2_0", "/2/16_2_1", "/2/13_2_0", "/2/13_2_1",  # class 2
-                   "/3/18_3_0", "/3/18_3_1", "/3/20_3_0", "/3/20_3_1", "/3/20_3_2", ]  # class 3
+    train_folders, val_folders = get_base_dataset_train_val_folders_name(is_subsub_videos)
 
     # if true, don't consider this split, concat train\val folders, and shuffle the subvideos
     if shuffle_entire_subvideos != None:
         train_dataset, val_dataset = howToSplitSubVideos(train_folders, val_folders,
                                                          shuffle_entire_subvideos,
                                                          data_dir, input_size,
-                                                         load_to_RAM, EntireSubVideo)
+                                                         load_to_RAM, EntireSubVideo,is_subsub_videos)
 
     print("Training images:", len(train_dataset))
     print("Val images:", len(val_dataset))

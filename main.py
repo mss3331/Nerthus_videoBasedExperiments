@@ -21,6 +21,7 @@ def print_hyperparameters():
     elif shuffle_entire_subvideos == "Equal":
         print("video1_0 for train and video1_1 for val, we expect 100% val accuracy")
     print("EntireSubVideo", EntireSubVideo)
+    print("Did you consider SubSub Videos? ",is_subsub_videos)
     if data_dir.find("kvasir")>=0:
         print("*"*20,"Kvasir Dataset is used here not Nerthus", "*"*20)
 
@@ -52,7 +53,7 @@ def run():
     if data_dir.find("kvasir")>=0:
         dataloaders_dict = helpers_dataloading.get_dataloaders_Kvasir(input_size,batch_size,data_dir,shuffle)
     else:
-        dataloaders_dict = helpers_dataloading.get_dataloaders_SubVideoBased(input_size,batch_size,data_dir,load_to_RAM
+        dataloaders_dict = helpers_dataloading.get_dataloaders_SubVideoBased(input_size,batch_size,data_dir,load_to_RAM,is_subsub_videos
                                                                          , shuffle=shuffle
                                                                          , shuffle_entire_subvideos=shuffle_entire_subvideos
                                                                          , EntireSubVideo=EntireSubVideo)
@@ -70,7 +71,7 @@ def run():
     # elif model_name.find("RN"):
     #     optimizer_ft = optim.RMSProp(model_ft.parameters(), lr=learning_rate, weight_decay=8*10**-8) #only for Zho
     # Train and evaluate
-    extra_args = (input_size,batch_size,data_dir, load_to_RAM, shuffle,shuffle_entire_subvideos)
+    extra_args = (input_size,batch_size,data_dir, load_to_RAM,is_subsub_videos, shuffle,shuffle_entire_subvideos)
     model_ft, results_dic = train_model.train_model(model_ft, dataloaders_dict, criterion, optimizer_ft,device,model_name,colab_dir,
                                                     num_epochs=num_epochs,is_inception=(model_name == "inception"),extra_args=extra_args)
 
@@ -87,11 +88,11 @@ if __name__ == '__main__':
     # torch.autograd.set_detect_anomaly(True)
     # data_dir = r"E:\Databases\Nerthus\frameBased\frameBased_randomShuffle2"
     data_dir = r"E:\Databases\Nerthus\SubVideoBased_not_splitted_into_trainVal"
-    # data_dir = r"E:\Databases\kvasir-dataset-v2"
+    data_dir = r"E:\Databases\kvasir-dataset-v2"
     # Colab
     colab_dir = "."
     run_in_colab = True
-    # run_in_colab = False
+    run_in_colab = False
     if run_in_colab:
         data_dir = "/content/Nerthus/SubVideoBased_not_splitted_into_trainVal"
         # data_dir = "/content/kvasir-dataset-v2/"
@@ -100,7 +101,7 @@ if __name__ == '__main__':
     # Models to choose from [resnet18,resnet50, alexnet, vgg, squeezenet, densenet, inception
     # Myresnet50,RN,stridedConv,ZhoDenseNet, ResNet50_GRU, ResNet101_GRU, ResNet50_h_initialized_GRU]
     # Owais_ResNet18_LSTM,MlpMixer
-    model_name = "MlpMixer"
+    model_name = "RN"
     # Number of classes in the dataset
     learning_rate = 0.001
     num_classes = 4
@@ -112,11 +113,12 @@ if __name__ == '__main__':
     num_epochs = 150
     # num_epochs = 100 #only for RN
     load_to_RAM = True
-    # load_to_RAM = False
+    load_to_RAM = False
     shuffle = True
     #shuffle_entire_subvideos = either None, True, Equal (video1_0 for train and video1_1 for val), Frame 0.5 means 50% for train and 50% for val.
     # "None Shuffle" means consider the base dataset but shuffle the training folder
     #shuffle_entire_subvideos = [None, True, Equal, Frame 0.5, None Shuffle]
+    is_subsub_videos = True
     shuffle_entire_subvideos = "None Shuffle" # if true, the train and val would have shuffeled videos as in the Original Nerthus paper
     # if EntireSubVideo= true, load entire subvideo as one instance.
     # and shuffle =True means that shuffle the subvideos rather than shuffle the frames in the subvideo
