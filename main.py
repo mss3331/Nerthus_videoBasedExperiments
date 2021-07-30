@@ -24,6 +24,8 @@ def print_hyperparameters():
     print("Did you consider SubSub Videos? ",is_subsub_videos)
     if data_dir.find("kvasir")>=0:
         print("*"*20,"Kvasir Dataset is used here not Nerthus", "*"*20)
+    if checkpoint:
+        print("a checkpoint is loaded")
 
 def run():
     print("PyTorch Version: ",torch.__version__)
@@ -35,7 +37,7 @@ def run():
 
 
     # Initialize the model for this run
-    model_ft, input_size = helpers.initialize_model(model_name, num_classes, feature_extract, use_pretrained=use_pretrained)
+    model_ft, input_size = helpers.initialize_model(model_name, num_classes, feature_extract,checkpoint, use_pretrained=use_pretrained)
     # print(model_ft)
     # exit(0)
     # Send the model to GPU
@@ -72,7 +74,9 @@ def run():
     #     optimizer_ft = optim.RMSProp(model_ft.parameters(), lr=learning_rate, weight_decay=8*10**-8) #only for Zho
     # Train and evaluate
     extra_args = (input_size,batch_size,data_dir, load_to_RAM,is_subsub_videos, shuffle,shuffle_entire_subvideos)
-    model_ft, results_dic = train_model.train_model(model_ft, dataloaders_dict, criterion, optimizer_ft,device,model_name,colab_dir,
+
+    model_ft, results_dic = train_model.train_model(model_ft, dataloaders_dict, criterion,
+                                                    optimizer_ft,device,model_name,colab_dir,
                                                     num_epochs=num_epochs,is_inception=(model_name == "inception"),extra_args=extra_args)
 
 
@@ -108,10 +112,11 @@ if __name__ == '__main__':
     if data_dir.find("kvasir")>=0:
         num_classes = 8
     batch_size = 4
+    # batch_size = 2
     # batch_size = 150
     # batch_size = 32 #only for Zho
     num_epochs = 150
-    # num_epochs = 100 #only for RN
+    # num_epochs = 1
     load_to_RAM = True
     load_to_RAM = False
     shuffle = True
@@ -125,9 +130,10 @@ if __name__ == '__main__':
     # and shuffle =True means that shuffle the subvideos rather than shuffle the frames in the subvideo
     # and batch_size = 3 means load 3 subvideos
     EntireSubVideo = True
-    feature_extract = False
+    feature_extract = True
     half_freez = False
-    use_pretrained = True
+    use_pretrained = False
+    checkpoint =torch.load(colab_dir+"/checkpoints/resnet50.pth")
     print_hyperparameters()
     # Flag for feature extracting. When False, we finetune the whole model,
     #   when True we only update the reshaped layer params

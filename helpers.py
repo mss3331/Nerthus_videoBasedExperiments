@@ -19,7 +19,7 @@ def set_parameter_requires_grad(model, feature_extracting):
 
 
 
-def initialize_model(model_name, num_classes, feature_extract,use_pretrained=True):
+def initialize_model(model_name, num_classes, feature_extract,checkpoint,use_pretrained=True):
     # Initialize these variables which will be set in this if statement. Each of these
     #   variables is model specific.
     model_ft = None
@@ -43,7 +43,8 @@ def initialize_model(model_name, num_classes, feature_extract,use_pretrained=Tru
         # model_ft.fc = nn.Linear(num_ftrs, num_classes)
         input_size = 224
     elif model_name == "ResNet50_GRU":
-        model_ft = ResNet50_GRU.ResNet50_GRU(pretrained=use_pretrained,feature_extract=feature_extract,num_classes=num_classes)
+        model_ft = ResNet50_GRU.ResNet50_GRU(pretrained=use_pretrained,feature_extract=feature_extract,
+                                             num_classes=num_classes,Encoder_CheckPoint=checkpoint)
         input_size = 224
     elif model_name == "Owais_ResNet18_LSTM":
         model_ft = Owais.Owais_ResNet18_LSTM(pretrained=use_pretrained,feature_extract=feature_extract,num_classes=num_classes)

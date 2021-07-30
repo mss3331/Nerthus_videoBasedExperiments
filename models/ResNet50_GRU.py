@@ -1,7 +1,26 @@
 import torchvision.models as models
 import torch
 import torch.nn as nn
+import copy
 import numpy as np
+
+def printLearnableParameters(model):
+    print("learnable parameter for the Encoder as follows (if any):")
+    for name, param in model.named_parameters():
+        if param.requires_grad == True:
+            print("\t",name)
+
+def loadCheckpoint(encoder, Encoder_CheckPoint, num_classes):
+    '''
+        Encoder_CheckPoint = dict_keys(['best_epoch_num', 'best_model_wts', 'best_optimizer_wts', 'best_val_acc'])
+    '''
+    num_ftrs = encoder.fc.in_features
+    encoder.fc = nn.Linear(num_ftrs, num_classes)
+    print("Transfering Weights for Encoder...")
+    print("best validation accuracy", Encoder_CheckPoint['best_val_acc'])
+    encoder.load_state_dict(Encoder_CheckPoint['best_model_wts'])
+
+    return encoder
 
 
 class ResNet50_GRU(nn.Module):
@@ -10,7 +29,8 @@ class ResNet50_GRU(nn.Module):
             for param in model.parameters():
                 param.requires_grad = False
 
-    def __init__(self, num_classes=4, pretrained=True, resnet50=True, feature_extract=True):
+    def __init__(self, num_classes=4, pretrained=True, resnet50=True,
+                 feature_extract=True,Encoder_CheckPoint=None):
         super(ResNet50_GRU, self).__init__()
         if resnet50:
             self.original_ResNet = models.resnet50(pretrained=pretrained)
@@ -18,12 +38,15 @@ class ResNet50_GRU(nn.Module):
             self.original_ResNet = models.resnet101(pretrained=pretrained)
         self.set_parameter_requires_grad(self.original_ResNet,
                                          feature_extract=feature_extract)  # if True freeze all the parameters
-
+        if Encoder_CheckPoint:
+            self.original_ResNet = loadCheckpoint(self.original_ResNet,Encoder_CheckPoint, num_classes)
         self.layers = list(self.original_ResNet.children())  # seperate the layers
 
         # self.layers.insert(9, self.gruUnit)
 
         self.Encoder = nn.Sequential(*self.layers[:-1])  # combine all layers
+        printLearnableParameters(self.Encoder)
+
         self.gruUnit = nn.GRU(input_size=2048,
                               hidden_size=2048)  # expected input is (seq_len, batch, input_size) (8, 1, 2048)
         self.fc = nn.Sequential(nn.BatchNorm1d(2048),nn.Dropout(p=0.25),nn.Linear(2048, num_classes))  # modify the last fc layer
