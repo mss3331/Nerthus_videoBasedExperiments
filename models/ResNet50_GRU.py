@@ -120,12 +120,18 @@ class ResNet50_max(nn.Module):
             sub_batch = sub_batch.squeeze()  # => (Batch, C)
             batch_size = sub_batch.shape[0]
             # print("sub batch=",sub_batch.shape)
-            out, indecies = sub_batch.max(dim=0)
-            # print(out.shape)
+            out_artificial = torch.FloatTensor(sub_batch.shape).to(torch.device("cuda:0"))
+            # print(out_artificial.shape)
+            out = sub_batch.argmax(dim=1)
+            for i in range(len(out_artificial)):
+                out_artificial[i,out[i]] = 1
+            # print(out_artificial.shape)
+            h_n= out_artificial
+            # exit(0)
             # out = out.max()
             # print(out)
             # print("result",out)
-            h_n = out.expand(batch_size,-1)
+            # h_n = out.expand(batch_size,-1)
             # print("results after expanding",h_n.shape)
             # print(h_n.shape)
             # exit(0)
@@ -140,8 +146,19 @@ class ResNet50_max(nn.Module):
         return output
 
 class myRNN(nn.Module):
-    def __init__(self,input):
+    def __init__(self,):
         super().__init__()
+        self.fc = nn.Linear(2048*2,2048)
+
+    def forward(self,x):
+        #x.shape = [images,2048]
+        frames_size = x.shape[0]
+        x_prev = x[0]
+        for index in range(frames_size-1):
+            x_cat = torch.cat((x_prev,x[index+1]))
+            x_h = self.fc(x_cat)
+            x_prev = x_h
+        return x_h
 
 class ResNet50_SimplerGRU(nn.Module):
     def set_parameter_requires_grad(self, model, feature_extract):
@@ -166,26 +183,28 @@ class ResNet50_SimplerGRU(nn.Module):
 
         self.Encoder = nn.Sequential(*self.layers[:-1])  # combine all layers
         printLearnableParameters(self.Encoder)
+        self.myRNNunit = myRNN()
         # self.my = nn.
         # self.gruUnit = nn.GRU(input_size=2048,
         #                       hidden_size=2048)  # expected input is (seq_len, batch, input_size) (8, 1, 2048)
-        # self.fc = nn.Sequential(nn.BatchNorm1d(2048),nn.Dropout(p=0.25),nn.Linear(2048, num_classes))  # modify the last fc layer
+        self.fc = nn.Sequential(nn.Linear(2048, num_classes))  # modify the last fc layer
         # print(self.layers)
         # exit(0)
 
-    def forward(self, x, labels):
+    def forward(self, x, labels, subvideo_lengths):
         #extract features
         output = self.Encoder(x)  # => (Batch, C, 1, 1) due to the adaptive average pooling
         #split the batch based on the labels
-        output_sequences = split_seq_frames(output, labels)
+        subvideo_sequences=torch.split(output, subvideo_lengths, dim=0)
         output_sequences_gru = []
         #for each sub batch do
-        for sub_batch in output_sequences:
+        for sub_batch in subvideo_sequences:
             sub_batch = sub_batch.squeeze()  # => (Batch, C)
+
             batch_size = sub_batch.shape[0]
 
-            sub_batch = sub_batch.unsqueeze(1)  # => (batch, 1, C) := (seq, batch, input)
-            output, h_n = self.gruUnit(sub_batch)
+            # sub_batch = sub_batch.unsqueeze(1)  # => (batch, 1, C) := (seq, batch, input)
+            h_n = self.myRNNunit(sub_batch)
 
             h_n = h_n.squeeze()
             h_n = h_n.expand(batch_size,-1)
