@@ -92,10 +92,12 @@ class ResNet50_max(nn.Module):
             self.original_ResNet = models.resnet50(pretrained=pretrained)
         else:
             self.original_ResNet = models.resnet101(pretrained=pretrained)
-        self.set_parameter_requires_grad(self.original_ResNet,
-                                         feature_extract=feature_extract)  # if True freeze all the parameters
+
         if Encoder_CheckPoint:
             self.original_ResNet = loadCheckpoint(self.original_ResNet,Encoder_CheckPoint, num_classes)
+
+        self.set_parameter_requires_grad(self.original_ResNet,
+                                         feature_extract=feature_extract)  # if True freeze all the parameters
         # self.layers = list(self.original_ResNet.children())  # seperate the layers
 
         # self.layers.insert(9, self.gruUnit)
