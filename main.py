@@ -103,9 +103,9 @@ if __name__ == '__main__':
         colab_dir = "/content/Nerthus_videoBasedExperiments/" # base folder for where to store the results
     # data_dir = "/content/frameBased_randomShuffle1"
     # Models to choose from [resnet18,resnet50, alexnet, vgg, squeezenet, densenet, inception
-    # Myresnet50,RN,stridedConv,ZhoDenseNet, ResNet50_GRU, ResNet101_GRU, ResNet50_h_initialized_GRU]
-    # Owais_ResNet18_LSTM,MlpMixer
-    model_name = "ResNet50_GRU"
+    # Myresnet50,RN,stridedConv,ZhoDenseNet, ResNet50_GRU, ResNet101_GRU, ResNet50_h_initialized_GRU,
+    # Owais_ResNet18_LSTM,MlpMixer, ResNet50_max]
+    model_name = "ResNet50_max"
     # Number of classes in the dataset
     learning_rate = 0.001
     num_classes = 4
@@ -133,7 +133,7 @@ if __name__ == '__main__':
     feature_extract = True
     half_freez = False
     use_pretrained = False
-    checkpoint =torch.load(colab_dir+"/checkpoints/resnet50.pth")
+    checkpoint =torch.load(colab_dir+"/checkpoints/resnet50_trainedOnSubset.pth")
     print_hyperparameters()
     # Flag for feature extracting. When False, we finetune the whole model,
     #   when True we only update the reshaped layer params

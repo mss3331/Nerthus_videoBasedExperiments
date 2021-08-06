@@ -72,7 +72,8 @@ def train_model(model, dataloaders, criterion, optimizer,device,model_name,colab
                         loss2 = criterion(aux_outputs, labels)
                         loss = loss1 + 0.4 *loss2
                     else:
-                        if model_name.find("GRU")>=0 or model_name.find("LSTM")>=0:
+                        if model_name.find("GRU")>=0 or model_name.find("LSTM")>=0\
+                                or model_name.find("_max")>=0:
                             outputs = model(inputs, labels)
                         elif model_name.find("Mlp")>=0:
                             outputs = model(inputs, labels,subvideo_lengths)

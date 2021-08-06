@@ -79,6 +79,123 @@ class ResNet50_GRU(nn.Module):
 
         return output
 
+class ResNet50_max(nn.Module):
+    def set_parameter_requires_grad(self, model, feature_extract):
+        if feature_extract:
+            for param in model.parameters():
+                param.requires_grad = False
+
+    def __init__(self, num_classes=4, pretrained=True, resnet50=True,
+                 feature_extract=True,Encoder_CheckPoint=None):
+        super().__init__()
+        if resnet50:
+            self.original_ResNet = models.resnet50(pretrained=pretrained)
+        else:
+            self.original_ResNet = models.resnet101(pretrained=pretrained)
+        self.set_parameter_requires_grad(self.original_ResNet,
+                                         feature_extract=feature_extract)  # if True freeze all the parameters
+        if Encoder_CheckPoint:
+            self.original_ResNet = loadCheckpoint(self.original_ResNet,Encoder_CheckPoint, num_classes)
+        # self.layers = list(self.original_ResNet.children())  # seperate the layers
+
+        # self.layers.insert(9, self.gruUnit)
+
+        self.Encoder = self.original_ResNet  # combine all layers
+        printLearnableParameters(self.Encoder)
+
+        # print(self.layers)
+        # exit(0)
+
+    def forward(self, x, labels):
+        #extract features
+        output = self.Encoder(x)  # => (Batch,4) due to the adaptive average pooling
+
+        #split the batch based on the labels
+        output_sequences = split_seq_frames(output, labels)
+        output_sequences_gru = []
+        #for each sub batch do
+        for sub_batch in output_sequences:
+            sub_batch = sub_batch.squeeze()  # => (Batch, C)
+            batch_size = sub_batch.shape[0]
+            # print("sub batch=",sub_batch.shape)
+            out, indecies = sub_batch.max(dim=0)
+            # print(out.shape)
+            # out = out.max()
+            # print(out)
+            # print("result",out)
+            h_n = out.expand(batch_size,-1)
+            # print("results after expanding",h_n.shape)
+            # print(h_n.shape)
+            # exit(0)
+            output_sequences_gru.append(h_n)
+        # ---------------------------------------------------------------------------------
+
+        output = torch.cat(output_sequences_gru)
+        # print(output.shape)
+        # exit(0)
+        # output = self.fc(output)
+
+        return output
+
+class myRNN(nn.Module):
+    def __init__(self,input):
+        super().__init__()
+
+class ResNet50_SimplerGRU(nn.Module):
+    def set_parameter_requires_grad(self, model, feature_extract):
+        if feature_extract:
+            for param in model.parameters():
+                param.requires_grad = False
+
+    def __init__(self, num_classes=4, pretrained=True, resnet50=True,
+                 feature_extract=True,Encoder_CheckPoint=None):
+        super(ResNet50_SimplerGRU, self).__init__()
+        if resnet50:
+            self.original_ResNet = models.resnet50(pretrained=pretrained)
+        else:
+            self.original_ResNet = models.resnet101(pretrained=pretrained)
+        self.set_parameter_requires_grad(self.original_ResNet,
+                                         feature_extract=feature_extract)  # if True freeze all the parameters
+        if Encoder_CheckPoint:
+            self.original_ResNet = loadCheckpoint(self.original_ResNet,Encoder_CheckPoint, num_classes)
+        self.layers = list(self.original_ResNet.children())  # seperate the layers
+
+        # self.layers.insert(9, self.gruUnit)
+
+        self.Encoder = nn.Sequential(*self.layers[:-1])  # combine all layers
+        printLearnableParameters(self.Encoder)
+        # self.my = nn.
+        # self.gruUnit = nn.GRU(input_size=2048,
+        #                       hidden_size=2048)  # expected input is (seq_len, batch, input_size) (8, 1, 2048)
+        # self.fc = nn.Sequential(nn.BatchNorm1d(2048),nn.Dropout(p=0.25),nn.Linear(2048, num_classes))  # modify the last fc layer
+        # print(self.layers)
+        # exit(0)
+
+    def forward(self, x, labels):
+        #extract features
+        output = self.Encoder(x)  # => (Batch, C, 1, 1) due to the adaptive average pooling
+        #split the batch based on the labels
+        output_sequences = split_seq_frames(output, labels)
+        output_sequences_gru = []
+        #for each sub batch do
+        for sub_batch in output_sequences:
+            sub_batch = sub_batch.squeeze()  # => (Batch, C)
+            batch_size = sub_batch.shape[0]
+
+            sub_batch = sub_batch.unsqueeze(1)  # => (batch, 1, C) := (seq, batch, input)
+            output, h_n = self.gruUnit(sub_batch)
+
+            h_n = h_n.squeeze()
+            h_n = h_n.expand(batch_size,-1)
+
+
+            output_sequences_gru.append(h_n)
+        # ---------------------------------------------------------------------------------
+
+        output = torch.cat(output_sequences_gru)
+        output = self.fc(output)
+
+        return output
 
 class ResNet50_h_initialized_GRU(nn.Module):
     def set_parameter_requires_grad(self, model, feature_extract):

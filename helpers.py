@@ -46,6 +46,10 @@ def initialize_model(model_name, num_classes, feature_extract,checkpoint,use_pre
         model_ft = ResNet50_GRU.ResNet50_GRU(pretrained=use_pretrained,feature_extract=feature_extract,
                                              num_classes=num_classes,Encoder_CheckPoint=checkpoint)
         input_size = 224
+    elif model_name == "ResNet50_max":
+        model_ft = ResNet50_GRU.ResNet50_max(pretrained=use_pretrained,feature_extract=feature_extract,
+                                             num_classes=num_classes,Encoder_CheckPoint=checkpoint)
+        input_size = 224
     elif model_name == "Owais_ResNet18_LSTM":
         model_ft = Owais.Owais_ResNet18_LSTM(pretrained=use_pretrained,feature_extract=feature_extract,num_classes=num_classes)
         input_size = 224
