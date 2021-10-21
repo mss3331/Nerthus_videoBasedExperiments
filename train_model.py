@@ -123,13 +123,14 @@ def train_model(model, dataloaders, criterion, optimizer,device,model_name,colab
                     colab_dir+'/checkpoints/' +model_name+ '.pth')
 
             storeResults(phase,results_dic,epoch_acc,epoch_loss)
+            wandb.log({phase + "_acc": epoch_acc, phase + "_loss": epoch_loss, "epoch": epoch}, step=epoch)
             if phase == 'val':
                 print('Best So far {} Acc: {:.4f}'.format(phase, best_acc))
 
         print()
 
         helpers.plot_result(num_epochs=epoch+1,results_dic=results_dic, model_name=model_name, colab_dir=colab_dir)
-        wandb.log({phase+"_acc": epoch_acc, phase+"_loss":epoch_loss , "epoch":epoch})
+
 
         if model_name.find("GRU")>=0 and (epoch+1)%10==0:
             print("we need to shuffle sub-videos, hence new dataloader is created")
