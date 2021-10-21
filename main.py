@@ -115,7 +115,7 @@ if __name__ == '__main__':
         num_classes = 8
     # batch_size = 4
     # batch_size = 2
-    batch_size = 150
+    batch_size = 100
     # batch_size = 32 #only for Zho
     num_epochs = 50
     # num_epochs = 1
@@ -126,12 +126,12 @@ if __name__ == '__main__':
     # "None Shuffle" means consider the base dataset but shuffle the training folder
     #shuffle_entire_subvideos = [None, True, Equal, Frame 0.5, None Shuffle]
     is_subsub_videos = False
-    shuffle_entire_subvideos = "Frame 0.8" # if true, the train and val would have shuffeled videos as in the Original Nerthus paper
+    shuffle_entire_subvideos = "Equal" # if true, the train and val would have shuffeled videos as in the Original Nerthus paper
     # shuffle_entire_subvideos = "True"
     # if EntireSubVideo= true, load entire subvideo as one instance.
     # and shuffle =True means that shuffle the subvideos rather than shuffle the frames in the subvideo
     # and batch_size = 3 means load 3 subvideos
-    EntireSubVideo = False
+    EntireSubVideo = False #it means add collate function that gather all images and make the dataloader to provide images,labels,filenames,videolenght_list
     feature_extract = False
     half_freez = False
     use_pretrained = False
