@@ -160,7 +160,8 @@ if __name__ == '__main__':
             "dataset": data_dir.split("/")[-1], })
 
     run()
-    wandb.save(data_dir+'/*.py')
-    wandb.save(data_dir+'/results/*')
-    wandb.save(data_dir+'/models/*')
+    wandb.save(colab_dir+'/*.py')
+    wandb.save(colab_dir+'/results/*')
+    wandb.save(colab_dir+'/models/*')
+    wandb.finish()
 

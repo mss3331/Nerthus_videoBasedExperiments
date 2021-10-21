@@ -137,7 +137,7 @@ def train_model(model, dataloaders, criterion, optimizer,device,model_name,colab
             dataloaders = helpers_dataloading.get_dataloaders_SubVideoBased(*extra_args)
 
 
-    wandb.finish()
+
     time_elapsed = time.time() - since
     print('Training complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
     print('Best val Acc: {:4f}'.format(best_acc))
