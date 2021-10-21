@@ -159,8 +159,8 @@ def howToSplitSubVideos (train_folders, val_folders, shuffle_entire_subvideos, d
         # for class_folder in folders: #folders = (class_0, class_1, class_2, class_3)
         #     train_folders+=class_folder[::2]  # 50% for train and the rest of val
         #     val_folders+=class_folder[1::2]
-        train_folders += folders_combined[::2]  # 50% for train and the rest of val
-        val_folders+=folders_combined[1::2]
+        train_folders = folders_combined[::2]  # 50% for train and the rest of val
+        val_folders =folders_combined[1::2]
         # the following is pointless since we are going to shuffle them using the dataloaders anyway
     elif shuffle_entire_subvideos == "None Shuffle":#consider the current training subvide but only shuffle them.
         np.random.shuffle(train_folders)
