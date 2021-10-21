@@ -3,6 +3,7 @@ from __future__ import division
 import torch
 import pandas
 import helpers
+import wandb
 import torch.nn as nn
 import torch.optim as optim
 import numpy as np
@@ -128,11 +129,14 @@ def train_model(model, dataloaders, criterion, optimizer,device,model_name,colab
         print()
 
         helpers.plot_result(num_epochs=epoch+1,results_dic=results_dic, model_name=model_name, colab_dir=colab_dir)
+        wandb.log({phase+"_acc": epoch_acc, phase+"_loss":epoch_loss , "epoch":epoch})
 
         if model_name.find("GRU")>=0 and (epoch+1)%10==0:
             print("we need to shuffle sub-videos, hence new dataloader is created")
             dataloaders = helpers_dataloading.get_dataloaders_SubVideoBased(*extra_args)
 
+
+    wandb.finish()
     time_elapsed = time.time() - since
     print('Training complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
     print('Best val Acc: {:4f}'.format(best_acc))

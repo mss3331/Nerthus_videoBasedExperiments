@@ -6,6 +6,8 @@ import helpers_dataloading
 import train_model
 import numpy as np
 import torch.optim as optim
+import wandb
+wandb.login(key="38818beaffe50c5403d3f87b288d36d1b38372f8")
 
 def print_hyperparameters():
     print("learning_rate {}\n,num_classes {}\n,batch_size {}\n"
@@ -91,7 +93,7 @@ if __name__ == '__main__':
 
     # torch.autograd.set_detect_anomaly(True)
     # data_dir = r"E:\Databases\Nerthus\frameBased\frameBased_randomShuffle2"
-    data_dir = r"E:\Databases\Nerthus\SubSubVideoBased_not_splitted_into_trainVal"
+    data_dir = "E:/Databases/Nerthus/SubSubVideoBased_not_splitted_into_trainVal"
     # data_dir = r"E:\Databases\kvasir-dataset-v2"
     # Colab
     colab_dir = "."
@@ -105,7 +107,7 @@ if __name__ == '__main__':
     # Models to choose from [resnet18,resnet50, alexnet, vgg, squeezenet, densenet, inception
     # Myresnet50,RN,stridedConv,ZhoDenseNet, ResNet50_GRU, ResNet101_GRU, ResNet50_h_initialized_GRU,
     # Owais_ResNet18_LSTM,MlpMixer, ResNet50_max, ResNet50_SimplerGRU]
-    model_name = "ResNet50_SimplerGRU"
+    model_name = "resnet50"
     # Number of classes in the dataset
     learning_rate = 0.001
     num_classes = 4
@@ -115,7 +117,7 @@ if __name__ == '__main__':
     # batch_size = 2
     # batch_size = 150
     # batch_size = 32 #only for Zho
-    num_epochs = 150
+    num_epochs = 50
     # num_epochs = 1
     load_to_RAM = True
     load_to_RAM = False
@@ -123,14 +125,14 @@ if __name__ == '__main__':
     #shuffle_entire_subvideos = either None, True, Equal (video1_0 for train and video1_1 for val), Frame 0.5 means 50% for train and 50% for val.
     # "None Shuffle" means consider the base dataset but shuffle the training folder
     #shuffle_entire_subvideos = [None, True, Equal, Frame 0.5, None Shuffle]
-    is_subsub_videos = True
-    shuffle_entire_subvideos = "None Shuffle" # if true, the train and val would have shuffeled videos as in the Original Nerthus paper
+    is_subsub_videos = False
+    shuffle_entire_subvideos = "Frame 0.8" # if true, the train and val would have shuffeled videos as in the Original Nerthus paper
     # shuffle_entire_subvideos = "True"
     # if EntireSubVideo= true, load entire subvideo as one instance.
     # and shuffle =True means that shuffle the subvideos rather than shuffle the frames in the subvideo
     # and batch_size = 3 means load 3 subvideos
-    EntireSubVideo = True
-    feature_extract = True
+    EntireSubVideo = False
+    feature_extract = False
     half_freez = False
     use_pretrained = False
     checkpoint =torch.load(colab_dir+"/checkpoints/resnet50.pth")
@@ -138,7 +140,23 @@ if __name__ == '__main__':
     # Flag for feature extracting. When False, we finetune the whole model,
     #   when True we only update the reshaped layer params
 
+    wandb.init(
+        project="Nerthus",
+        entity="mss3331",
+        name=ExperimentNumber,
+        # Track hyperparameters and run metadata
+        config={
 
+            "learning_rate": learning_rate,
+            "shuffle": shuffle,
+            "is_subsub_videos":is_subsub_videos,
+            "shuffle_entire_subvideos":shuffle_entire_subvideos,
+            "architecture": model_name,
+            "batch_size":batch_size,
+            "use_pretrained":use_pretrained,
+            "feature_extract":feature_extract,
+            "num_epochs":num_epochs,
+            "dataset": data_dir.split("/")[-1], })
 
     run()
 

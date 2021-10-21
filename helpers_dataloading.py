@@ -112,14 +112,15 @@ def _get_all_folders_name(data_dir, is_subsub_videos):
     # if is_subsub_videos:#include sub sub videos such as 1_0_1_3
     #     class_0 +=[]
     # return (class_0,class_1,class_2,class_3)
-    all_classes_dir = glob.glob(data_dir + "/*/")  # list all folders
-    folders = []
+    all_classes_dir = glob.glob(data_dir + "/*/")  # list all stools folders [0, 1, 2, 3]
+    folder_list = []
     for class_dir in all_classes_dir:
-        temp =  glob.glob(class_dir + "/*/")  # list all sub videos name
-        temp = ["/"+"/".join(folder.split("\\")[-3:]) for folder in temp]
-        folders += temp
+        temp_list =  glob.glob(class_dir + "/*/")  # list all sub videos name
+        temp_list = ["\\".join(folder.split('/')) for folder in temp_list] # in Colab the path is ./content/Nerthus so convert it to \\ .\\content\\ like windows
+        temp_list = ["/"+"/".join(folder.split("\\")[-3:]) for folder in temp_list]
+        folder_list += temp_list
 
-    return folders
+    return folder_list
 
 def howToSplitSubVideos (train_folders, val_folders, shuffle_entire_subvideos, data_dir, input_size,
                          load_to_RAM,EntireSubVideo, is_subsub_videos):
@@ -133,7 +134,7 @@ def howToSplitSubVideos (train_folders, val_folders, shuffle_entire_subvideos, d
     if shuffle_entire_subvideos.find("Frame") == 0:
         '''This function split train test randomely'''
         print("dataset is splitted randomely")
-        TTR = float(shuffle_entire_subvideos.split(" ")[-1])
+        TTR = float(shuffle_entire_subvideos.split(" ")[-1]) # Frame 0.8 --> TTR=0.8
         dataset = createDataSetFromList(data_dir, input_size, folders_combined, load_to_RAM,EntireSubVideo)
         dataset_size = len(dataset)
         np.random.seed(0)
