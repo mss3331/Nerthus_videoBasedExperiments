@@ -100,7 +100,8 @@ if __name__ == '__main__':
     run_in_colab = True
     # run_in_colab = False
     if run_in_colab:
-        data_dir = "/content/SubSubVideoBased_not_splitted_into_trainVal"
+        # data_dir = "/content/SubSubVideoBased_not_splitted_into_trainVal"
+        data_dir = "/content/Nerthus/SubVideoBased_not_splitted_into_trainVal"
         # data_dir = "/content/kvasir-dataset-v2/"
         colab_dir = "/content/Nerthus_videoBasedExperiments" # base folder for where to store the results
     # data_dir = "/content/frameBased_randomShuffle1"
