@@ -126,7 +126,7 @@ def howToSplitSubVideos (train_folders, val_folders, shuffle_entire_subvideos, d
                          load_to_RAM,EntireSubVideo, is_subsub_videos):
     folders = _get_all_folders_name(data_dir, is_subsub_videos)
     # folders_combined = np.concatenate(folders)
-    folders_combined = folders
+    folders_combined = sorted(folders) #sort the subvideo based on its number
     videos_len = len(folders_combined)
     print("number of subvideos involved the experiment =", videos_len)
 
