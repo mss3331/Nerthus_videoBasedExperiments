@@ -100,9 +100,9 @@ if __name__ == '__main__':
     run_in_colab = True
     # run_in_colab = False
     if run_in_colab:
-        data_dir = "/content/SubSubVideoBased_not_splitted_into_trainVal"
+        data_dir = "./content/SubSubVideoBased_not_splitted_into_trainVal"
         # data_dir = "/content/kvasir-dataset-v2/"
-        colab_dir = "/content/Nerthus_videoBasedExperiments/" # base folder for where to store the results
+        colab_dir = "./content/Nerthus_videoBasedExperiments" # base folder for where to store the results
     # data_dir = "/content/frameBased_randomShuffle1"
     # Models to choose from [resnet18,resnet50, alexnet, vgg, squeezenet, densenet, inception
     # Myresnet50,RN,stridedConv,ZhoDenseNet, ResNet50_GRU, ResNet101_GRU, ResNet50_h_initialized_GRU,
@@ -159,4 +159,7 @@ if __name__ == '__main__':
             "dataset": data_dir.split("/")[-1], })
 
     run()
+    wandb.save(data_dir+'/*.py')
+    wandb.save(data_dir+'/results/*')
+    wandb.save(data_dir+'/models/*')
 
