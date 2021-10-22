@@ -9,20 +9,22 @@ from PIL import Image
 from torchvision import datasets, transforms
 from torch.utils.data import Dataset
 
+
 def my_collate(data):
-    #data is a list of batches each batch contains imgs,labels,file_names
+    # data is a list of batches each batch contains imgs,labels,file_names
     imgs = []
     labels = []
     file_names = []
     subvideo_lengths = []
     for subvideo in data:
-        imgs +=subvideo[0]
-        labels +=subvideo[1]
-        file_names +=subvideo[2]
+        imgs += subvideo[0]
+        labels += subvideo[1]
+        file_names += subvideo[2]
         subvideo_lengths.append(len(subvideo[1]))
     imgs = torch.stack(imgs)
     labels = torch.stack(labels)
     return [imgs, labels, file_names, subvideo_lengths]
+
 
 def get_transform_conf(input_size):
     data_transforms = {
@@ -41,8 +43,8 @@ def get_transform_conf(input_size):
     }
     return data_transforms
 
-def get_dataloaders(input_size,batch_size,data_dir):
 
+def get_dataloaders(input_size, batch_size, data_dir):
     data_transforms = get_transform_conf(input_size=input_size)
     print("Initializing Datasets and Dataloaders...")
     # Create training and validation datasets
@@ -54,7 +56,8 @@ def get_dataloaders(input_size,batch_size,data_dir):
         for x in ['train', 'val']}
     return dataloaders_dict
 
-def get_dataloaders_Kvasir(input_size,batch_size,data_dir,shuffle):
+
+def get_dataloaders_Kvasir(input_size, batch_size, data_dir, shuffle):
     TTR = 0.5
     data_transforms = get_transform_conf(input_size=input_size)
     print("Initializing Datasets and Dataloaders...")
@@ -70,7 +73,7 @@ def get_dataloaders_Kvasir(input_size,batch_size,data_dir,shuffle):
     print("Training images:", len(train_dataset))
     print("Val images:", len(val_dataset))
     print("training indices {}\n val indices {}".format(train_dataset.indices[:5], val_dataset.indices[:5]))
-    train_val_dataset = {"train":train_dataset, "val":val_dataset}
+    train_val_dataset = {"train": train_dataset, "val": val_dataset}
 
     # Create training and validation dataloaders
     dataloaders_dict = {
@@ -78,14 +81,15 @@ def get_dataloaders_Kvasir(input_size,batch_size,data_dir,shuffle):
         for x in ['train', 'val']}
     return dataloaders_dict
 
-def createDataSetFromList(data_dir,input_size,folders_name,load_to_RAM,EntireSubVideo):
+
+def createDataSetFromList(data_dir, input_size, folders_name, load_to_RAM, EntireSubVideo):
     '''Recieve lsit of folder names and return a concatinated dataset'''
 
     dataset_list = []
     for subvideo_name in folders_name:
         # create a dataset based on subvideo_name
         if EntireSubVideo:
-            dataset_list.append(Nerthus_EntireSubVideo_Dataset(data_dir + subvideo_name, input_size,load_to_RAM))
+            dataset_list.append(Nerthus_EntireSubVideo_Dataset(data_dir + subvideo_name, input_size, load_to_RAM))
         else:
             dataset_list.append(Nerthus_SubVideo_Dataset(data_dir + subvideo_name, input_size, load_to_RAM))
     dataset = ConcatDataset(dataset_list)
@@ -112,21 +116,26 @@ def _get_all_folders_name(data_dir, is_subsub_videos):
     # if is_subsub_videos:#include sub sub videos such as 1_0_1_3
     #     class_0 +=[]
     # return (class_0,class_1,class_2,class_3)
-    all_classes_dir = glob.glob(data_dir + "/*/")  # list all stools folders [0, 1, 2, 3]
+    all_classes_dir = sorted(glob.glob(data_dir + "/*/"))  # list all stools folders [0, 1, 2, 3]
+    print(all_classes_dir)
     folder_list = []
     for class_dir in all_classes_dir:
-        temp_list =  glob.glob(class_dir + "/*/")  # list all sub videos name
-        temp_list = ["\\".join(folder.split('/')) for folder in temp_list] # in Colab the path is ./content/Nerthus so convert it to \\ .\\content\\ like windows
-        temp_list = ["/"+"/".join(folder.split("\\")[-3:]) for folder in temp_list]
+        temp_list = sorted(glob.glob(class_dir + "/*/"),
+                           key=lambda x: int(x.split('/')[-2].split('_')[0]))  # list all sub videos name
+        temp_list = ["\\".join(folder.split('/')) for folder in
+                     temp_list]  # in Colab the path is ./content/Nerthus so convert it to \\ .\\content\\ like windows
+        temp_list = ["/" + "/".join(folder.split("\\")[-3:]) for folder in temp_list]
         folder_list += temp_list
 
+    print(folder_list)
     return folder_list
 
-def howToSplitSubVideos (train_folders, val_folders, shuffle_entire_subvideos, data_dir, input_size,
-                         load_to_RAM,EntireSubVideo, is_subsub_videos):
+
+def howToSplitSubVideos(train_folders, val_folders, shuffle_entire_subvideos, data_dir, input_size,
+                        load_to_RAM, EntireSubVideo, is_subsub_videos):
     folders = _get_all_folders_name(data_dir, is_subsub_videos)
     # folders_combined = np.concatenate(folders)
-    folders_combined = sorted(folders) #sort the subvideo based on its number
+    folders_combined = folders  # the folders are sorted from _get_all_folders_name function
     videos_len = len(folders_combined)
     print("number of subvideos involved the experiment =", videos_len)
 
@@ -134,8 +143,8 @@ def howToSplitSubVideos (train_folders, val_folders, shuffle_entire_subvideos, d
     if shuffle_entire_subvideos.find("Frame") == 0:
         '''This function split train test randomely'''
         print("dataset is splitted randomely")
-        TTR = float(shuffle_entire_subvideos.split(" ")[-1]) # Frame 0.8 --> TTR=0.8
-        dataset = createDataSetFromList(data_dir, input_size, folders_combined, load_to_RAM,EntireSubVideo)
+        TTR = float(shuffle_entire_subvideos.split(" ")[-1])  # Frame 0.8 --> TTR=0.8
+        dataset = createDataSetFromList(data_dir, input_size, folders_combined, load_to_RAM, EntireSubVideo)
         dataset_size = len(dataset)
         np.random.seed(0)
         dataset_permutation = np.random.permutation(dataset_size)
@@ -146,35 +155,35 @@ def howToSplitSubVideos (train_folders, val_folders, shuffle_entire_subvideos, d
         return train_dataset, val_dataset
 
     # if true, don't consider this split, concat train\val folders, and shuffle the subvideos
-    if shuffle_entire_subvideos == "True": #this is shuffling the Entire subvideos, we may get 100% val if we are lucky (i.e. video 1_0_1 train while 1_0_0 val)
+    if shuffle_entire_subvideos == "True":  # this is shuffling the Entire subvideos, we may get 100% val if we are lucky (i.e. video 1_0_1 train while 1_0_0 val)
         np.random.seed(0)
         np.random.shuffle(folders_combined)
         np.random.seed(0)
         train_folders = folders_combined[:videos_len // 2]  # 50% for train and the rest of val
         val_folders = folders_combined[videos_len // 2:]
-    elif shuffle_entire_subvideos == "Equal": #Equal to original Nerthus splitting
+    elif shuffle_entire_subvideos == "Equal":  # Equal to original Nerthus splitting
         # print("video1_0 for train and video1_1 for val, we expect 100% val accuracy")
-        train_folders=[]
-        val_folders=[]
+        train_folders = []
+        val_folders = []
         # for class_folder in folders: #folders = (class_0, class_1, class_2, class_3)
         #     train_folders+=class_folder[::2]  # 50% for train and the rest of val
         #     val_folders+=class_folder[1::2]
         train_folders = folders_combined[::2]  # 50% for train and the rest of val
-        val_folders =folders_combined[1::2]
+        val_folders = folders_combined[1::2]
         # the following is pointless since we are going to shuffle them using the dataloaders anyway
-    elif shuffle_entire_subvideos == "None Shuffle":#consider the current training subvide but only shuffle them.
+    elif shuffle_entire_subvideos == "None Shuffle":  # consider the current training subvide but only shuffle them.
         np.random.shuffle(train_folders)
 
     print(train_folders)
     print(val_folders)
 
-
-    train_dataset = createDataSetFromList(data_dir, input_size, train_folders, load_to_RAM,EntireSubVideo)
-    val_dataset = createDataSetFromList(data_dir, input_size, val_folders, load_to_RAM,EntireSubVideo)
+    train_dataset = createDataSetFromList(data_dir, input_size, train_folders, load_to_RAM, EntireSubVideo)
+    val_dataset = createDataSetFromList(data_dir, input_size, val_folders, load_to_RAM, EntireSubVideo)
 
     return train_dataset, val_dataset
 
-def get_base_dataset_train_val_folders_name (is_subsub_videos):
+
+def get_base_dataset_train_val_folders_name(is_subsub_videos):
     # train
     train_folders = ["/0/2_0_0", "/0/2_0_1", "/0/2_0_2",  # class 0
                      "/1/3_1_0", "/1/3_1_1", "/1/3_1_2", "/1/5_1_0", "/1/5_1_1", "/1/5_1_2",  # class 1
@@ -184,8 +193,8 @@ def get_base_dataset_train_val_folders_name (is_subsub_videos):
                    "/1/4_1_0", "/1/4_1_1", "/1/6_1_0", "/1/6_1_1", "/1/6_1_2",  # class 1
                    "/2/16_2_0", "/2/16_2_1", "/2/13_2_0", "/2/13_2_1",  # class 2
                    "/3/18_3_0", "/3/18_3_1", "/3/20_3_0", "/3/20_3_1", "/3/20_3_2", ]  # class 3
-    if is_subsub_videos:#if the dataset splitted into further subsub videos then add those folders
-        train_folders += ["/0/2_0_0_5","/0/2_0_1_6",
+    if is_subsub_videos:  # if the dataset splitted into further subsub videos then add those folders
+        train_folders += ["/0/2_0_0_5", "/0/2_0_1_6",
                           "/1/3_1_0_9", "/1/3_1_1_10", "/1/5_1_0_12", "/1/5_1_1_13",
                           "/2/14_2_0_5", "/2/15_2_0_6", "/2/15_2_1_7", "/2/15_2_2_8",
                           "/3/17_3_0_3", "/3/17_3_1_4", "/3/19_3_0_7", "/3/19_3_1_8"
@@ -198,8 +207,8 @@ def get_base_dataset_train_val_folders_name (is_subsub_videos):
     return (train_folders, val_folders)
 
 
-def get_dataloaders_SubVideoBased(input_size,batch_size,data_dir, load_to_RAM,is_subsub_videos,
-                                  shuffle=False,shuffle_entire_subvideos=False, EntireSubVideo=True):
+def get_dataloaders_SubVideoBased(input_size, batch_size, data_dir, load_to_RAM, is_subsub_videos,
+                                  shuffle=False, shuffle_entire_subvideos=False, EntireSubVideo=True):
     # Create Dataset for each video
     '''list of subvideos:
     #class 0 = [1_0_0, 1_0_1, 2_0_0, 2_0_1, 2_0_2]
@@ -207,7 +216,6 @@ def get_dataloaders_SubVideoBased(input_size,batch_size,data_dir, load_to_RAM,is
                 8_1_0, 8_1_1, 8_1_2,9_1_0, 9_1_1, 9_1_2, 10_1_0, 10_1_1, 10_1_2,11_1_0, 11_1_1, 12_1_0, 12_1_1]
      class 2 = [13_2_0, 13_2_1, 14_2_0, 14_2_1, 15_2_0, 15_2_1, 15_2_2, 16_2_0, 16_2_1]
      class 3 = [17_3_0, 17_3_1, 17_3_2, 18_3_0, 18_3_1, 19_3_0, 19_3_1, 20_3_0, 20_3_1, 20_3_2, 21_3_0, 21_3_1]'''
-
 
     # data_dirEntery_list = list[os.scandir(data_dir)]
     train_folders, val_folders = get_base_dataset_train_val_folders_name(is_subsub_videos)
@@ -217,7 +225,7 @@ def get_dataloaders_SubVideoBased(input_size,batch_size,data_dir, load_to_RAM,is
         train_dataset, val_dataset = howToSplitSubVideos(train_folders, val_folders,
                                                          shuffle_entire_subvideos,
                                                          data_dir, input_size,
-                                                         load_to_RAM, EntireSubVideo,is_subsub_videos)
+                                                         load_to_RAM, EntireSubVideo, is_subsub_videos)
 
     print("Training images:", len(train_dataset))
     print("Val images:", len(val_dataset))
@@ -225,21 +233,22 @@ def get_dataloaders_SubVideoBased(input_size,batch_size,data_dir, load_to_RAM,is
     # show_random_samples(val_dataset, 0)
     # # show_random_samples(train_dataset,0)
     # exit(0)
-    image_datasets = {'train':train_dataset, 'val':val_dataset}
+    image_datasets = {'train': train_dataset, 'val': val_dataset}
     collate_fn = None
     if EntireSubVideo: collate_fn = my_collate
     # Create Dataloaders
     dataloaders_dict = {
-        x: torch.utils.data.DataLoader(image_datasets[x], batch_size=batch_size, shuffle=shuffle,collate_fn=collate_fn, num_workers=2)
+        x: torch.utils.data.DataLoader(image_datasets[x], batch_size=batch_size, shuffle=shuffle, collate_fn=collate_fn,
+                                       num_workers=2)
         for x in ['train', 'val']}
     # show_random_samples(list(dataloaders_dict['train'])[0],0)
     return dataloaders_dict
 
 
 class Nerthus_SubVideo_Dataset(Dataset):
-    def __init__(self, imageDir,targetSize,load_to_RAM= False):
+    def __init__(self, imageDir, targetSize, load_to_RAM=False):
 
-        self.imageList = glob.glob(imageDir +'/*.jpg')
+        self.imageList = glob.glob(imageDir + '/*.jpg')
         self.imageList.sort()
         # self.labels = np.arange(len(self.imageList))
         # print((self.imageList[0].split("score_")[1].split("-")[0]))
@@ -251,16 +260,16 @@ class Nerthus_SubVideo_Dataset(Dataset):
         self.tensor_images = []
 
         self.load_to_RAM = load_to_RAM
-        if self.load_to_RAM:# load all data to RAM for faster fetching
+        if self.load_to_RAM:  # load all data to RAM for faster fetching
             print("Loading dataset to RAM...")
             self.tensor_images = [self.get_tensor_image(image_path) for image_path in self.imageList]
             # print("Finish loading dataset to RAM")
 
     def __getitem__(self, index):
-        if self.load_to_RAM:#if images are loaded to the RAM copy them, otherwise, read them
+        if self.load_to_RAM:  # if images are loaded to the RAM copy them, otherwise, read them
             x = self.tensor_images[index]
         else:
-            x=self.get_tensor_image(self.imageList[index])
+            x = self.get_tensor_image(self.imageList[index])
 
         return x, self.target_labels[index], self.imageList[index]
 
@@ -279,10 +288,11 @@ class Nerthus_SubVideo_Dataset(Dataset):
         X = preprocess(X)
         return X
 
-class Nerthus_EntireSubVideo_Dataset(Dataset):
-    def __init__(self, imageDir,targetSize,load_to_RAM= False):
 
-        self.imageList = glob.glob(imageDir +'/*.jpg')
+class Nerthus_EntireSubVideo_Dataset(Dataset):
+    def __init__(self, imageDir, targetSize, load_to_RAM=False):
+
+        self.imageList = glob.glob(imageDir + '/*.jpg')
         self.imageList.sort()
         # self.labels = np.arange(len(self.imageList))
         # print((self.imageList[0].split("score_")[1].split("-")[0]))
@@ -295,23 +305,23 @@ class Nerthus_EntireSubVideo_Dataset(Dataset):
         self.tensor_images = []
 
         self.load_to_RAM = load_to_RAM
-        if self.load_to_RAM:# load all data to RAM for faster fetching
+        if self.load_to_RAM:  # load all data to RAM for faster fetching
             print("Loading dataset to RAM...")
             self.tensor_images = [self.get_tensor_image(image_path) for image_path in self.imageList]
             # print("Finish loading dataset to RAM")
 
     def __getitem__(self, index):
-        if self.load_to_RAM:#if images are loaded to the RAM copy them, otherwise, read them
+        if self.load_to_RAM:  # if images are loaded to the RAM copy them, otherwise, read them
             x = self.tensor_images
         else:
-            x=self.get_tensor_image(self.imageList[:])
+            x = self.get_tensor_image(self.imageList[:])
 
         return torch.stack(x), self.target_labels, self.imageList
 
     def __len__(self):
-        return 1#len(self.imageList)
+        return 1  # len(self.imageList)
 
-    def get_tensor_image(self, image_path, multiple_paths =False):
+    def get_tensor_image(self, image_path, multiple_paths=False):
         '''this function get image path and return transformed tensor image'''
         preprocess = transforms.Compose([
             # transforms.Resize((384, 288), 2),
@@ -327,19 +337,20 @@ class Nerthus_EntireSubVideo_Dataset(Dataset):
 
         return X
 
-def show_random_samples(training_data,offset):
+
+def show_random_samples(training_data, offset):
     figure = plt.figure(figsize=(16, 8))
     cols, rows = 3, 3
     for i in range(1, cols * rows + 1):
         # sample_idx = torch.randint(len(training_data), size=(1,)).item()
-        sample_idx = i-1+offset
+        sample_idx = i - 1 + offset
         if sample_idx == 125:
             print(sample_idx)
         img, label, file_path = training_data[sample_idx]
 
         figure.add_subplot(rows, cols, i)
         name = file_path.split("\\")[-1].split("_")[-1]
-        plt.title(str(label.item())+":"+name)
+        plt.title(str(label.item()) + ":" + name)
         plt.axis("off")
-        plt.imshow(img.permute(1, 2, 0) )
+        plt.imshow(img.permute(1, 2, 0))
     plt.show()

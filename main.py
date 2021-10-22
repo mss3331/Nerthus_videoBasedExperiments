@@ -101,7 +101,7 @@ if __name__ == '__main__':
     # run_in_colab = False
     if run_in_colab:
         # data_dir = "/content/SubSubVideoBased_not_splitted_into_trainVal"
-        data_dir = "/content/Nerthus/SubVideoBased_not_splitted_into_trainVal"
+        data_dir = "/content/VideoBased_ForImageBasedModels"
         # data_dir = "/content/kvasir-dataset-v2/"
         colab_dir = "/content/Nerthus_videoBasedExperiments" # base folder for where to store the results
     # data_dir = "/content/frameBased_randomShuffle1"
@@ -145,14 +145,14 @@ if __name__ == '__main__':
     wandb.init(
         project="Nerthus",
         entity="mss3331",
-        name=ExperimentNumber,
+        name="Nerthus_paperExp16_VideoBased_Equal_resnet50",
         # Track hyperparameters and run metadata
         config={
 
             "learning_rate": learning_rate,
             "shuffle": shuffle,
             "is_subsub_videos":is_subsub_videos,
-            "shuffle_entire_subvideos":shuffle_entire_subvideos,
+            "shuffle_entire_subvideos":4,
             "architecture": model_name,
             "batch_size":batch_size,
             "use_pretrained":use_pretrained,
