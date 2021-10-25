@@ -101,7 +101,7 @@ def train_model(model, dataloaders, criterion, optimizer,device,model_name,colab
                 pbar.set_postfix({phase+' Epoch': str(epoch)+"/"+str(num_epochs-1),
                                   'running Loss': running_loss / number_of_frames,
                                   'running acc': np.mean(prediction_list==target_list).round(5),#torch.sum(preds == labels.data).item()/inputs.size(0),
-                                  'best_val=':best_acc,
+                                  'best_val':best_acc,
                                   })
 
             epoch_loss = running_loss / number_of_frames
