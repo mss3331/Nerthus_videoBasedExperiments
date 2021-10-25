@@ -112,7 +112,7 @@ def train_model(model, dataloaders, criterion, optimizer,device,model_name,colab
 
             # deep copy the model
             if phase == 'val' and epoch_acc > best_acc:
-                best_acc = epoch_acc
+                best_acc = epoch_acc.item()
                 best_model_wts = copy.deepcopy(model.state_dict())
                 best_optimizer_wts = copy.deepcopy(optimizer.state_dict())
                 storeBestResults(best_results_dic,epoch,prediction_list,target_list,image_name_list,colab_dir)
