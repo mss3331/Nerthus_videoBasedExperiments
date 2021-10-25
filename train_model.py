@@ -100,7 +100,8 @@ def train_model(model, dataloaders, criterion, optimizer,device,model_name,colab
                 running_corrects += torch.sum(preds == labels.data)
                 pbar.set_postfix({phase+' Epoch': str(epoch)+"/"+str(num_epochs-1),
                                   'running Loss': running_loss / number_of_frames,
-                                  'running acc': np.mean(prediction_list==target_list).round(5)#torch.sum(preds == labels.data).item()/inputs.size(0),
+                                  'running acc': np.mean(prediction_list==target_list).round(5),#torch.sum(preds == labels.data).item()/inputs.size(0),
+                                  'best_val=':best_acc,
                                   })
 
             epoch_loss = running_loss / number_of_frames
@@ -128,8 +129,8 @@ def train_model(model, dataloaders, criterion, optimizer,device,model_name,colab
 
             storeResults(phase,results_dic,epoch_acc,epoch_loss)
             wandb.log({phase + "_acc": epoch_acc, phase + "_loss": epoch_loss, "epoch": epoch, phase+"_F1":epoch_f1 }, step=epoch)
-            if phase == 'val':
-                print('Best So far {} Acc: {:.4f}'.format(phase, best_acc))
+            # if phase == 'val':
+            #     print('Best So far {} Acc: {:.4f}'.format(phase, best_acc))
 
         print()
 
