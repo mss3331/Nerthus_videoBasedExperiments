@@ -122,6 +122,9 @@ def train_model(model, dataloaders, criterion, optimizer,device,model_name,colab
                     'best_optimizer_wts': best_optimizer_wts,
                     'best_val_acc': best_acc},
                     colab_dir+'/checkpoints/' +model_name+ '.pth')
+                wandb.log(
+                    {phase + "_best_acc": best_acc, phase + "_best_loss": epoch_loss, "epoch": epoch, phase + "_best_F1": epoch_f1},
+                    step=epoch)
 
             storeResults(phase,results_dic,epoch_acc,epoch_loss)
             wandb.log({phase + "_acc": epoch_acc, phase + "_loss": epoch_loss, "epoch": epoch, phase+"_F1":epoch_f1 }, step=epoch)
