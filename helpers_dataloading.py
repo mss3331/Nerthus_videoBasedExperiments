@@ -121,7 +121,7 @@ def _get_all_folders_name(data_dir, is_subsub_videos):
     folder_list = []
     for class_dir in all_classes_dir:
         temp_list = sorted(glob.glob(class_dir + "/*/"),
-                           key=lambda x: int(x.split('/')[-2].split('_')[0]))  # list all sub videos name
+                           key=lambda x: int(x.split('/')[-2].split('_')[0])*10+int(x.split('/')[-2].split('_')[-1]))  # list all sub videos name
         temp_list = ["\\".join(folder.split('/')) for folder in
                      temp_list]  # in Colab the path is ./content/Nerthus so convert it to \\ .\\content\\ like windows
         temp_list = ["/" + "/".join(folder.split("\\")[-3:]) for folder in temp_list]
@@ -320,6 +320,7 @@ class Nerthus_EntireSubVideo_Dataset(Dataset):
 
     def __len__(self):
         return 1  # len(self.imageList)
+
 
     def get_tensor_image(self, image_path, multiple_paths=False):
         '''this function get image path and return transformed tensor image'''

@@ -145,7 +145,7 @@ if __name__ == '__main__':
     wandb.init(
         project="Nerthus",
         entity="mss3331",
-        name="Nerthus_paperExp16_VideoBased_Equal_resnet50",
+        name=Experiment name,
         # Track hyperparameters and run metadata
         config={
 
@@ -153,6 +153,7 @@ if __name__ == '__main__':
             "shuffle": shuffle,
             "is_subsub_videos":is_subsub_videos,
             "shuffle_entire_subvideos":4,
+            "treatment":shuffle_entire_subvideos,
             "architecture": model_name,
             "batch_size":batch_size,
             "use_pretrained":use_pretrained,

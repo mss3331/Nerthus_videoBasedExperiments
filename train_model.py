@@ -105,6 +105,7 @@ def train_model(model, dataloaders, criterion, optimizer,device,model_name,colab
 
             epoch_loss = running_loss / number_of_frames
             epoch_acc = running_corrects.double() / number_of_frames
+            epoch_f1 = sk.f1_score(target_list, prediction_list, average='micro')
 
             # print('{} Loss: {:.4f} Acc: {:.4f}'.format(phase, epoch_loss, epoch_acc))
 
@@ -123,7 +124,7 @@ def train_model(model, dataloaders, criterion, optimizer,device,model_name,colab
                     colab_dir+'/checkpoints/' +model_name+ '.pth')
 
             storeResults(phase,results_dic,epoch_acc,epoch_loss)
-            wandb.log({phase + "_acc": epoch_acc, phase + "_loss": epoch_loss, "epoch": epoch}, step=epoch)
+            wandb.log({phase + "_acc": epoch_acc, phase + "_loss": epoch_loss, "epoch": epoch, phase+"_F1":epoch_f1 }, step=epoch)
             if phase == 'val':
                 print('Best So far {} Acc: {:.4f}'.format(phase, best_acc))
 
