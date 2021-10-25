@@ -123,14 +123,15 @@ def train_model(model, dataloaders, criterion, optimizer,device,model_name,colab
                     'best_optimizer_wts': best_optimizer_wts,
                     'best_val_acc': best_acc},
                     colab_dir+'/checkpoints/' +model_name+ '.pth')
-                wandb.run.summary["best_accuracy"] = best_acc
-                wandb.run.summary["best_epoch"] = epoch
+
                 wandb.log(
                     {phase + "_best_acc": best_acc, phase + "_best_loss": epoch_loss, "epoch": epoch, phase + "_best_F1": epoch_f1},
                     step=epoch)
 
             storeResults(phase,results_dic,epoch_acc,epoch_loss)
             wandb.log({phase + "_acc": epoch_acc, phase + "_loss": epoch_loss, "epoch": epoch, phase+"_F1":epoch_f1 }, step=epoch)
+            wandb.run.summary["val_accuracy"] = best_acc
+            wandb.run.summary["best_epoch"] = epoch
             # if phase == 'val':
             #     print('Best So far {} Acc: {:.4f}'.format(phase, best_acc))
 
