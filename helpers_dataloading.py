@@ -126,8 +126,8 @@ def _get_all_folders_name(data_dir, shuffle_entire_subvideos):
             temp_list = sorted(glob.glob(class_dir + "/*/"),
                            key=lambda x: int(x.split('/')[-2].split('_')[0])*10+int(x.split('/')[-2].split('_')[-1]))  # list all sub videos name
 
-        temp_list = ["\\".join(folder.split('/')) for folder in
-                     temp_list]  # in Colab the path is ./content/Nerthus so convert it to \\ .\\content\\ like windows
+        # in Colab the path is ./content/Nerthus so convert it to \\ .\\content\\ like windows
+        temp_list = ["\\".join(folder.split('/')) for folder in temp_list]
         temp_list = ["/" + "/".join(folder.split("\\")[-3:]) for folder in temp_list]
         folder_list += temp_list
 
