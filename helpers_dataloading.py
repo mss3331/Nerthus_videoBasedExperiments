@@ -97,7 +97,7 @@ def createDataSetFromList(data_dir, input_size, folders_name, load_to_RAM, Entir
     return dataset
 
 
-def _get_all_folders_name(data_dir, is_subsub_videos):
+def _get_all_folders_name(data_dir, shuffle_entire_subvideos):
     # class_0 =['/0/1_0_0', '/0/1_0_1', '/0/2_0_0', '/0/2_0_1', '/0/2_0_2']
     #
     # class_1 =['/1/3_1_0', '/1/3_1_1', '/1/3_1_2', '/1/4_1_0', '/1/4_1_1',
@@ -120,8 +120,12 @@ def _get_all_folders_name(data_dir, is_subsub_videos):
     print(all_classes_dir)
     folder_list = []
     for class_dir in all_classes_dir:
-        temp_list = sorted(glob.glob(class_dir + "/*/"),
+        if shuffle_entire_subvideos == "TrueWithinClass":
+            temp_list = np.random.shuffle(glob.glob(class_dir + "/*/"))
+        else:
+            temp_list = sorted(glob.glob(class_dir + "/*/"),
                            key=lambda x: int(x.split('/')[-2].split('_')[0])*10+int(x.split('/')[-2].split('_')[-1]))  # list all sub videos name
+
         temp_list = ["\\".join(folder.split('/')) for folder in
                      temp_list]  # in Colab the path is ./content/Nerthus so convert it to \\ .\\content\\ like windows
         temp_list = ["/" + "/".join(folder.split("\\")[-3:]) for folder in temp_list]
@@ -133,7 +137,7 @@ def _get_all_folders_name(data_dir, is_subsub_videos):
 
 def howToSplitSubVideos(train_folders, val_folders, shuffle_entire_subvideos, data_dir, input_size,
                         load_to_RAM, EntireSubVideo, is_subsub_videos):
-    folders = _get_all_folders_name(data_dir, is_subsub_videos)
+    folders = _get_all_folders_name(data_dir, shuffle_entire_subvideos)
     # folders_combined = np.concatenate(folders)
     folders_combined = folders  # the folders are sorted from _get_all_folders_name function
     videos_len = len(folders_combined)
@@ -161,6 +165,9 @@ def howToSplitSubVideos(train_folders, val_folders, shuffle_entire_subvideos, da
         np.random.seed(0)
         train_folders = folders_combined[:videos_len // 2]  # 50% for train and the rest of val
         val_folders = folders_combined[videos_len // 2:]
+    elif shuffle_entire_subvideos == "TrueWithinClass":  # if a class has video1_0,video1_1,video2_0,video2_1 it will be shuffled and divided between train/val
+        train_folders = folders_combined[::2]  # 50% for train and the rest of val
+        val_folders = folders_combined[1::2]
     elif shuffle_entire_subvideos == "Equal":  # Equal to original Nerthus splitting
         # print("video1_0 for train and video1_1 for val, we expect 100% val accuracy")
         train_folders = []

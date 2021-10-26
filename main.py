@@ -101,7 +101,8 @@ if __name__ == '__main__':
     # run_in_colab = False
     if run_in_colab:
         # data_dir = "/content/SubSubVideoBased_not_splitted_into_trainVal"
-        data_dir = "/content/VideoBased_ForImageBasedModels"
+        # data_dir = "/content/VideoBased_ForImageBasedModels"
+        data_dir = "/content/Nerthus"
         # data_dir = "/content/kvasir-dataset-v2/"
         colab_dir = "/content/Nerthus_videoBasedExperiments" # base folder for where to store the results
     # data_dir = "/content/frameBased_randomShuffle1"
@@ -125,9 +126,10 @@ if __name__ == '__main__':
     shuffle = True
     #shuffle_entire_subvideos = either None, True, Equal (video1_0 for train and video1_1 for val), Frame 0.5 means 50% for train and 50% for val.
     # "None Shuffle" means consider the base dataset but shuffle the training folder
-    #shuffle_entire_subvideos = [None, True, Equal, Frame 0.5, None Shuffle]
+    #shuffle_entire_subvideos = [None, True, TrueWithinClass, Equal, Frame 0.5, None Shuffle]
+    #TrueWithinClass means shuffle the subvideos for each class, then divide them equally between train/val
     is_subsub_videos = False
-    shuffle_entire_subvideos = "Equal" # if true, the train and val would have shuffeled videos as in the Original Nerthus paper
+    shuffle_entire_subvideos = "TrueWithinClass" # if true, the train and val would have shuffeled videos as in the Original Nerthus paper
     # shuffle_entire_subvideos = "True"
     # if EntireSubVideo= true, load entire subvideo as one instance.
     # and shuffle =True means that shuffle the subvideos rather than shuffle the frames in the subvideo
@@ -145,14 +147,14 @@ if __name__ == '__main__':
     wandb.init(
         project="Nerthus",
         entity="mss3331",
-        name=Experiment name,
+        name=Experimentname,
         # Track hyperparameters and run metadata
         config={
 
             "learning_rate": learning_rate,
             "shuffle": shuffle,
             "is_subsub_videos":is_subsub_videos,
-            "shuffle_entire_subvideos":4,
+            "shuffle_entire_subvideos":3.5,
             "treatment":shuffle_entire_subvideos,
             "architecture": model_name,
             "batch_size":batch_size,
