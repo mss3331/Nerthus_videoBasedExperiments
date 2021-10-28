@@ -116,13 +116,17 @@ def _get_all_folders_name(data_dir, shuffle_entire_subvideos):
     # if is_subsub_videos:#include sub sub videos such as 1_0_1_3
     #     class_0 +=[]
     # return (class_0,class_1,class_2,class_3)
+
     all_classes_dir = sorted(glob.glob(data_dir + "/*/"))  # list all stools folders [0, 1, 2, 3]
     print(all_classes_dir)
     folder_list = []
     for class_dir in all_classes_dir:
         if shuffle_entire_subvideos == "TrueWithinClass":
             temp_list = glob.glob(class_dir + "/*/")
+            temp_list.sort()
+            np.random.seed(0)
             np.random.shuffle(temp_list)
+            np.random.seed(0)
         else:
             temp_list = sorted(glob.glob(class_dir + "/*/"),
                            key=lambda x: int(x.split('/')[-2].split('_')[0])*10+int(x.split('/')[-2].split('_')[-1]))  # list all sub videos name
