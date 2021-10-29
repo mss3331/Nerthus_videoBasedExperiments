@@ -108,7 +108,7 @@ if __name__ == '__main__':
     # data_dir = "/content/frameBased_randomShuffle1"
     # Models to choose from [resnet18,resnet50, alexnet, vgg, squeezenet, densenet, inception
     # Myresnet50,RN,stridedConv,ZhoDenseNet, ResNet50_GRU, ResNet101_GRU, ResNet50_h_initialized_GRU,
-    # Owais_ResNet18_LSTM,MlpMixer, ResNet50_max, ResNet50_SimplerGRU]
+    # Owais_ResNet18_LSTM,MlpMixer, ResNet50_max, ResNet50_SimplerGRU, vit_base_patch16_224, mixer_b16_224]
     model_name = "resnet50"
     # Number of classes in the dataset
     learning_rate = 0.001
