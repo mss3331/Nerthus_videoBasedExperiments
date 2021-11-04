@@ -3,6 +3,7 @@ import os
 import glob
 import numpy as np
 import matplotlib.pyplot as plt
+import sys
 from torch.utils.data import ConcatDataset
 import matplotlib.image as mpimg
 from PIL import Image
@@ -349,6 +350,75 @@ class Nerthus_EntireSubVideo_Dataset(Dataset):
             X = [preprocess(Image.open(image).convert('RGB')) for image in image_path]
 
         return X
+
+class Nerthus_EntireSubVideo_FromImageBased_Dataset(Dataset):
+    def __init__(self, imageDir, targetSize, sub_videoSize=25, load_to_RAM=False):
+        '''partitions is an integer that divide a video (e.g. 1_0_0) into subvideos
+          each subvideo would have frames from each second.
+        '''
+        self.imageList = glob.glob(imageDir + '/*.jpg')
+        self.imageList.sort()
+        self.total_images_size = len(self.imageList)
+        # self.labels = np.arange(len(self.imageList))
+        # print((self.imageList[0].split("score_")[1].split("-")[0]))
+        self.target_labels = torch.empty(len(self.imageList), dtype=torch.long)
+        # self.labels[:] = np.long((self.imageList[0].split("_")[-2].split("-")[0])) # C:\...\0\bowel_20_score_3-1_00000001
+        # self.target_labels = torch.from_numpy(self.labels)
+        # print("ok",self.imageList[0].split("_"))
+        self.target_labels[:] = int(self.imageList[0].split("_")[-2].split("-")[0])
+        subVideInfo = self.makeSubVideos(self.imageList, self.target_labels, partitions= self.total_images_size//sub_videoSize)
+        # subVideo_images_list = [[ima1.jpg,img10.jpg],[img2.jpg,img20.jpg]].
+        # subVideo_labels_list=[[label1,label10][label2,label20]]= class number
+        self.subVideo_images_list, self.subVideo_labels_list, self.subVideo_path_list = subVideInfo
+
+        self.targetSize = targetSize
+        self.tensor_images = []
+
+        self.load_to_RAM = load_to_RAM
+        if self.load_to_RAM:  # load all data to RAM for faster fetching
+            print("Loading dataset to RAM...")
+            self.tensor_images = [self.get_tensor_image(image_path) for image_path in self.imageList]
+            sys.exit('loading from RAM not implemented yet for this custom dataset')
+
+            # print("Finish loading dataset to RAM")
+
+    def __getitem__(self, index):
+        if self.load_to_RAM:  # if images are loaded to the RAM copy them, otherwise, read them
+            x = self.tensor_images
+        else:
+            x = self.get_tensor_image(self.subVideo_images_list[index])
+
+        return torch.stack(x), self.subVideo_labels_list[index], self.subVideo_path_list[index]
+
+    def __len__(self):
+        return len(self.subVideo_images_list)  # [[img1,img10][img2,img20]] = len = 2 subvideos
+
+    def get_tensor_image(self, image_path, multiple_paths=False):
+        '''this function get image path and return transformed tensor image'''
+        preprocess = transforms.Compose([
+            # transforms.Resize((384, 288), 2),
+            transforms.Resize(self.targetSize),
+            transforms.CenterCrop(self.targetSize),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
+        if multiple_paths:
+            X = Image.open(image_path).convert('RGB')
+            X = preprocess(X)
+        else:
+            X = [preprocess(Image.open(image).convert('RGB')) for image in image_path]
+
+        return X
+
+    def makeSubVideos(self,imageList, target_labels, partitions,):
+        subvideo_images_list = []
+        subvideo_labels_list = []
+        subvideo_path_list = []
+
+        for shift in range(partitions):
+            subvideo_images_list.append(imageList[shift::partitions])
+            subvideo_labels_list.append(target_labels[shift::partitions])
+            subvideo_path_list.append(imageList[shift::partitions])
+        return subvideo_images_list,subvideo_labels_list, subvideo_path_list
 
 
 def show_random_samples(training_data, offset):
