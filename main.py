@@ -93,7 +93,8 @@ if __name__ == '__main__':
 
     # torch.autograd.set_detect_anomaly(True)
     # data_dir = r"E:\Databases\Nerthus\frameBased\frameBased_randomShuffle2"
-    data_dir = "E:/Databases/Nerthus/SubSubVideoBased_not_splitted_into_trainVal"
+    # data_dir = "E:/Databases/Nerthus/SubSubVideoBased_not_splitted_into_trainVal"
+    data_dir = r"E:\Databases\Nerthus\VideoBased_ForImageBasedModels"
     # data_dir = r"E:\Databases\kvasir-dataset-v2"
     # Colab
     colab_dir = "."
@@ -102,7 +103,8 @@ if __name__ == '__main__':
     if run_in_colab:
         # data_dir = "/content/SubSubVideoBased_not_splitted_into_trainVal"
         # data_dir = "/content/VideoBased_ForImageBasedModels"
-        data_dir = "/content/Nerthus/SubVideoBased_not_splitted_into_trainVal"
+        # data_dir = "/content/Nerthus/SubVideoBased_not_splitted_into_trainVal"
+        data_dir = "/content/Nerthus/VideoBased_ForImageBasedModels"
         # data_dir = "/content/kvasir-dataset-v2/"
         colab_dir = "/content/Nerthus_videoBasedExperiments" # base folder for where to store the results
     # data_dir = "/content/frameBased_randomShuffle1"
