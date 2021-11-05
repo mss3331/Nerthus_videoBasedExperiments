@@ -89,7 +89,9 @@ def createDataSetFromList(data_dir, input_size, folders_name, load_to_RAM, Entir
     dataset_list = []
     for subvideo_name in folders_name:
         # create a dataset based on subvideo_name
-        if EntireSubVideo:
+        if EntireSubVideo == "FixedSize":
+            dataset_list.append(Nerthus_EntireSubVideo_FromImageBased_Dataset(data_dir + subvideo_name, input_size, load_to_RAM))
+        elif EntireSubVideo:
             dataset_list.append(Nerthus_EntireSubVideo_Dataset(data_dir + subvideo_name, input_size, load_to_RAM))
         else:
             dataset_list.append(Nerthus_SubVideo_Dataset(data_dir + subvideo_name, input_size, load_to_RAM))

@@ -22,7 +22,7 @@ def print_hyperparameters():
               "subvideos as in the Original Nerthus paper")
     elif shuffle_entire_subvideos == "Equal":
         print("video1_0 for train and video1_1 for val, we expect 100% val accuracy")
-    print("EntireSubVideo", EntireSubVideo)
+    print("EntireSubVideo=", EntireSubVideo)
     print("Did you consider SubSub Videos? ",is_subsub_videos)
     if data_dir.find("kvasir")>=0:
         print("*"*20,"Kvasir Dataset is used here not Nerthus", "*"*20)
@@ -133,10 +133,20 @@ if __name__ == '__main__':
     is_subsub_videos = False
     shuffle_entire_subvideos = "TrueWithinClass" # if true, the train and val would have shuffeled videos as in the Original Nerthus paper
     # shuffle_entire_subvideos = "True"
+    #EntireSubVideo = ["True","FixedSize","None"].
+    # True mean load our old implementation. our Collate function is created here
+    # FixedSize means divide each video into subvideos with equal frames. Each subvideo represent the entire video. No used collate function
+    # None means load frames only.
     # if EntireSubVideo= true, load entire subvideo as one instance.
     # and shuffle =True means that shuffle the subvideos rather than shuffle the frames in the subvideo
     # and batch_size = 3 means load 3 subvideos
-    EntireSubVideo = False #it means add collate function that gather all images and make the dataloader to provide images,labels,filenames,videolenght_list
+    EntireSubVideo = ["True", "FixedSize", "None"]
+    EntireSubVideo = "FixedSize" #it means add collate function that gather all images and make the dataloader to provide images,labels,filenames,videolenght_list
+    wandbproject_name = ""
+    if EntireSubVideo=="FixedSize":
+        wandbproject_name = "Nerthus_ProposedSol"
+    else: wandbproject_name = "Nerthus"
+
     feature_extract = False
     half_freez = False
     use_pretrained = False
@@ -147,7 +157,7 @@ if __name__ == '__main__':
     #   when True we only update the reshaped layer params
 
     wandb.init(
-        project="Nerthus",
+        project=wandbproject_name,
         entity="mss3331",
         name=Experimentname,
         # Track hyperparameters and run metadata
@@ -156,8 +166,9 @@ if __name__ == '__main__':
             "learning_rate": learning_rate,
             "shuffle": shuffle,
             "is_subsub_videos":is_subsub_videos,
-            "shuffle_entire_subvideos":3.5,
+            "shuffle_entire_subvideos":4.5,
             "treatment":shuffle_entire_subvideos,
+            "EntireSubVideo":EntireSubVideo,
             "architecture": model_name,
             "batch_size":batch_size,
             "use_pretrained":use_pretrained,
