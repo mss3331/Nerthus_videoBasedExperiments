@@ -48,6 +48,8 @@ def train_model(model, dataloaders, criterion, optimizer,device,model_name,colab
             count = 0
             # Iterate over data.
             pbar = tqdm(dataloaders[phase], total=len(dataloaders[phase]))
+            #for ResNEt50_SimplerGRU and Mlp use the following (becaue we used our collate hence we dont know when the video starts and when it ends
+            #for inputs, labels, filenames in pbar:
             for inputs, labels, filenames in pbar:
                 # print(labels)
             # for inputs, labels in pbar: # this line is only for kvasir
@@ -76,7 +78,7 @@ def train_model(model, dataloaders, criterion, optimizer,device,model_name,colab
                         if model_name.find("ResNet50_GRU")>=0 or model_name.find("LSTM")>=0\
                                 or model_name.find("_max")>=0:
                             outputs = model(inputs, labels)
-                        elif model_name.find("Mlp")>=0 or model_name.find("ResNet50_SimplerGRU")>=0:
+                        elif model_name.find("MlpMixer")>=0 or model_name.find("ResNet50_SimplerGRU")>=0:
                             outputs = model(inputs, labels,subvideo_lengths)
                         else:
                             outputs = model(inputs)

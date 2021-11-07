@@ -111,15 +111,16 @@ if __name__ == '__main__':
     # Models to choose from [resnet18,resnet50, alexnet, vgg, squeezenet, densenet, inception
     # Myresnet50,RN,stridedConv,ZhoDenseNet, ResNet50_GRU, ResNet101_GRU, ResNet50_h_initialized_GRU,
     # Owais_ResNet18_LSTM,MlpMixer, ResNet50_max, ResNet50_SimplerGRU, vit_base_patch16_224, mixer_b16_224]
-    model_name = "resnet50"
+    # fixed_subVideoLenght_models.py [ResNet_subVideo_Avg]
+    model_name = "ResNet_subVideo_Avg"
     # Number of classes in the dataset
     learning_rate = 0.001
     num_classes = 4
     if data_dir.find("kvasir")>=0:
         num_classes = 8
-    # batch_size = 4
-    # batch_size = 2
-    batch_size = 100
+
+    batch_size = 4
+    # batch_size = 100
     # batch_size = 32 #only for Zho
     num_epochs = 50
     # num_epochs = 1

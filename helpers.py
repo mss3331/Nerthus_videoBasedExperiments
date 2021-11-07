@@ -6,6 +6,7 @@ import timm
 import numpy as np
 import os
 from models import RN, MyResNet, stridedConv, ZhoDenseNet, ResNet50_GRU, Owais, MLP_Mixer
+from models.fixed_subVideoLenght_models import ResNet_subVideo_Avg
 from torchvision import datasets, models, transforms
 import matplotlib.pyplot as plt
 
@@ -16,7 +17,7 @@ def set_parameter_requires_grad(model, feature_extracting):
             param.requires_grad = False
 
 
-def initialize_model(model_name, num_classes, feature_extract, checkpoint, use_pretrained=True):
+def initialize_model(model_name, num_classes, feature_extract, checkpoint, use_pretrained=False):
     # Initialize these variables which will be set in this if statement. Each of these
     #   variables is model specific.
     model_ft = None
@@ -146,6 +147,10 @@ def initialize_model(model_name, num_classes, feature_extract, checkpoint, use_p
     elif model_name == "mixer_b16_224":
         model_ft = timm.create_model('mixer_b16_224', pretrained=use_pretrained, num_classes=num_classes)
         input_size = (224, 224)
+    elif model_name == "ResNet50_subVideo_Avg":
+        model_ft = ResNet_subVideo_Avg(num_classes=num_classes, pretrained=use_pretrained, resnet50=True,
+                 feature_extract=feature_extract, Encoder_CheckPoint=checkpoint)
+        input_size = (224,224)
     else:
         print("Invalid model name, exiting...")
         exit()

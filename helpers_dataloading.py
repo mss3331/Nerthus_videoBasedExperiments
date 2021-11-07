@@ -250,7 +250,7 @@ def get_dataloaders_SubVideoBased(input_size, batch_size, data_dir, load_to_RAM,
     # exit(0)
     image_datasets = {'train': train_dataset, 'val': val_dataset}
     collate_fn = None
-    if EntireSubVideo: collate_fn = my_collate
+    if EntireSubVideo == "True": collate_fn = my_collate
     # Create Dataloaders
     dataloaders_dict = {
         x: torch.utils.data.DataLoader(image_datasets[x], batch_size=batch_size, shuffle=shuffle, collate_fn=collate_fn,
