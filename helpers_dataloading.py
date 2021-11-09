@@ -83,14 +83,14 @@ def get_dataloaders_Kvasir(input_size, batch_size, data_dir, shuffle):
     return dataloaders_dict
 
 
-def createDataSetFromList(data_dir, input_size, folders_name, load_to_RAM, EntireSubVideo):
+def createDataSetFromList(data_dir, input_size, folders_name, load_to_RAM, EntireSubVideo, sub_videoSize):
     '''Recieve lsit of folder names and return a concatinated dataset'''
 
     dataset_list = []
     for subvideo_name in folders_name:
         # create a dataset based on subvideo_name
         if EntireSubVideo == "FixedSize":
-            dataset_list.append(Nerthus_EntireSubVideo_FromImageBased_Dataset(data_dir + subvideo_name, input_size, load_to_RAM))
+            dataset_list.append(Nerthus_EntireSubVideo_FromImageBased_Dataset(data_dir + subvideo_name, input_size, sub_videoSize, load_to_RAM))
         elif EntireSubVideo:
             dataset_list.append(Nerthus_EntireSubVideo_Dataset(data_dir + subvideo_name, input_size, load_to_RAM))
         else:
@@ -144,7 +144,7 @@ def _get_all_folders_name(data_dir, shuffle_entire_subvideos):
 
 
 def howToSplitSubVideos(train_folders, val_folders, shuffle_entire_subvideos, data_dir, input_size,
-                        load_to_RAM, EntireSubVideo, is_subsub_videos):
+                        load_to_RAM, EntireSubVideo, is_subsub_videos, sub_videoSize):
     folders = _get_all_folders_name(data_dir, shuffle_entire_subvideos)
     # folders_combined = np.concatenate(folders)
     folders_combined = folders  # the folders are sorted from _get_all_folders_name function
@@ -192,8 +192,8 @@ def howToSplitSubVideos(train_folders, val_folders, shuffle_entire_subvideos, da
     print(train_folders)
     print(val_folders)
 
-    train_dataset = createDataSetFromList(data_dir, input_size, train_folders, load_to_RAM, EntireSubVideo)
-    val_dataset = createDataSetFromList(data_dir, input_size, val_folders, load_to_RAM, EntireSubVideo)
+    train_dataset = createDataSetFromList(data_dir, input_size, train_folders, load_to_RAM, EntireSubVideo, sub_videoSize)
+    val_dataset = createDataSetFromList(data_dir, input_size, val_folders, load_to_RAM, EntireSubVideo, sub_videoSize)
 
     return train_dataset, val_dataset
 
@@ -223,7 +223,7 @@ def get_base_dataset_train_val_folders_name(is_subsub_videos):
 
 
 def get_dataloaders_SubVideoBased(input_size, batch_size, data_dir, load_to_RAM, is_subsub_videos,
-                                  shuffle=False, shuffle_entire_subvideos=False, EntireSubVideo=True):
+                                  shuffle=False, shuffle_entire_subvideos=False, EntireSubVideo=True, sub_videoSize=25):
     # Create Dataset for each video
     '''list of subvideos:
     #class 0 = [1_0_0, 1_0_1, 2_0_0, 2_0_1, 2_0_2]
@@ -240,7 +240,7 @@ def get_dataloaders_SubVideoBased(input_size, batch_size, data_dir, load_to_RAM,
         train_dataset, val_dataset = howToSplitSubVideos(train_folders, val_folders,
                                                          shuffle_entire_subvideos,
                                                          data_dir, input_size,
-                                                         load_to_RAM, EntireSubVideo, is_subsub_videos)
+                                                         load_to_RAM, EntireSubVideo, is_subsub_videos, sub_videoSize)
 
     print("Training images:", len(train_dataset))
     print("Val images:", len(val_dataset))

@@ -60,7 +60,8 @@ def run():
         dataloaders_dict = helpers_dataloading.get_dataloaders_SubVideoBased(input_size,batch_size,data_dir,load_to_RAM,is_subsub_videos
                                                                          , shuffle=shuffle
                                                                          , shuffle_entire_subvideos=shuffle_entire_subvideos
-                                                                         , EntireSubVideo=EntireSubVideo)
+                                                                         , EntireSubVideo=EntireSubVideo,
+                                                                             sub_videoSize = sub_videoSize)
     # if EntireSubVideo:
     #     trainDataset = dataloaders_dict["train"].dataset
     #     valDataset = dataloaders_dict["val"].dataset
@@ -104,14 +105,14 @@ if __name__ == '__main__':
         # data_dir = "/content/SubSubVideoBased_not_splitted_into_trainVal"
         # data_dir = "/content/VideoBased_ForImageBasedModels"
         # data_dir = "/content/Nerthus/SubVideoBased_not_splitted_into_trainVal"
-        data_dir = "/content/Nerthus/VideoBased_ForImageBasedModels"
+        data_dir = "/content/VideoBased_ForImageBasedModels"
         # data_dir = "/content/kvasir-dataset-v2/"
         colab_dir = "/content/Nerthus_videoBasedExperiments" # base folder for where to store the results
     # data_dir = "/content/frameBased_randomShuffle1"
     # Models to choose from [resnet18,resnet50, alexnet, vgg, squeezenet, densenet, inception
     # Myresnet50,RN,stridedConv,ZhoDenseNet, ResNet50_GRU, ResNet101_GRU, ResNet50_h_initialized_GRU,
     # Owais_ResNet18_LSTM,MlpMixer, ResNet50_max, ResNet50_SimplerGRU, vit_base_patch16_224, mixer_b16_224]
-    # fixed_subVideoLenght_models.py [ResNet_subVideo_Avg]
+    # fixed_subVideoLenght_models.py [ResNet50_subVideo_Avg]
     model_name = "ResNet_subVideo_Avg"
     # Number of classes in the dataset
     learning_rate = 0.001
@@ -120,6 +121,7 @@ if __name__ == '__main__':
         num_classes = 8
 
     batch_size = 4
+    sub_videoSize = 25  # each subvideo should contains 25 images
     # batch_size = 100
     # batch_size = 32 #only for Zho
     num_epochs = 50
