@@ -57,7 +57,7 @@ def train_model(model, dataloaders, criterion, optimizer,device,model_name,colab
                 inputs = inputs.to(device)
                 labels = labels.to(device)
                 target_list = np.concatenate((target_list,labels.clone().detach().cpu().numpy()))
-                image_name_list = np.concatenate((image_name_list,filenames))
+                image_name_list = np.concatenate((image_name_list,np.array(filenames).flatten()))
                 # zero the parameter gradients
                 optimizer.zero_grad()
 

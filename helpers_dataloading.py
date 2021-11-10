@@ -390,7 +390,7 @@ class Nerthus_EntireSubVideo_FromImageBased_Dataset(Dataset):
         else:
             x = self.get_tensor_image(self.subVideo_images_list[index])
 
-        return torch.stack(x), self.subVideo_labels_list[index], self.subVideo_path_list[index]
+        return torch.stack(x), self.subVideo_labels_list[index][0], self.subVideo_path_list[index]
 
     def __len__(self):
         return len(self.subVideo_images_list)  # [[img1,img10][img2,img20]] = len = 2 subvideos
