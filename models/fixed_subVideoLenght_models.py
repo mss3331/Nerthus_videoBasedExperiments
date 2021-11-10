@@ -21,10 +21,9 @@ class ResNet_subVideo_Avg(nn.Module):#first proposal
         x_gru = output_dic["x_gru"] # x_gru = (subvideos, Encoder_out_features)
 
         x_mean = x.mean(dim=1) # -> (subvideos, 1, Encoder_out_features)
-        print('expected output (subvideos, 1, 2048) ', x_mean.shape)
+        print('expected output (subvideos, 2048) ', x_mean.shape)
         print('expected output (subvideos, 2048) ', x_gru.shape)
         exit(0)
-        x_mean = x_mean.squeeze() # -> (subvideos, Encoder_out_features)
         x_cat = torch.cat((x_mean,x_gru), dim=1) # -> (subvideos, 2*Encoder_out_features)
         x_cat_dropout = self.drop(x_cat)
         output = self.fc(x_cat_dropout) # -> (subvideos, 4)
@@ -74,7 +73,7 @@ class SubVideo_Encoder(nn.Module):
         #extract features. Encoder expect the following dim (frames, C, H, W)
         x = x.view((-1,*x_shape[2:])) #-> (subvideo*frames, C, H, W)
         x = self.Encoder(x)  # => (subvideo*frames, Encoder_out_features, 1, 1) due to the adaptive average pooling
-        x = x.squeeze(x) # (subvideo*frames, Encoder_out_features)
+        x = x.squeeze() # (subvideo*frames, Encoder_out_features)
         x = x.view((subvideos_num,frames_num,-1)) # (subvideo*frames, Encoder_out_features) -> (subvideos, frames"vectors", Encoder_out_features), we have a collection of vectors for each subvideo
         _,x_hn = self.trail_gruUnit(x) #x_hn =(D*num_layers,N,Hout)=(1*1,Batch,Encoder_out_features)
         x_hn = x_hn.view((-1, x_hn.shape[-1]))# -> (Batch, Encoder_out_features) = (subvideos, Encoder_out_features)
