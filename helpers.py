@@ -6,7 +6,7 @@ import timm
 import numpy as np
 import os
 from models import RN, MyResNet, stridedConv, ZhoDenseNet, ResNet50_GRU, Owais, MLP_Mixer
-from models.fixed_subVideoLenght_models import ResNet_subVideo_Avg
+from models.fixed_subVideoLenght_models import *
 from torchvision import datasets, models, transforms
 import matplotlib.pyplot as plt
 
@@ -149,6 +149,10 @@ def initialize_model(model_name, num_classes, feature_extract, checkpoint, use_p
         input_size = (224, 224)
     elif model_name == "ResNet50_subVideo_Avg":
         model_ft = ResNet_subVideo_Avg(num_classes=num_classes, pretrained=use_pretrained, resnet50=True,
+                 feature_extract=feature_extract, Encoder_CheckPoint=checkpoint)
+        input_size = (224,224)
+    elif model_name == "ResNet_subVideo_Max":
+        model_ft = ResNet_subVideo_Max(num_classes=num_classes, pretrained=use_pretrained, resnet50=True,
                  feature_extract=feature_extract, Encoder_CheckPoint=checkpoint)
         input_size = (224,224)
     else:
