@@ -11,7 +11,8 @@ class ResNet_subVideo_Avg(nn.Module):#first proposal
                                         feature_extract=feature_extract,Encoder_CheckPoint=Encoder_CheckPoint)
         self.encoder_out_features = self.SubVideo_Encoder.Encoder_out_features # probabily 2048
         self.drop = nn.Dropout(p=0.5)
-        self.fc = nn.Linear(self.encoder_out_features, num_classes)
+        # (vectore from sequence + vector from non-sequence) = encoder_out_features*2
+        self.fc = nn.Linear(self.encoder_out_features*2, num_classes)
 
 
     def forward(self, x):
@@ -21,9 +22,7 @@ class ResNet_subVideo_Avg(nn.Module):#first proposal
         x_gru = output_dic["x_gru"] # x_gru = (subvideos, Encoder_out_features)
 
         x_mean = x.mean(dim=1) # -> (subvideos, 1, Encoder_out_features)
-        print('expected output (subvideos, 2048) ', x_mean.shape)
-        print('expected output (subvideos, 2048) ', x_gru.shape)
-        exit(0)
+
         x_cat = torch.cat((x_mean,x_gru), dim=1) # -> (subvideos, 2*Encoder_out_features)
         x_cat_dropout = self.drop(x_cat)
         output = self.fc(x_cat_dropout) # -> (subvideos, 4)
