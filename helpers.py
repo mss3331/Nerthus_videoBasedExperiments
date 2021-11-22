@@ -198,9 +198,17 @@ def set_requires_grad_get_optimizer(feature_extract, model_ft, half_freez, print
     # Observe that all parameters are being optimized
 
 
-def get_criterion():
+def get_criterion(device):
     # Setup the loss fxn
-    criterion = nn.CrossEntropyLoss()
+    if device == None:
+        print("CrossEntropyLoss() is used")
+        criterion = nn.CrossEntropyLoss()
+    else:
+        weights = [0.3072463768, 0.1594202899, 0.2782608696, 0.2550724638]
+        class_weights = torch.FloatTensor(weights).to(device)
+        # Setup the loss fxn
+        print("CrossEntropyLoss(weight=class_weights) is used")
+        criterion = nn.CrossEntropyLoss(weight=class_weights)
     return criterion
 
 

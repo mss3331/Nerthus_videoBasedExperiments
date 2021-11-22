@@ -68,7 +68,7 @@ def run():
     #     dataloaders_dict = {"train":trainDataset,"val":valDataset}
     # print(len(list(dataloaders_dict["train"])[0]))
     # exit(0)
-    criterion = helpers.get_criterion()
+    criterion = helpers.get_criterion(device)
     # optimizer_ft = helpers.set_requires_grad_get_optimizer(feature_extract,model_ft,half_freez)
     optimizer_ft = optim.SGD(model_ft.parameters(), lr=learning_rate, momentum=0.9)
     # if model_name.find("Zho")>=0:
