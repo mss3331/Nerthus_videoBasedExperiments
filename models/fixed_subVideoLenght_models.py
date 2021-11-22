@@ -23,7 +23,7 @@ class ResNet_subVideo_Max(nn.Module):#first proposal
         x_gru = output_dic["x_gru"] # x_gru = (subvideos, Encoder_out_features)
 
         #************ your non-sequence code ********************
-        x_mean = x.max(dim=1) # -> (subvideos, Encoder_out_features)
+        x_mean, _ = x.max(dim=1) # -> (subvideos, Encoder_out_features)
 
         #*************** this is default code********************
         x_cat = torch.cat((x_mean,x_gru), dim=1) # -> (subvideos, 2*Encoder_out_features)
