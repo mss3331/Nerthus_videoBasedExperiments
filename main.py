@@ -114,8 +114,8 @@ if __name__ == '__main__':
     # Owais_ResNet18_LSTM,MlpMixer, ResNet50_max, ResNet50_SimplerGRU, vit_base_patch16_224, mixer_b16_224]
     # fixed_subVideoLenght_models.py
     # [ResNet50_subVideo_Avg, ResNet_subVideo_Max, ResNet_subVideo_GRU,ResNet_subVideo_MaxOnly,
-    # ResNet_subVideo_FcHoriz, ResNet_subVideo_FcVert, ResNet_subVideo_MLP]
-    model_name = "ResNet_subVideo_MLP"
+    # ResNet_subVideo_FcHoriz, ResNet_subVideo_FcVert, ResNet_subVideo_MLP, ResNet_subVideo_MLPOnly]
+    model_name = "ResNet_subVideo_MLPOnly"
     # Number of classes in the dataset
     learning_rate = 0.001
     num_classes = 4

@@ -102,6 +102,41 @@ class Mlp(nn.Module):
 
         return x
 
+class ResNet_subVideo_MLPOnly(nn.Module):
+    def __init__(self, num_classes=4, pretrained=False, resnet50=True,
+                 feature_extract=False, Encoder_CheckPoint=None):
+        super(ResNet_subVideo_MLPOnly, self).__init__()
+        # Our 2D encoder, We can consider 3D encoder instead
+        self.SubVideo_Encoder = SubVideo_Encoder(num_classes=num_classes, pretrained=pretrained, resnet50=resnet50,
+                                        feature_extract=feature_extract,Encoder_CheckPoint=Encoder_CheckPoint)
+        self.encoder_out_features = self.SubVideo_Encoder.Encoder_out_features # probabily 2048
+        # self.normGRU = nn.BatchNorm1d(self.encoder_out_features)
+        # I am expecting 25 vectors for each sub-video. This line needs to be changed if num of images per subvideo change
+        self.Mlp = Mlp(n_frames=25, encoder_features= self.encoder_out_features )
+
+        # (vectore from sequence + vector from non-sequence) = encoder_out_features*2
+        self.fc = nn.Linear(self.encoder_out_features, num_classes)
+
+
+    def forward(self, x):
+        # *************this is default code*************
+
+        output_dic = self.SubVideo_Encoder(x)
+        x = output_dic["x"]  # x=(subvideos, frames"vectors", Encoder_out_features)
+        x_shape = x.shape
+        # x_gru = output_dic["x_gru"]  # x_gru = (subvideos, Encoder_out_features)
+        # x_gru = self.normGRU(x_gru)
+
+        # ************ your non-sequence code ********************
+        x_Mlp = self.Mlp(x)
+
+        # *************** this is default code********************
+        # x_cat = torch.cat((x_Mlp, x_gru), dim=1)  # -> (subvideos, Encoder_out_features*2)
+
+        output = self.fc(x_Mlp)  # -> (subvideos, 4)
+
+        return output
+
 class ResNet_subVideo_MLP(nn.Module):
     def __init__(self, num_classes=4, pretrained=False, resnet50=True,
                  feature_extract=False, Encoder_CheckPoint=None):
