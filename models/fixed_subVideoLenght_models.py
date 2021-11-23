@@ -1,6 +1,52 @@
 import torchvision.models as models
 import torch
 import torch.nn as nn
+
+class ResNet_subVideo_FcHoriz(nn.Module):
+    def __init__(self, num_classes=4, pretrained=False, resnet50=True,
+                 feature_extract=False, Encoder_CheckPoint=None):
+        super(ResNet_subVideo_FcHoriz, self).__init__()
+        # Our 2D encoder, We can consider 3D encoder instead
+        self.SubVideo_Encoder = SubVideo_Encoder(num_classes=num_classes, pretrained=pretrained, resnet50=resnet50,
+                                        feature_extract=feature_extract,Encoder_CheckPoint=Encoder_CheckPoint)
+        self.encoder_out_features = self.SubVideo_Encoder.Encoder_out_features # probabily 2048
+        self.normGRU = nn.BatchNorm1d(self.encoder_out_features)
+        # I am expecting 25 vectors for each sub-video. This line needs to be changed if num of images per subvideo change
+        self.FC = nn.Linear(25,1)
+        self.normFC = nn.BatchNorm1d(self.encoder_out_features)
+
+        # (vectore from sequence + vector from non-sequence) = encoder_out_features*2
+        self.fc = nn.Linear(self.encoder_out_features, num_classes)
+
+
+    def forward(self, x):
+        # *************this is default code*************
+
+        output_dic = self.SubVideo_Encoder(x)
+        x = output_dic["x"]  # x=(subvideos, frames"vectors", Encoder_out_features)
+        x_shape = x.shape
+        x_gru = output_dic["x_gru"]  # x_gru = (subvideos, Encoder_out_features)
+        x_gru = self.normGRU(x_gru)
+
+        # ************ your non-sequence code ********************
+        # (subvideos, frames"vectors", Encoder_out_features) -> (subvideos, Encoder_out_features, frames"vectors")
+        x = x.permute((0,2,1))
+        # (subvideos, Encoder_out_features, frames"vectors") -> (subvideos*Encoder_out_features, frames"vectors")
+        x = x.view((-1,x_shape[1]))
+        # (subvideos*Encoder_out_features, frames"vectors") -> (subvideos*Encoder_out_features, 1 vector)
+        x_fc = self.FC(x)
+        # (subvideos * Encoder_out_features, 1 vector) -> (subvideos*Encoder_out_features)
+        # ->(subvideos,Encoder_out_features)
+        x_fc = x_fc.squeeze().view((x_shape[0],-1))
+
+
+        # *************** this is default code********************
+        x_cat = torch.cat((x_fc, x_gru), dim=1)  # -> (subvideos, 2*Encoder_out_features)
+
+        output = self.fc(x_cat)  # -> (subvideos, 4)
+
+        return output
+
 class ResNet_subVideo_MaxOnly(nn.Module):#first proposal
     def __init__(self, num_classes=4, pretrained=False, resnet50=True,
                  feature_extract=False, Encoder_CheckPoint=None):
