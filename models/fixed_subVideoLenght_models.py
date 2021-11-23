@@ -12,8 +12,8 @@ class ResNet_subVideo_FcHoriz(nn.Module):
         self.encoder_out_features = self.SubVideo_Encoder.Encoder_out_features # probabily 2048
         self.normGRU = nn.BatchNorm1d(self.encoder_out_features)
         # I am expecting 25 vectors for each sub-video. This line needs to be changed if num of images per subvideo change
-        self.FC = nn.Linear(25,1)
-        self.normFC = nn.BatchNorm1d(self.encoder_out_features)
+        self.FcHoriz = nn.Linear(25,1)
+        self.normFcHoriz = nn.BatchNorm1d(self.encoder_out_features)
 
         # (vectore from sequence + vector from non-sequence) = encoder_out_features*2
         self.fc = nn.Linear(self.encoder_out_features*2, num_classes)
@@ -34,11 +34,11 @@ class ResNet_subVideo_FcHoriz(nn.Module):
         # (subvideos, Encoder_out_features, frames"vectors") -> (subvideos*Encoder_out_features, frames"vectors")
         x = x.reshape((-1,x_shape[1])) # I used reshape instead of view due to an error (contigous memory)
         # (subvideos*Encoder_out_features, frames"vectors") -> (subvideos*Encoder_out_features, 1 vector)
-        x_fc = self.FC(x)
+        x_fc = self.FcHoriz(x)
         # (subvideos * Encoder_out_features, 1 vector) -> (subvideos*Encoder_out_features)
         # ->(subvideos,Encoder_out_features)
         x_fc = x_fc.squeeze().view((x_shape[0],-1))
-
+        x_fc = self.normFcHoriz(x_fc)
 
         # *************** this is default code********************
         x_cat = torch.cat((x_fc, x_gru), dim=1)  # -> (subvideos, 2*Encoder_out_features)
