@@ -16,7 +16,7 @@ class ResNet_subVideo_FcHoriz(nn.Module):
         self.normFC = nn.BatchNorm1d(self.encoder_out_features)
 
         # (vectore from sequence + vector from non-sequence) = encoder_out_features*2
-        self.fc = nn.Linear(self.encoder_out_features, num_classes)
+        self.fc = nn.Linear(self.encoder_out_features*2, num_classes)
 
 
     def forward(self, x):
@@ -32,7 +32,7 @@ class ResNet_subVideo_FcHoriz(nn.Module):
         # (subvideos, frames"vectors", Encoder_out_features) -> (subvideos, Encoder_out_features, frames"vectors")
         x = x.permute((0,2,1))
         # (subvideos, Encoder_out_features, frames"vectors") -> (subvideos*Encoder_out_features, frames"vectors")
-        x = x.view((-1,x_shape[1]))
+        x = x.reshape((-1,x_shape[1])) # I used reshape instead of view due to an error (contigous memory)
         # (subvideos*Encoder_out_features, frames"vectors") -> (subvideos*Encoder_out_features, 1 vector)
         x_fc = self.FC(x)
         # (subvideos * Encoder_out_features, 1 vector) -> (subvideos*Encoder_out_features)
