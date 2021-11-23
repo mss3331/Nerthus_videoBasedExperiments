@@ -113,8 +113,9 @@ if __name__ == '__main__':
     # Myresnet50,RN,stridedConv,ZhoDenseNet, ResNet50_GRU, ResNet101_GRU, ResNet50_h_initialized_GRU,
     # Owais_ResNet18_LSTM,MlpMixer, ResNet50_max, ResNet50_SimplerGRU, vit_base_patch16_224, mixer_b16_224]
     # fixed_subVideoLenght_models.py
-    # [ResNet50_subVideo_Avg, ResNet_subVideo_Max, ResNet_subVideo_GRU,ResNet_subVideo_MaxOnly, ResNet_subVideo_FcHoriz]
-    model_name = "ResNet_subVideo_FcHoriz"
+    # [ResNet50_subVideo_Avg, ResNet_subVideo_Max, ResNet_subVideo_GRU,ResNet_subVideo_MaxOnly,
+    # ResNet_subVideo_FcHoriz, ResNet_subVideo_FcVert]
+    model_name = "ResNet_subVideo_FcVert"
     # Number of classes in the dataset
     learning_rate = 0.001
     num_classes = 4
