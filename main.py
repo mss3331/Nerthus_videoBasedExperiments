@@ -112,7 +112,8 @@ if __name__ == '__main__':
     # Models to choose from [resnet18,resnet50, alexnet, vgg, squeezenet, densenet, inception
     # Myresnet50,RN,stridedConv,ZhoDenseNet, ResNet50_GRU, ResNet101_GRU, ResNet50_h_initialized_GRU,
     # Owais_ResNet18_LSTM,MlpMixer, ResNet50_max, ResNet50_SimplerGRU, vit_base_patch16_224, mixer_b16_224]
-    # fixed_subVideoLenght_models.py [ResNet50_subVideo_Avg, ResNet_subVideo_Max, ResNet_subVideo_GRU]
+    # fixed_subVideoLenght_models.py
+    # [ResNet50_subVideo_Avg, ResNet_subVideo_Max, ResNet_subVideo_GRU,ResNet_subVideo_MaxOnly]
     model_name = "ResNet_subVideo_MaxOnly"
     # Number of classes in the dataset
     learning_rate = 0.001

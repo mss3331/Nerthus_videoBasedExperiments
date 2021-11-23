@@ -6,7 +6,7 @@ class ResNet_subVideo_MaxOnly(nn.Module):#first proposal
                  feature_extract=False, Encoder_CheckPoint=None):
         super(ResNet_subVideo_MaxOnly, self).__init__()
         # Our 2D encoder, We can consider 3D encoder instead
-        self.SubVideo_Encoder = SubVideo_Encoder(num_classes=num_classes, pretrained=pretrained, resnet50=resnet50,
+        self.SubVideo_Encoder = SubVideo_Encoder_WithoutGRU(num_classes=num_classes, pretrained=pretrained, resnet50=resnet50,
                                         feature_extract=feature_extract,Encoder_CheckPoint=Encoder_CheckPoint)
         self.encoder_out_features = self.SubVideo_Encoder.Encoder_out_features # probabily 2048
         self.normMax = nn.BatchNorm1d(self.encoder_out_features)
@@ -19,10 +19,9 @@ class ResNet_subVideo_MaxOnly(nn.Module):#first proposal
     def forward(self, x):
         #*************this is default code*************
         x_shape = x.shape
-        output_dic = self.SubVideo_Encoder(x)
-        x = output_dic["x"] # x=(subvideos, frames"vectors", Encoder_out_features)
-        # x_gru = output_dic["x_gru"] # x_gru = (subvideos, Encoder_out_features)
-        # x_gru = self.normGRU(x_gru)
+        # x=(subvideos, frames"vectors", Encoder_out_features)
+        x = self.SubVideo_Encoder(x)
+
         #************ your non-sequence code ********************
         # (subvideos, frames"vectors", Encoder_out_features) -> (subvideos, Encoder_out_features)
         x_max, _ = x.max(dim=1)
@@ -31,6 +30,7 @@ class ResNet_subVideo_MaxOnly(nn.Module):#first proposal
         output = self.fc(x_max) # -> (subvideos, 4)
 
         return output
+
 class ResNet_subVideo_GRU(nn.Module):#first proposal
     def __init__(self, num_classes=4, pretrained=False, resnet50=True,
                  feature_extract=False, Encoder_CheckPoint=None):
@@ -118,7 +118,46 @@ class ResNet_subVideo_Avg(nn.Module):#first proposal
         return output
 
 
+class SubVideo_Encoder_WithoutGRU(nn.Module):
+    '''The purpose of this Module is:
+    1- Convert subvideos into vectors
+    2- Pass the vectors to a decoder Module'''
 
+    def set_parameter_requires_grad(self, model, feature_extract):
+        if feature_extract:
+            for param in model.parameters():
+                param.requires_grad = False
+
+    def __init__(self, num_classes=4, pretrained=True, resnet50=True,
+                 feature_extract=True,Encoder_CheckPoint=None):
+        super(SubVideo_Encoder_WithoutGRU, self).__init__()
+        if resnet50:
+            self.original_ResNet = models.resnet50(pretrained=pretrained)
+        else:
+            self.original_ResNet = models.resnet101(pretrained=pretrained)
+        self.set_parameter_requires_grad(self.original_ResNet,
+                                         feature_extract=feature_extract)  # if True freeze all the parameters
+
+        # load the Encoder checkpoint if any
+        if Encoder_CheckPoint:
+            self.original_ResNet = loadCheckpoint(self.original_ResNet,Encoder_CheckPoint, num_classes)
+        self.layers = list(self.original_ResNet.children())  # seperate the layers
+        self.Encoder_out_features = self.layers[-1].in_features
+        self.Encoder = nn.Sequential(*self.layers[:-1])  # combine all layers except the last fc layer
+
+    def forward(self, x):
+        #expected input dimention : (subvideos"batch", frames, C, H, W)
+        subvideos_num, frames_num, channels, H, W = x.shape
+        x_shape = x.shape
+        #extract features. Encoder expect the following dim (frames, C, H, W)
+        x = x.view((-1,*x_shape[2:])) #-> (subvideo*frames, C, H, W)
+        x = self.Encoder(x)  # => (subvideo*frames, Encoder_out_features, 1, 1) due to the adaptive average pooling
+        x = x.squeeze() # (subvideo*frames, Encoder_out_features)
+        # (subvideo*frames, Encoder_out_features) -> (subvideos, frames"vectors", Encoder_out_features), we have a collection of vectors for each subvideo
+        x = x.view((subvideos_num,frames_num,-1))
+
+        # x=(subvideos, frames"vectors", Encoder_out_features)
+        return x
 
 class SubVideo_Encoder(nn.Module):
     '''The purpose of this Module is:
