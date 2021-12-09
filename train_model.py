@@ -147,9 +147,9 @@ def train_model(model, dataloaders, criterion, optimizer,device,model_name,colab
         helpers.plot_result(num_epochs=epoch+1,results_dic=results_dic, model_name=model_name, colab_dir=colab_dir)
 
 
-        if model_name.find("GRU")>=0 and (epoch+1)%10==0:
-            print("we need to shuffle sub-videos, hence new dataloader is created")
-            dataloaders = helpers_dataloading.get_dataloaders_SubVideoBased(*extra_args)
+        # if model_name.find("GRU")>=0 and (epoch+1)%10==0:
+        #     print("we need to shuffle sub-videos, hence new dataloader is created")
+        #     dataloaders = helpers_dataloading.get_dataloaders_SubVideoBased(*extra_args)
 
 
 
