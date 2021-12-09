@@ -17,7 +17,7 @@ def set_parameter_requires_grad(model, feature_extracting):
             param.requires_grad = False
 
 
-def initialize_model(model_name, num_classes, feature_extract, checkpoint, use_pretrained=False):
+def initialize_model(model_name, num_classes, feature_extract, encoder_checkpoint, use_pretrained=False):
     # Initialize these variables which will be set in this if statement. Each of these
     #   variables is model specific.
     model_ft = None
@@ -42,14 +42,14 @@ def initialize_model(model_name, num_classes, feature_extract, checkpoint, use_p
         input_size = 224
     elif model_name == "ResNet50_GRU":
         model_ft = ResNet50_GRU.ResNet50_GRU(pretrained=use_pretrained, feature_extract=feature_extract,
-                                             num_classes=num_classes, Encoder_CheckPoint=checkpoint)
+                                             num_classes=num_classes, Encoder_CheckPoint=encoder_checkpoint)
         input_size = 224
     elif model_name == "ResNet50_max":
         model_ft = ResNet50_GRU.ResNet50_max(pretrained=use_pretrained, feature_extract=feature_extract,
-                                             num_classes=num_classes, Encoder_CheckPoint=checkpoint)
+                                             num_classes=num_classes, Encoder_CheckPoint=encoder_checkpoint)
     elif model_name == "ResNet50_SimplerGRU":
         model_ft = ResNet50_GRU.ResNet50_SimplerGRU(pretrained=use_pretrained, feature_extract=feature_extract,
-                                                    num_classes=num_classes, Encoder_CheckPoint=checkpoint)
+                                                    num_classes=num_classes, Encoder_CheckPoint=encoder_checkpoint)
         input_size = 224
     elif model_name == "Owais_ResNet18_LSTM":
         model_ft = Owais.Owais_ResNet18_LSTM(pretrained=use_pretrained, feature_extract=feature_extract,
@@ -149,35 +149,35 @@ def initialize_model(model_name, num_classes, feature_extract, checkpoint, use_p
         input_size = (224, 224)
     elif model_name == "ResNet50_subVideo_Avg":
         model_ft = ResNet_subVideo_Avg(num_classes=num_classes, pretrained=use_pretrained, resnet50=True,
-                 feature_extract=feature_extract, Encoder_CheckPoint=checkpoint)
+                                       feature_extract=feature_extract, Encoder_CheckPoint=encoder_checkpoint)
         input_size = (224,224)
     elif model_name == "ResNet_subVideo_Max":
         model_ft = ResNet_subVideo_Max(num_classes=num_classes, pretrained=use_pretrained, resnet50=True,
-                 feature_extract=feature_extract, Encoder_CheckPoint=checkpoint)
+                                       feature_extract=feature_extract, Encoder_CheckPoint=encoder_checkpoint)
         input_size = (224,224)
     elif model_name == "ResNet_subVideo_GRU":
         model_ft = ResNet_subVideo_GRU(num_classes=num_classes, pretrained=use_pretrained, resnet50=True,
-                                       feature_extract=feature_extract, Encoder_CheckPoint=checkpoint)
+                                       feature_extract=feature_extract, Encoder_CheckPoint=encoder_checkpoint)
         input_size = (224, 224)
     elif model_name == "ResNet_subVideo_MaxOnly":
         model_ft = ResNet_subVideo_MaxOnly(num_classes=num_classes, pretrained=use_pretrained, resnet50=True,
-                                       feature_extract=feature_extract, Encoder_CheckPoint=checkpoint)
+                                           feature_extract=feature_extract, Encoder_CheckPoint=encoder_checkpoint)
         input_size = (224, 224)
     elif model_name == "ResNet_subVideo_FcHoriz":
         model_ft = ResNet_subVideo_FcHoriz(num_classes=num_classes, pretrained=use_pretrained, resnet50=True,
-                                           feature_extract=feature_extract, Encoder_CheckPoint=checkpoint)
+                                           feature_extract=feature_extract, Encoder_CheckPoint=encoder_checkpoint)
         input_size = (224, 224)
     elif model_name == "ResNet_subVideo_FcVert":
         model_ft = ResNet_subVideo_FcVert(num_classes=num_classes, pretrained=use_pretrained, resnet50=True,
-                                           feature_extract=feature_extract, Encoder_CheckPoint=checkpoint)
+                                          feature_extract=feature_extract, Encoder_CheckPoint=encoder_checkpoint)
         input_size = (224, 224)
     elif model_name == "ResNet_subVideo_MLP":
         model_ft = ResNet_subVideo_MLP(num_classes=num_classes, pretrained=use_pretrained, resnet50=True,
-                                          feature_extract=feature_extract, Encoder_CheckPoint=checkpoint)
+                                       feature_extract=feature_extract, Encoder_CheckPoint=encoder_checkpoint)
         input_size = (224, 224)
     elif model_name == "ResNet_subVideo_MLPOnly":
         model_ft = ResNet_subVideo_MLPOnly(num_classes=num_classes, pretrained=use_pretrained, resnet50=True,
-                                       feature_extract=feature_extract, Encoder_CheckPoint=checkpoint)
+                                           feature_extract=feature_extract, Encoder_CheckPoint=encoder_checkpoint)
         input_size = (224, 224)
     else:
         print("Invalid model name, exiting...")

@@ -26,7 +26,7 @@ def print_hyperparameters():
     print("Did you consider SubSub Videos? ",is_subsub_videos)
     if data_dir.find("kvasir")>=0:
         print("*"*20,"Kvasir Dataset is used here not Nerthus", "*"*20)
-    if checkpoint:
+    if encoder_checkpoint:
         print("a checkpoint is loaded")
 
 def run():
@@ -39,7 +39,7 @@ def run():
 
 
     # Initialize the model for this run
-    model_ft, input_size = helpers.initialize_model(model_name, num_classes, feature_extract,checkpoint, use_pretrained=use_pretrained)
+    model_ft, input_size = helpers.initialize_model(model_name, num_classes, feature_extract, encoder_checkpoint, use_pretrained=use_pretrained)
     # print(model_ft)
     # exit(0)
     # Send the model to GPU
@@ -152,11 +152,12 @@ if __name__ == '__main__':
         wandbproject_name = "Nerthus_ProposedSol"
     else: wandbproject_name = "Nerthus"
 
-    feature_extract = False
+    feature_extract = True
+    use_pretrained = True
     half_freez = False
-    use_pretrained = False
+
     # checkpoint =torch.load(colab_dir+"/checkpoints/resnet50.pth")
-    checkpoint = None
+    encoder_checkpoint = None
     print_hyperparameters()
     # Flag for feature extracting. When False, we finetune the whole model,
     #   when True we only update the reshaped layer params
