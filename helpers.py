@@ -179,6 +179,10 @@ def initialize_model(model_name, num_classes, feature_extract, encoder_checkpoin
         model_ft = ResNet_subVideo_MLPOnly(num_classes=num_classes, pretrained=use_pretrained, resnet50=True,
                                            feature_extract=feature_extract, Encoder_CheckPoint=encoder_checkpoint)
         input_size = (224, 224)
+    elif model_name == "ResNet_subVideo_KeyFrame":
+        model_ft = ResNet_subVideo_KeyFrame(num_classes=num_classes, pretrained=use_pretrained, resnet50=True,
+                                           feature_extract=feature_extract, Encoder_CheckPoint=encoder_checkpoint)
+        input_size = (224, 224)
     else:
         print("Invalid model name, exiting...")
         exit()
