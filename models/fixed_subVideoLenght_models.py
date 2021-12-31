@@ -183,7 +183,7 @@ class ResNet_subVideo_KeyFrame(nn.Module):
 
         self.Key = nn.Linear(self.encoder_out_features,1)# the highest key will determine the output vector
         self.normKeyFrame = nn.BatchNorm1d(self.encoder_out_features) # I am expecting to have one vector with size
-
+        self.relu = nn.ReLU()
         # (vectore from sequence + vector from non-sequence) = encoder_out_features+25
         self.fc = nn.Linear(self.encoder_out_features*2, num_classes)
 
@@ -207,7 +207,8 @@ class ResNet_subVideo_KeyFrame(nn.Module):
         _,indecies = x_keys.max(dim=1) #(subvideos, frames"vectors") -> (subvideos, 1) index should be between 0 and 24
         keyVectors = x_encoder[range(x_encoder.shape[0]),indecies, :] # -> (subvideos,Encoder_out_features)
 
-        x_fc = self.normFcVert(keyVectors)
+        x_fc = self.normKeyFrame(keyVectors)
+        x_fc = self.relu(x_fc)
 
         # *************** this is default code********************
         x_cat = torch.cat((x_fc, x_gru), dim=1)  # -> (subvideos, Encoder_out_features*2)
