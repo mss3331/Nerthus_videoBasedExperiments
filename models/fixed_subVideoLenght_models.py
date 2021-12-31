@@ -303,6 +303,7 @@ class ResNet_subVideo_FcHoriz(nn.Module):
 
         return output
 
+
 class ResNet_subVideo_MaxOnly(nn.Module):#first proposal
     def __init__(self, num_classes=4, pretrained=False, resnet50=True,
                  feature_extract=False, Encoder_CheckPoint=None):
@@ -363,6 +364,38 @@ class ResNet_subVideo_GRU(nn.Module):#first proposal
         output = self.fc(x_gru) # -> (subvideos, 4)
 
         return output
+class ResNet_subVideo_Min(nn.Module):#first proposal
+    def __init__(self, num_classes=4, pretrained=False, resnet50=True,
+                 feature_extract=False, Encoder_CheckPoint=None):
+        super(ResNet_subVideo_Min, self).__init__()
+        # Our 2D encoder, We can consider 3D encoder instead
+        self.SubVideo_Encoder = SubVideo_Encoder(num_classes=num_classes, pretrained=pretrained, resnet50=resnet50,
+                                        feature_extract=feature_extract,Encoder_CheckPoint=Encoder_CheckPoint)
+        self.encoder_out_features = self.SubVideo_Encoder.Encoder_out_features # probabily 2048
+        self.normGRU = nn.BatchNorm1d(self.encoder_out_features)
+        self.normMin = nn.BatchNorm1d(self.encoder_out_features)
+        self.drop = nn.Dropout(p=0.5)
+        # (vectore from sequence + vector from non-sequence) = encoder_out_features*2
+        self.fc = nn.Linear(self.encoder_out_features * 2, num_classes)
+
+
+    def forward(self, x):
+        # *************this is default code*************
+        x_shape = x.shape
+        output_dic = self.SubVideo_Encoder(x)
+        x = output_dic["x"]  # x=(subvideos, frames"vectors", Encoder_out_features)
+        x_gru = output_dic["x_gru"]  # x_gru = (subvideos, Encoder_out_features)
+        x_gru = self.normGRU(x_gru)
+        # ************ your non-sequence code ********************
+        x_min, _ = x.min(dim=1)  # -> (subvideos, Encoder_out_features)
+        x_min = self.normMin(x_min)
+        # *************** this is default code********************
+        x_cat = torch.cat((x_min, x_gru), dim=1)  # -> (subvideos, 2*Encoder_out_features)
+        x_cat_dropout = self.drop(x_cat)
+        output = self.fc(x_cat_dropout)  # -> (subvideos, 4)
+
+        return output
+
 class ResNet_subVideo_Max(nn.Module):#first proposal
     def __init__(self, num_classes=4, pretrained=False, resnet50=True,
                  feature_extract=False, Encoder_CheckPoint=None):
