@@ -68,7 +68,10 @@ def run():
     #     dataloaders_dict = {"train":trainDataset,"val":valDataset}
     # print(len(list(dataloaders_dict["train"])[0]))
     # exit(0)
-    criterion = helpers.get_criterion(device)
+    if weighted_loss:
+        criterion = helpers.get_criterion(device)
+    else:
+        criterion = helpers.get_criterion(None)
     # optimizer_ft = helpers.set_requires_grad_get_optimizer(feature_extract,model_ft,half_freez)
     optimizer_ft = optim.SGD(model_ft.parameters(), lr=learning_rate, momentum=0.9)
     # if model_name.find("Zho")>=0:
@@ -104,8 +107,8 @@ if __name__ == '__main__':
     if run_in_colab:
         # data_dir = "/content/SubSubVideoBased_not_splitted_into_trainVal"
         # data_dir = "/content/VideoBased_ForImageBasedModels"
-        # data_dir = "/content/Nerthus/SubVideoBased_not_splitted_into_trainVal"
-        data_dir = "/content/VideoBased_ForImageBasedModels"
+        data_dir = "/content/Nerthus/SubVideoBased_not_splitted_into_trainVal"
+        # data_dir = "/content/VideoBased_ForImageBasedModels"
         # data_dir = "/content/kvasir-dataset-v2/"
         colab_dir = "/content/Nerthus_videoBasedExperiments" # base folder for where to store the results
     # data_dir = "/content/frameBased_randomShuffle1"
@@ -120,6 +123,7 @@ if __name__ == '__main__':
     # Number of classes in the dataset
     learning_rate = 0.001
     num_classes = 4
+    weighted_loss = False
     if data_dir.find("kvasir")>=0:
         num_classes = 8
 
@@ -148,10 +152,12 @@ if __name__ == '__main__':
     # and batch_size = 3 means load 3 subvideos
     EntireSubVideo = ["True", "FixedSize", "None"]
     EntireSubVideo = "FixedSize" #it means add collate function that gather all images and make the dataloader to provide images,labels,filenames,videolenght_list
+    EntireSubVideo = "None" # for frame level
     wandbproject_name = ""
     if EntireSubVideo=="FixedSize":
         wandbproject_name = "Nerthus_ProposedSol"
     else: wandbproject_name = "Nerthus"
+    wandbproject_name = "ICPR22"
 
     feature_extract = True
     use_pretrained = True
@@ -173,7 +179,7 @@ if __name__ == '__main__':
             "learning_rate": learning_rate,
             "shuffle": shuffle,
             "is_subsub_videos":is_subsub_videos,
-            "shuffle_entire_subvideos":4.5,
+            "shuffle_entire_subvideos":1,
             "treatment":shuffle_entire_subvideos,
             "EntireSubVideo":EntireSubVideo,
             "architecture": model_name,

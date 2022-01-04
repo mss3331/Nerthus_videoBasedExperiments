@@ -83,7 +83,7 @@ def get_dataloaders_Kvasir(input_size, batch_size, data_dir, shuffle):
     return dataloaders_dict
 
 
-def createDataSetFromList(data_dir, input_size, folders_name, load_to_RAM, EntireSubVideo, sub_videoSize):
+def createDataSetFromList(data_dir, input_size, folders_name, load_to_RAM, EntireSubVideo, sub_videoSize=25):
     '''Recieve lsit of folder names and return a concatinated dataset'''
 
     dataset_list = []
@@ -91,7 +91,7 @@ def createDataSetFromList(data_dir, input_size, folders_name, load_to_RAM, Entir
         # create a dataset based on subvideo_name
         if EntireSubVideo == "FixedSize":
             dataset_list.append(Nerthus_EntireSubVideo_FromImageBased_Dataset(data_dir + subvideo_name, input_size, sub_videoSize, load_to_RAM))
-        elif EntireSubVideo:
+        elif EntireSubVideo=="True":
             dataset_list.append(Nerthus_EntireSubVideo_Dataset(data_dir + subvideo_name, input_size, load_to_RAM))
         else:
             dataset_list.append(Nerthus_SubVideo_Dataset(data_dir + subvideo_name, input_size, load_to_RAM))
@@ -353,7 +353,7 @@ class Nerthus_EntireSubVideo_Dataset(Dataset):
 
         return X
 
-class Nerthus_EntireSubVideo_FromImageBased_Dataset(Dataset):
+class createDataSetFromList(Dataset):
     def __init__(self, imageDir, targetSize, sub_videoSize=25, load_to_RAM=False):
         '''partitions is an integer that divide a video (e.g. 1_0_0) into subvideos
           each subvideo would have frames from each second.
