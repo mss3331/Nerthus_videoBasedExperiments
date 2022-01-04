@@ -142,6 +142,7 @@ if __name__ == '__main__':
     #TrueWithinClass means shuffle the subvideos for each class, then divide them equally between train/val
     is_subsub_videos = False
     shuffle_entire_subvideos = "TrueWithinClass" # if true, the train and val would have shuffeled videos as in the Original Nerthus paper
+    shuffle_entire_subvideos = "Frame 0.5"
     # shuffle_entire_subvideos = "True"
     #EntireSubVideo = ["True","FixedSize","None"].
     # True mean load our old implementation. our Collate function is created here
