@@ -128,7 +128,7 @@ if __name__ == '__main__':
         num_classes = 8
 
     batch_size = 4
-    batch_size = 50 #for frame level
+    batch_size = 100 #for frame level
     sub_videoSize = 25  # each subvideo should contains 25 images
     # batch_size = 100
     # batch_size = 32 #only for Zho
