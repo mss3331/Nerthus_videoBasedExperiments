@@ -160,7 +160,7 @@ if __name__ == '__main__':
     wandbproject_name = "ICPR22"
 
     feature_extract = True
-    use_pretrained = True
+    use_pretrained = False
     half_freez = False
 
     # checkpoint =torch.load(colab_dir+"/checkpoints/resnet50.pth")
