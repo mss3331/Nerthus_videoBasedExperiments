@@ -353,7 +353,7 @@ class Nerthus_EntireSubVideo_Dataset(Dataset):
 
         return X
 
-class createDataSetFromList(Dataset):
+class Nerthus_EntireSubVideo_FromImageBased_Dataset(Dataset):
     def __init__(self, imageDir, targetSize, sub_videoSize=25, load_to_RAM=False):
         '''partitions is an integer that divide a video (e.g. 1_0_0) into subvideos
           each subvideo would have frames from each second.
