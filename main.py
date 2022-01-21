@@ -20,6 +20,7 @@ def print_hyperparameters():
     if shuffle_entire_subvideos == "True":
         print("This dataset will be shuffled and distributed to train\\val based on "
               "subvideos as in the Original Nerthus paper")
+
     elif shuffle_entire_subvideos == "Equal":
         print("video1_0 for train and video1_1 for val, we expect 100% val accuracy")
     print("EntireSubVideo=", EntireSubVideo)
@@ -113,8 +114,8 @@ if __name__ == '__main__':
     if run_in_colab:
         # data_dir = "/content/SubSubVideoBased_not_splitted_into_trainVal"
         # data_dir = "/content/VideoBased_ForImageBasedModels"
-        data_dir = "/content/Nerthus/SubVideoBased_not_splitted_into_trainVal"
-        # data_dir = "/content/VideoBased_ForImageBasedModels"
+        # data_dir = "/content/Nerthus/SubVideoBased_not_splitted_into_trainVal"
+        data_dir = "/content/VideoBased_ForImageBasedModels"
         # data_dir = "/content/kvasir-dataset-v2/"
         colab_dir = "/content/Nerthus_videoBasedExperiments" # base folder for where to store the results
     # data_dir = "/content/frameBased_randomShuffle1"
