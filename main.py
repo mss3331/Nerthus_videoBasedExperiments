@@ -169,12 +169,13 @@ if __name__ == '__main__':
     else: wandbproject_name = "Nerthus"
     # wandbproject_name = "ICPR22"
 
-    feature_extract = False
+    feature_extract = True
     use_pretrained = True
     half_freez = False
 
     # checkpoint =torch.load(colab_dir+"/checkpoints/resnet50.pth")
-    encoder_checkpoint = None
+    # for Nerthus 2-fold Nerthus_fold2_paperExp1_VideoBased_Shuffle_ResNet50_WeightedLoss achieved 82.3
+    encoder_checkpoint = torch.load(colab_dir+"/checkpoints/resnet50.pth")
 
     # Flag for feature extracting. When False, we finetune the whole model,
     #   when True we only update the reshaped layer params
