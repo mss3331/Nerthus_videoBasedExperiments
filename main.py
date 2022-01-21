@@ -186,7 +186,7 @@ if __name__ == '__main__':
         name=Experimentname,
         # Track hyperparameters and run metadata
         config={
-
+            "second_fold":second_fold,
             "learning_rate": learning_rate,
             "shuffle": shuffle,
             "is_subsub_videos":is_subsub_videos,
