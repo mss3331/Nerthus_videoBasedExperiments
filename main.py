@@ -28,6 +28,11 @@ def print_hyperparameters():
         print("*"*20,"Kvasir Dataset is used here not Nerthus", "*"*20)
     if encoder_checkpoint:
         print("a checkpoint is loaded")
+    if second_fold:
+        print("Important!!! We are applying 2-fold validation")
+    else:
+        print("We are applying 1-fold validation")
+
 
 def run():
     print("PyTorch Version: ",torch.__version__)
@@ -60,8 +65,9 @@ def run():
         dataloaders_dict = helpers_dataloading.get_dataloaders_SubVideoBased(input_size,batch_size,data_dir,load_to_RAM,is_subsub_videos
                                                                          , shuffle=shuffle
                                                                          , shuffle_entire_subvideos=shuffle_entire_subvideos
-                                                                         , EntireSubVideo=EntireSubVideo,
-                                                                             sub_videoSize = sub_videoSize)
+                                                                         , EntireSubVideo=EntireSubVideo
+                                                                         , sub_videoSize = sub_videoSize
+                                                                         , second_fold = second_fold)
     # if EntireSubVideo:
     #     trainDataset = dataloaders_dict["train"].dataset
     #     valDataset = dataloaders_dict["val"].dataset
@@ -119,20 +125,21 @@ if __name__ == '__main__':
     # [ResNet50_subVideo_Avg, ResNet_subVideo_Max, ResNet_subVideo_GRU,ResNet_subVideo_MaxOnly,
     # ResNet_subVideo_FcHoriz, ResNet_subVideo_FcVert, ResNet_subVideo_MLP, ResNet_subVideo_MLPOnly
     # ResNet_subVideo_KeyFrame, ResNet_subVideo_Min]
-    model_name = "ResNet_subVideo_Min"
+    model_name = "ResNet_subVideo_KeyFrame"
     # Number of classes in the dataset
     learning_rate = 0.001
     num_classes = 4
-    weighted_loss = False
+    weighted_loss = True
+    second_fold = True #if true it means we will switch the training and validation datasets
     if data_dir.find("kvasir")>=0:
         num_classes = 8
 
     batch_size = 4
-    batch_size = 100 #for frame level
+    # batch_size = 100 #for frame level
     sub_videoSize = 25  # each subvideo should contains 25 images
     # batch_size = 100
     # batch_size = 32 #only for Zho
-    num_epochs = 50
+    num_epochs = 100
     # num_epochs = 1
     load_to_RAM = True
     load_to_RAM = False
@@ -143,7 +150,7 @@ if __name__ == '__main__':
     #TrueWithinClass means shuffle the subvideos for each class, then divide them equally between train/val
     is_subsub_videos = False
     shuffle_entire_subvideos = "TrueWithinClass" # if true, the train and val would have shuffeled videos as in the Original Nerthus paper
-    shuffle_entire_subvideos = "Frame 0.5"
+    # shuffle_entire_subvideos = "Frame 0.5"
     # shuffle_entire_subvideos = "True"
     #EntireSubVideo = ["True","FixedSize","None"].
     # True mean load our old implementation. our Collate function is created here
@@ -154,20 +161,20 @@ if __name__ == '__main__':
     # and batch_size = 3 means load 3 subvideos
     EntireSubVideo = ["True", "FixedSize", "None"]
     EntireSubVideo = "FixedSize" #it means add collate function that gather all images and make the dataloader to provide images,labels,filenames,videolenght_list
-    EntireSubVideo = "None" # for frame level
+    # EntireSubVideo = "None" # for frame level
     wandbproject_name = ""
     if EntireSubVideo=="FixedSize":
         wandbproject_name = "Nerthus_ProposedSol"
     else: wandbproject_name = "Nerthus"
-    wandbproject_name = "ICPR22"
+    # wandbproject_name = "ICPR22"
 
-    feature_extract = True
-    use_pretrained = False
+    feature_extract = False
+    use_pretrained = True
     half_freez = False
 
     # checkpoint =torch.load(colab_dir+"/checkpoints/resnet50.pth")
     encoder_checkpoint = None
-    print_hyperparameters()
+
     # Flag for feature extracting. When False, we finetune the whole model,
     #   when True we only update the reshaped layer params
 
@@ -190,7 +197,7 @@ if __name__ == '__main__':
             "feature_extract":feature_extract,
             "num_epochs":num_epochs,
             "dataset": data_dir.split("/")[-1], })
-
+    print_hyperparameters()
     run()
     wandb.save(colab_dir+'/*.py')
     wandb.save(colab_dir+'/results/*')

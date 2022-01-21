@@ -208,7 +208,7 @@ class ResNet_subVideo_KeyFrame(nn.Module):
         keyVectors = x_encoder[range(x_encoder.shape[0]),indecies, :] # -> (subvideos,Encoder_out_features)
 
         x_fc = self.normKeyFrame(keyVectors)
-        x_fc = self.relu(x_fc)
+        # x_fc = self.relu(x_fc)
 
         # *************** this is default code********************
         x_cat = torch.cat((x_fc, x_gru), dim=1)  # -> (subvideos, Encoder_out_features*2)

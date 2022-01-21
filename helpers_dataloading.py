@@ -144,7 +144,7 @@ def _get_all_folders_name(data_dir, shuffle_entire_subvideos):
 
 
 def howToSplitSubVideos(train_folders, val_folders, shuffle_entire_subvideos, data_dir, input_size,
-                        load_to_RAM, EntireSubVideo, is_subsub_videos, sub_videoSize):
+                        load_to_RAM, EntireSubVideo, is_subsub_videos, sub_videoSize, second_fold):
     folders = _get_all_folders_name(data_dir, shuffle_entire_subvideos)
     # folders_combined = np.concatenate(folders)
     folders_combined = folders  # the folders are sorted from _get_all_folders_name function
@@ -163,6 +163,7 @@ def howToSplitSubVideos(train_folders, val_folders, shuffle_entire_subvideos, da
         np.random.seed(0)
         train_dataset = torch.utils.data.Subset(dataset, dataset_permutation[:int(TTR * dataset_size)])
         val_dataset = torch.utils.data.Subset(dataset, dataset_permutation[int(TTR * dataset_size):])
+
         print("training indices {}\n val indices {}".format(train_dataset.indices[:5], val_dataset.indices[:5]))
         return train_dataset, val_dataset
 
@@ -194,6 +195,10 @@ def howToSplitSubVideos(train_folders, val_folders, shuffle_entire_subvideos, da
 
     train_dataset = createDataSetFromList(data_dir, input_size, train_folders, load_to_RAM, EntireSubVideo, sub_videoSize)
     val_dataset = createDataSetFromList(data_dir, input_size, val_folders, load_to_RAM, EntireSubVideo, sub_videoSize)
+    if second_fold:  # True means that we want the training become validation
+        temp = val_dataset
+        val_dataset = train_dataset
+        train_dataset = temp
 
     return train_dataset, val_dataset
 
@@ -223,7 +228,8 @@ def get_base_dataset_train_val_folders_name(is_subsub_videos):
 
 
 def get_dataloaders_SubVideoBased(input_size, batch_size, data_dir, load_to_RAM, is_subsub_videos,
-                                  shuffle=False, shuffle_entire_subvideos=False, EntireSubVideo=True, sub_videoSize=25):
+                                  shuffle=False, shuffle_entire_subvideos=False, EntireSubVideo=True,
+                                  sub_videoSize=25, second_fold = False):
     # Create Dataset for each video
     '''list of subvideos:
     #class 0 = [1_0_0, 1_0_1, 2_0_0, 2_0_1, 2_0_2]
@@ -240,7 +246,9 @@ def get_dataloaders_SubVideoBased(input_size, batch_size, data_dir, load_to_RAM,
         train_dataset, val_dataset = howToSplitSubVideos(train_folders, val_folders,
                                                          shuffle_entire_subvideos,
                                                          data_dir, input_size,
-                                                         load_to_RAM, EntireSubVideo, is_subsub_videos, sub_videoSize)
+                                                         load_to_RAM, EntireSubVideo,
+                                                         is_subsub_videos, sub_videoSize,
+                                                         second_fold)
 
     print("Training images:", len(train_dataset))
     print("Val images:", len(val_dataset))
