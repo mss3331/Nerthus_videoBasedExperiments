@@ -259,10 +259,14 @@ def get_dataloaders_SubVideoBased(input_size, batch_size, data_dir, load_to_RAM,
     image_datasets = {'train': train_dataset, 'val': val_dataset}
     collate_fn = None
     if EntireSubVideo == "True": collate_fn = my_collate
+    drop_last = False
+    if len(train_dataset)%batch_size !=0:
+        drop_last=True
+
     # Create Dataloaders
     dataloaders_dict = {
         x: torch.utils.data.DataLoader(image_datasets[x], batch_size=batch_size, shuffle=shuffle, collate_fn=collate_fn,
-                                       num_workers=2)
+                                       num_workers=2, drop_last= drop_last and x=="train")
         for x in ['train', 'val']}
     # show_random_samples(list(dataloaders_dict['train'])[0],0)
     return dataloaders_dict
