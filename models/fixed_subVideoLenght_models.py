@@ -183,7 +183,7 @@ class ResNet_subVideo_KeyFrame(nn.Module):
 
         self.Key = nn.Linear(self.encoder_out_features,1)# the highest key will determine the output vector
         self.normKeyFrame = nn.BatchNorm1d(self.encoder_out_features) # I am expecting to have one vector with size
-        self.relu = nn.ReLU()
+        # self.relu = nn.ReLU()
         # (vectore from sequence + vector from non-sequence) = encoder_out_features+25
         self.fc = nn.Linear(self.encoder_out_features*2, num_classes)
 
@@ -217,6 +217,51 @@ class ResNet_subVideo_KeyFrame(nn.Module):
 
         return output
 
+class ResNet_subVideo_KeyFrameOnly(nn.Module):
+    def __init__(self, num_classes=4, pretrained=False, resnet50=True,
+                 feature_extract=False, Encoder_CheckPoint=None):
+        super(ResNet_subVideo_KeyFrameOnly, self).__init__()
+        # Our 2D encoder, We can consider 3D encoder instead
+        self.SubVideo_Encoder = SubVideo_Encoder(num_classes=num_classes, pretrained=pretrained, resnet50=resnet50,
+                                        feature_extract=feature_extract,Encoder_CheckPoint=Encoder_CheckPoint)
+        self.encoder_out_features = self.SubVideo_Encoder.Encoder_out_features # probabily 2048
+        # self.normGRU = nn.BatchNorm1d(self.encoder_out_features)
+
+        self.Key = nn.Linear(self.encoder_out_features,1)# the highest key will determine the output vector
+        self.normKeyFrame = nn.BatchNorm1d(self.encoder_out_features) # I am expecting to have one vector with size
+        # self.relu = nn.ReLU()
+        # (vectore from sequence + vector from non-sequence) = encoder_out_features+25
+        self.fc = nn.Linear(self.encoder_out_features, num_classes)
+
+
+    def forward(self, x):
+        # *************this is default code*************
+
+        output_dic = self.SubVideo_Encoder(x)
+        x_encoder = output_dic["x"]  # x=(subvideos, frames"vectors", Encoder_out_features)
+        x_shape = x_encoder.shape
+        # x_gru = output_dic["x_gru"]  # x_gru = (subvideos, Encoder_out_features)
+        # x_gru = self.normGRU(x_gru)
+
+        # ************ your non-sequence code ********************
+        #(subvideos, frames"vectors", Encoder_out_features) ->
+        # (subvideos*frames"vectors", Encoder_out_features)
+        x = x_encoder.view((-1,x_shape[-1]))
+
+        #(subvideos * frames"vectors", Encoder_out_features) -> (subvideos*frames"vectors", 1)
+        x_keys = self.Key(x).squeeze().view((x_shape[0],x_shape[1]))# ->(subvideos*frames"vectors") -> (subvideos, frames"vectors")
+        _,indecies = x_keys.max(dim=1) #(subvideos, frames"vectors") -> (subvideos, 1) index should be between 0 and 24
+        keyVectors = x_encoder[range(x_encoder.shape[0]),indecies, :] # -> (subvideos,Encoder_out_features)
+
+        x_fc = self.normKeyFrame(keyVectors)
+        # x_fc = self.relu(x_fc)
+
+        # *************** this is default code********************
+        # x_cat = torch.cat((x_fc, x_gru), dim=1)  # -> (subvideos, Encoder_out_features*2)
+
+        output = self.fc(x_fc)  # -> (subvideos, 4)
+
+        return output
 class ResNet_subVideo_FcVert(nn.Module):
     def __init__(self, num_classes=4, pretrained=False, resnet50=True,
                  feature_extract=False, Encoder_CheckPoint=None):
