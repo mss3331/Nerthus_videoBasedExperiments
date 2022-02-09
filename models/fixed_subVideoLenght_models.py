@@ -1,6 +1,7 @@
 import torchvision.models as models
 import torch
 import torch.nn as nn
+import numpy as np
 from .MLP_Mixer import MlpBlock, MixerBlock
 #################### MLP #############################
 class Mlp(nn.Module):
@@ -171,6 +172,42 @@ class ResNet_subVideo_MLP(nn.Module):
         output = self.fc(x_cat)  # -> (subvideos, 4)
 
         return output
+################### KEYFRAME (dimentioned using fc layers) r+g ################################
+
+class _ApplyFCLayers(nn.Module):
+    '''The expected input is probabily 2048. final_out_size determine what is the target final output size.
+    tha ratio deterime the ratio of deduction from one layer into the next.
+    E.g., if ratio is 0.5 and input = 2048, then the next layer size should be 2048*0.5=n=1024.
+    stop creaing fc layers if n == final_out_size'''
+    def __init__(self, input,final_out_size,ratio):
+        super(_ApplyFCLayers, self).__init__()
+        assert ratio<1, "ratio should be in the range (0,1)"
+
+        self.fc_layers_list = self.createFCLayers(input,final_out_size,ratio)
+
+    def forward(self,x):
+        for i in range(len(self.fc_layers_list)):
+            x = self.fc_layers_list[i](x)
+        return x
+
+    def createFCLayers(self,input_size,final_out_size,ratio):
+        #input size probabily 2048
+        fclayers_list = []
+        current_input_size = input_size
+        for _ in range(12):# it should be range(log(input,base=1/ratio)) log(2048,base=2) given ratio=0.5
+            if current_input_size <= final_out_size:
+                break
+            output_size = int(current_input_size*ratio) # -> 2048*0.5 = 1048
+            fclayers_list.append(_FCLayer(current_input_size,output_size)) # -> current_input_size = 2048, 1048
+            current_input_size = output_size
+        return fclayers_list
+def _FCLayer(input, out, dropout=0):
+    return nn.Sequential(
+        nn.Linear(input,out),
+        nn.ReLU(),
+        nn.BatchNorm1d(out),
+        nn.Dropout(dropout)
+    )
 ################### KEYFRAME r+g ################################
 class ResNet_subVideo_KeyFramePlus(nn.Module):
     def __init__(self, num_classes=4, pretrained=False, resnet50=True,
@@ -264,7 +301,54 @@ class ResNet_subVideo_KeyFramePlusRNormed(nn.Module):
         output = self.fc(r_plus_g)  # -> (subvideos, 4)
 
         return output
+class ResNet_subVideo_KeyFramePlusAllNormed(nn.Module):
+    def __init__(self, num_classes=4, pretrained=False, resnet50=True,
+                 feature_extract=False, alpha=1, Encoder_CheckPoint=None):
+        super(ResNet_subVideo_KeyFramePlusAllNormed, self).__init__()
+        # Our 2D encoder, We can consider 3D encoder instead
+        self.SubVideo_Encoder = SubVideo_Encoder(num_classes=num_classes, pretrained=pretrained, resnet50=resnet50,
+                                        feature_extract=feature_extract,Encoder_CheckPoint=Encoder_CheckPoint)
+        self.encoder_out_features = self.SubVideo_Encoder.Encoder_out_features # probabily 2048
+        self.normGRU = nn.BatchNorm1d(self.encoder_out_features)
 
+        self.Key = nn.Linear(self.encoder_out_features,1)# the highest key will determine the output vector
+        self.normKeyFrame = nn.BatchNorm1d(self.encoder_out_features) # I am expecting to have one vector with size
+        # self.relu = nn.ReLU()
+        self.alpha = alpha
+        # (vectore from sequence + vector from non-sequence) = encoder_out_features+25
+        self.fc = nn.Linear(self.encoder_out_features, num_classes)
+
+
+    def forward(self, x):
+        # *************this is default code*************
+
+        output_dic = self.SubVideo_Encoder(x)
+        x_encoder = output_dic["x"]  # x=(subvideos, frames"vectors", Encoder_out_features)
+        x_shape = x_encoder.shape
+        x_gru = output_dic["x_gru"]  # x_gru = (subvideos, Encoder_out_features)
+        g = self.normGRU(x_gru)
+
+        # ************ your non-sequence code ********************
+        #(subvideos, frames"vectors", Encoder_out_features) ->
+        # (subvideos*frames"vectors", Encoder_out_features)
+        x = x_encoder.view((-1,x_shape[-1]))
+
+        #(subvideos * frames"vectors", Encoder_out_features) -> (subvideos*frames"vectors", 1)
+        x_keys = self.Key(x).squeeze().view((x_shape[0],x_shape[1]))# ->(subvideos*frames"vectors") -> (subvideos, frames"vectors")
+        _,indecies = x_keys.max(dim=1) #(subvideos, frames"vectors") -> (subvideos, 1) index should be between 0 and 24
+        keyVectors = x_encoder[range(x_encoder.shape[0]),indecies, :] # -> (subvideos,Encoder_out_features)
+
+        r = self.normKeyFrame(keyVectors)
+        # x_fc = self.relu(x_fc)
+
+        # *************** this is default code********************
+        r_normed = r/torch.linalg.vector_norm(r,dim=1,keepdim=True)
+        g_normed = g/torch.linalg.vector_norm(g,dim=1,keepdim=True)
+        r_plus_g = r_normed+g_normed  # -> (subvideos, Encoder_out_features)
+
+        output = self.fc(r_plus_g)  # -> (subvideos, 4)
+
+        return output
 ################### KEYFRAME ################################
 class ResNet_subVideo_KeyFrame(nn.Module):
     def __init__(self, num_classes=4, pretrained=False, resnet50=True,

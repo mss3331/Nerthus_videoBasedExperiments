@@ -126,8 +126,9 @@ if __name__ == '__main__':
     # [ResNet50_subVideo_Avg, ResNet_subVideo_Max, ResNet_subVideo_GRU,ResNet_subVideo_MaxOnly,
     # ResNet_subVideo_FcHoriz, ResNet_subVideo_FcVert, ResNet_subVideo_MLP, ResNet_subVideo_MLPOnly
     # ResNet_subVideo_KeyFrame, ResNet_subVideo_KeyFrameOnly, ResNet_subVideo_Min,
-    # ResNet_subVideo_KeyFramePlus, ResNet_subVideo_KeyFramePlus, ResNet_subVideo_KeyFramePlusRNormed]
-    model_name = "ResNet_subVideo_KeyFramePlus"
+    # ResNet_subVideo_KeyFramePlus, ResNet_subVideo_KeyFramePlus, ResNet_subVideo_KeyFramePlusRNormed
+    # ResNet_subVideo_KeyFramePlusAllNormed]
+    model_name = "ResNet_subVideo_KeyFramePlusAllNormed"
     # Number of classes in the dataset
     learning_rate = 0.001
     num_classes = 4
