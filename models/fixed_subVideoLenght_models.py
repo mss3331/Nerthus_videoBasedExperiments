@@ -173,13 +173,63 @@ class ResNet_subVideo_MLP(nn.Module):
 
         return output
 ################### KEYFRAME (dimentioned using fc layers) r+g ################################
+class ResNet_subVideo_KeyFramePlusDimentioned(nn.Module):
+    def __init__(self, num_classes=4, pretrained=False, resnet50=True,
+                 feature_extract=False, Encoder_CheckPoint=None):
+        super(ResNet_subVideo_KeyFramePlusDimentioned, self).__init__()
+        # Our 2D encoder, We can consider 3D encoder instead
+        self.SubVideo_Encoder = SubVideo_Encoder(num_classes=num_classes, pretrained=pretrained, resnet50=resnet50,
+                                        feature_extract=feature_extract,Encoder_CheckPoint=Encoder_CheckPoint)
+        self.encoder_out_features = self.SubVideo_Encoder.Encoder_out_features # probabily 2048
+        self.normGRU = nn.BatchNorm1d(self.encoder_out_features)
+        self.gru_dimentioned = _ApplyFCLayers()
+        self.Key = nn.Linear(self.encoder_out_features,1)# the highest key will determine the output vector
+        self.normKeyFrame = nn.BatchNorm1d(self.encoder_out_features) # I am expecting to have one vector with size
+        self.keyFrame_dimentioned = _ApplyFCLayers()
+        # self.relu = nn.ReLU()
+        # (vectore from sequence + vector from non-sequence) = encoder_out_features+25
+        self.fc = nn.Linear(2, num_classes)
+
+
+    def forward(self, x):
+        # *************this is default code*************
+
+        output_dic = self.SubVideo_Encoder(x)
+        x_encoder = output_dic["x"]  # x=(subvideos, frames"vectors", Encoder_out_features)
+        x_shape = x_encoder.shape
+        x_gru = output_dic["x_gru"]  # x_gru = (subvideos, Encoder_out_features)
+        g = self.normGRU(x_gru)
+
+        # ************ your non-sequence code ********************
+        #(subvideos, frames"vectors", Encoder_out_features) ->
+        # (subvideos*frames"vectors", Encoder_out_features)
+        x = x_encoder.view((-1,x_shape[-1]))
+
+        #(subvideos * frames"vectors", Encoder_out_features) -> (subvideos*frames"vectors", 1)
+        x_keys = self.Key(x).squeeze().view((x_shape[0],x_shape[1]))# ->(subvideos*frames"vectors") -> (subvideos, frames"vectors")
+        _,indecies = x_keys.max(dim=1) #(subvideos, frames"vectors") -> (subvideos, 1) index should be between 0 and 24
+        keyVectors = x_encoder[range(x_encoder.shape[0]),indecies, :] # -> (subvideos,Encoder_out_features)
+
+        r = self.normKeyFrame(keyVectors)
+        # x_fc = self.relu(x_fc)
+
+        # **************** further dimentioned the vectors r and g to be of size 2 *********
+        r_dimentioned = self.keyFrame_dimentioned(r)
+        g_dimentioned = self.gru_dimentioned(g)
+        # *************** this is default code********************
+        r_plus_g_dimentioned = r_dimentioned+g_dimentioned  # -> (subvideos, Encoder_out_features*2)
+
+        output = self.fc(r_plus_g_dimentioned)  # -> (subvideos, 4)
+
+        return output
 
 class _ApplyFCLayers(nn.Module):
     '''The expected input is probabily 2048. final_out_size determine what is the target final output size.
     tha ratio deterime the ratio of deduction from one layer into the next.
-    E.g., if ratio is 0.5 and input = 2048, then the next layer size should be 2048*0.5=n=1024.
-    stop creaing fc layers if n == final_out_size'''
-    def __init__(self, input,final_out_size,ratio):
+    E.g., if ratio is 0.5 and input = 2048, then the next layer size should be 2048*0.25=n=512.
+    stop creaing fc layers if n == final_out_size.
+    for our case having 2048 features, we needs log(2048, base=4) = 5 fc layers to have resutls featurs of size 2'''
+    def __init__(self, input=2048,final_out_size=2,ratio=0.25):
         super(_ApplyFCLayers, self).__init__()
         assert ratio<1, "ratio should be in the range (0,1)"
 
