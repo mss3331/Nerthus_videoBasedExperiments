@@ -250,14 +250,14 @@ class _ApplyFCLayers(nn.Module):
             output_size = int(current_input_size*ratio) # -> 2048*0.5 = 1048
             fclayers_list.append(_FCLayer(current_input_size,output_size)) # -> current_input_size = 2048, 1048
             current_input_size = output_size
+        fclayers_list = nn.ModuleList(fclayers_list)
         return fclayers_list
 def _FCLayer(input, out, dropout=0):
-    return nn.Sequential(
-        nn.Linear(input,out),
-        nn.ReLU(),
-        nn.BatchNorm1d(out),
-        nn.Dropout(dropout)
-    )
+    fc_block = nn.Sequential(nn.Linear(input,out),
+                             nn.ReLU(),nn.BatchNorm1d(out),
+                             nn.Dropout(dropout))
+    return fc_block
+
 ################### KEYFRAME r+g ################################
 class ResNet_subVideo_KeyFramePlus(nn.Module):
     def __init__(self, num_classes=4, pretrained=False, resnet50=True,
