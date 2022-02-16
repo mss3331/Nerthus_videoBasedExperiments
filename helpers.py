@@ -211,6 +211,10 @@ def initialize_model(model_name, num_classes, feature_extract, encoder_checkpoin
         model_ft = ResNet_subVideo_KeyFramePlusDimentionedV2(num_classes=num_classes, pretrained=use_pretrained, resnet50=True,
                                            feature_extract=feature_extract, Encoder_CheckPoint=encoder_checkpoint, normalization_type=model_name)
         input_size = (224, 224)
+    elif model_name.find("ResNet_subVideo_KeyFramePlusDimentionedV3")==0:
+        model_ft = ResNet_subVideo_KeyFramePlusDimentionedV3(num_classes=num_classes, pretrained=use_pretrained, resnet50=True,
+                                           feature_extract=feature_extract, Encoder_CheckPoint=encoder_checkpoint, normalization_type=model_name)
+        input_size = (224, 224)
     else:
         print("Invalid model name, exiting...")
         exit()
