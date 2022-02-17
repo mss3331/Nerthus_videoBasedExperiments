@@ -29,10 +29,18 @@ def print_hyperparameters():
         print("*"*20,"Kvasir Dataset is used here not Nerthus", "*"*20)
     if encoder_checkpoint:
         print("a checkpoint is loaded")
-    if second_fold:
-        print("Important!!! We are applying 2-fold validation")
+    if fold_seed == 1:
+        if not second_fold:
+            print("Important****** We are applying 3-fold validation")
+        else: print("Important$$$$$ We are applying 4-fold validation")
+    elif fold_seed == 0:
+        if not second_fold:
+            print("We are applying 1-fold validation")
+        else:
+            print("Important!!! We are applying 2-fold validation")
     else:
-        print("We are applying 1-fold validation")
+        print("you are using more than 4 fold")
+        exit(0)
 
 
 def run():
