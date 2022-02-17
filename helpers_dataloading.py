@@ -100,7 +100,7 @@ def createDataSetFromList(data_dir, input_size, folders_name, load_to_RAM, Entir
     return dataset
 
 
-def _get_all_folders_name(data_dir, shuffle_entire_subvideos):
+def _get_all_folders_name(data_dir, shuffle_entire_subvideos, fold_seed):
     # class_0 =['/0/1_0_0', '/0/1_0_1', '/0/2_0_0', '/0/2_0_1', '/0/2_0_2']
     #
     # class_1 =['/1/3_1_0', '/1/3_1_1', '/1/3_1_2', '/1/4_1_0', '/1/4_1_1',
@@ -127,7 +127,7 @@ def _get_all_folders_name(data_dir, shuffle_entire_subvideos):
         if shuffle_entire_subvideos == "TrueWithinClass":
             temp_list = glob.glob(class_dir + "/*/")
             temp_list.sort()
-            np.random.seed(0)
+            np.random.seed(fold_seed)
             np.random.shuffle(temp_list)
             np.random.seed(0)
         else:
@@ -144,8 +144,8 @@ def _get_all_folders_name(data_dir, shuffle_entire_subvideos):
 
 
 def howToSplitSubVideos(train_folders, val_folders, shuffle_entire_subvideos, data_dir, input_size,
-                        load_to_RAM, EntireSubVideo, is_subsub_videos, sub_videoSize, second_fold):
-    folders = _get_all_folders_name(data_dir, shuffle_entire_subvideos)
+                        load_to_RAM, EntireSubVideo, is_subsub_videos, sub_videoSize, second_fold, fold_seed):
+    folders = _get_all_folders_name(data_dir, shuffle_entire_subvideos,fold_seed)
     # folders_combined = np.concatenate(folders)
     folders_combined = folders  # the folders are sorted from _get_all_folders_name function
     videos_len = len(folders_combined)
@@ -158,7 +158,7 @@ def howToSplitSubVideos(train_folders, val_folders, shuffle_entire_subvideos, da
         TTR = float(shuffle_entire_subvideos.split(" ")[-1])  # Frame 0.8 --> TTR=0.8
         dataset = createDataSetFromList(data_dir, input_size, folders_combined, load_to_RAM, EntireSubVideo)
         dataset_size = len(dataset)
-        np.random.seed(0)
+        np.random.seed(fold_seed)
         dataset_permutation = np.random.permutation(dataset_size)
         np.random.seed(0)
         train_dataset = torch.utils.data.Subset(dataset, dataset_permutation[:int(TTR * dataset_size)])
@@ -169,7 +169,7 @@ def howToSplitSubVideos(train_folders, val_folders, shuffle_entire_subvideos, da
 
     # if true, don't consider this split, concat train\val folders, and shuffle the subvideos
     if shuffle_entire_subvideos == "True":  # this is shuffling the Entire subvideos, we may get 100% val if we are lucky (i.e. video 1_0_1 train while 1_0_0 val)
-        np.random.seed(0)
+        np.random.seed(fold_seed)
         np.random.shuffle(folders_combined)
         np.random.seed(0)
         train_folders = folders_combined[:videos_len // 2]  # 50% for train and the rest of val
@@ -229,7 +229,7 @@ def get_base_dataset_train_val_folders_name(is_subsub_videos):
 
 def get_dataloaders_SubVideoBased(input_size, batch_size, data_dir, load_to_RAM, is_subsub_videos,
                                   shuffle=False, shuffle_entire_subvideos=False, EntireSubVideo=True,
-                                  sub_videoSize=25, second_fold = False):
+                                  sub_videoSize=25, second_fold = False, fold_seed=0):
     # Create Dataset for each video
     '''list of subvideos:
     #class 0 = [1_0_0, 1_0_1, 2_0_0, 2_0_1, 2_0_2]
@@ -248,7 +248,7 @@ def get_dataloaders_SubVideoBased(input_size, batch_size, data_dir, load_to_RAM,
                                                          data_dir, input_size,
                                                          load_to_RAM, EntireSubVideo,
                                                          is_subsub_videos, sub_videoSize,
-                                                         second_fold)
+                                                         second_fold, fold_seed)
 
     print("Training images:", len(train_dataset))
     print("Val images:", len(val_dataset))

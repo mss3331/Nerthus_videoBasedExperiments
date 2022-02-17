@@ -68,7 +68,8 @@ def run():
                                                                          , shuffle_entire_subvideos=shuffle_entire_subvideos
                                                                          , EntireSubVideo=EntireSubVideo
                                                                          , sub_videoSize = sub_videoSize
-                                                                         , second_fold = second_fold)
+                                                                         , second_fold = second_fold
+                                                                         , fold_seed = fold_seed)
     # if EntireSubVideo:
     #     trainDataset = dataloaders_dict["train"].dataset
     #     valDataset = dataloaders_dict["val"].dataset
@@ -135,6 +136,7 @@ if __name__ == '__main__':
     learning_rate = 0.001
     num_classes = 4
     weighted_loss = True
+    fold_seed = 0 # default seed=0
     second_fold = False #if true it means we will switch the training and validation datasets
 
     if data_dir.find("kvasir")>=0:
@@ -191,6 +193,7 @@ if __name__ == '__main__':
         name=Experimentname,
         # Track hyperparameters and run metadata
         config={
+            "fold_seed":fold_seed,
             "second_fold":second_fold,
             "learning_rate": learning_rate,
             "shuffle": shuffle,
