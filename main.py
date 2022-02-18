@@ -132,12 +132,12 @@ if __name__ == '__main__':
     # ResNet_subVideo_KeyFramePlusAllNormed, ResNet_subVideo_KeyFramePlusDimentioned, ResNet_subVideo_KeyFramePlusDimentionedV2_None,
     # ResNet_subVideo_KeyFramePlusDimentionedV2_R, ResNet_subVideo_KeyFramePlusDimentionedV2_G, ResNet_subVideo_KeyFramePlusDimentionedV2_RG
     # ResNet_subVideo_KeyFrameDimentionedAfterPlus]
-    model_name = "ResNet_subVideo_KeyFrameDimentionedAfterPlus"
+    model_name = "KeyFramePlusRNormedToMatchGMag"
     # Number of classes in the dataset
     learning_rate = 0.001
     num_classes = 4
     weighted_loss = True
-    fold_seed = 0 # default seed=0 (fold1&2) seed=1 (fold3&4) seed=2(fold5&6)
+    fold_seed = 2 # default seed=0 (fold1&2) seed=1 (fold3&4) seed=2(fold5&6)
     second_fold = False #if true it means we will switch the training and validation datasets
 
     if data_dir.find("kvasir")>=0:
