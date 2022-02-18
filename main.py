@@ -29,18 +29,11 @@ def print_hyperparameters():
         print("*"*20,"Kvasir Dataset is used here not Nerthus", "*"*20)
     if encoder_checkpoint:
         print("a checkpoint is loaded")
-    if fold_seed == 1:
-        if not second_fold:
-            print("Important****** We are applying 3-fold validation")
-        else: print("Important$$$$$ We are applying 4-fold validation")
-    elif fold_seed == 0:
-        if not second_fold:
-            print("We are applying 1-fold validation")
-        else:
-            print("Important!!! We are applying 2-fold validation")
-    else:
-        print("you are using more than 4 fold")
-        exit(0)
+
+    fold_number = fold_seed+1
+    if second_fold: fold_number+=1
+    print("Important****** We are applying {}-fold validation".format(fold_number))
+
 
 
 def run():
@@ -144,7 +137,7 @@ if __name__ == '__main__':
     learning_rate = 0.001
     num_classes = 4
     weighted_loss = True
-    fold_seed = 0 # default seed=0
+    fold_seed = 0 # default seed=0 (fold1&2) seed=1 (fold3&4) seed=2(fold5&6)
     second_fold = False #if true it means we will switch the training and validation datasets
 
     if data_dir.find("kvasir")>=0:
