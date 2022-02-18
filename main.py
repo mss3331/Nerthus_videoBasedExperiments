@@ -30,7 +30,7 @@ def print_hyperparameters():
     if encoder_checkpoint:
         print("a checkpoint is loaded")
 
-    fold_number = fold_seed+1
+    fold_number = fold_seed*2+1
     if second_fold: fold_number+=1
     print("Important****** We are applying {}-fold validation".format(fold_number))
 
