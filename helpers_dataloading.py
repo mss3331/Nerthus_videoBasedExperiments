@@ -4,6 +4,7 @@ import glob
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
+import math
 from torch.utils.data import ConcatDataset
 import matplotlib.image as mpimg
 from PIL import Image
@@ -379,8 +380,10 @@ class Nerthus_EntireSubVideo_FromImageBased_Dataset(Dataset):
         # self.labels[:] = np.long((self.imageList[0].split("_")[-2].split("-")[0])) # C:\...\0\bowel_20_score_3-1_00000001
         # self.target_labels = torch.from_numpy(self.labels)
         # print("ok",self.imageList[0].split("_"))
+        partitions = math.ceil(self.total_images_size / sub_videoSize)
         self.target_labels[:] = int(self.imageList[0].split("_")[-2].split("-")[0])
-        subVideInfo = self.makeSubVideos(self.imageList, self.target_labels, partitions= self.total_images_size//sub_videoSize)
+        subVideInfo = self.makeSubVideos(self.imageList, self.target_labels, partitions= partitions,
+                                         amount_to_extend =partitions*sub_videoSize - self.total_images_size)
         # subVideo_images_list = [[ima1.jpg,img10.jpg],[img2.jpg,img20.jpg]].
         # subVideo_labels_list=[[label1,label10][label2,label20]]= class number
         self.subVideo_images_list, self.subVideo_labels_list, self.subVideo_path_list = subVideInfo
@@ -423,7 +426,10 @@ class Nerthus_EntireSubVideo_FromImageBased_Dataset(Dataset):
 
         return X
 
-    def makeSubVideos(self,imageList, target_labels, partitions,):
+    def makeSubVideos(self,imageList, target_labels, partitions,amount_to_extend=0):
+        if amount_to_extend != 0:  # it means we have to extend our data to enable us making equal size partitions
+            imageList += imageList[-amount_to_extend:]
+            target_labels = torch.cat([target_labels, target_labels[-amount_to_extend:]])
         subvideo_images_list = []
         subvideo_labels_list = []
         subvideo_path_list = []
