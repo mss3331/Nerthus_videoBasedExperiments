@@ -29,6 +29,7 @@ def print_hyperparameters():
         print("*"*20,"Kvasir Dataset is used here not Nerthus", "*"*20)
     if encoder_checkpoint:
         print("a checkpoint is loaded")
+    print("base arch for the encoder is:",base_name)
 
     fold_number = fold_seed*2+1
     if second_fold: fold_number+=1
@@ -46,7 +47,7 @@ def run():
 
 
     # Initialize the model for this run
-    model_ft, input_size = helpers.initialize_model(model_name, num_classes, feature_extract, encoder_checkpoint, use_pretrained=use_pretrained)
+    model_ft, input_size = helpers.initialize_model(model_name, num_classes, feature_extract, encoder_checkpoint, use_pretrained=use_pretrained,base_name=base_name)
     # print(model_ft)
     # exit(0)
     # Send the model to GPU
@@ -132,6 +133,7 @@ if __name__ == '__main__':
     # ResNet_subVideo_KeyFramePlusAllNormed, ResNet_subVideo_KeyFramePlusDimentioned, ResNet_subVideo_KeyFramePlusDimentionedV2_None,
     # ResNet_subVideo_KeyFramePlusDimentionedV2_R, ResNet_subVideo_KeyFramePlusDimentionedV2_G, ResNet_subVideo_KeyFramePlusDimentionedV2_RG
     # ResNet_subVideo_KeyFrameDimentionedAfterPlus]
+    base_name = 'vgg'
     model_name = "ResNet_subVideo_KeyFrame"
     # Number of classes in the dataset
     learning_rate = 0.001
@@ -183,7 +185,7 @@ if __name__ == '__main__':
 
     # checkpoint =torch.load(colab_dir+"/checkpoints/resnet50.pth")
     # for Nerthus 2-fold Nerthus_fold2_paperExp1_VideoBased_Shuffle_ResNet50_WeightedLoss achieved 82.3
-    encoder_checkpoint = torch.load(colab_dir+"/checkpoints/resnet50.pth")
+    encoder_checkpoint = torch.load(colab_dir+f"/checkpoints/{base_name}.pth")
 
     # Flag for feature extracting. When False, we finetune the whole model,
     #   when True we only update the reshaped layer params

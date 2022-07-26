@@ -17,7 +17,7 @@ def set_parameter_requires_grad(model, feature_extracting):
             param.requires_grad = False
 
 
-def initialize_model(model_name, num_classes, feature_extract, encoder_checkpoint, use_pretrained=False):
+def initialize_model(model_name, num_classes, feature_extract, encoder_checkpoint, use_pretrained=False, base_name='resnet50'):
     # Initialize these variables which will be set in this if statement. Each of these
     #   variables is model specific.
     model_ft = None
@@ -184,7 +184,7 @@ def initialize_model(model_name, num_classes, feature_extract, encoder_checkpoin
                                            feature_extract=feature_extract, Encoder_CheckPoint=encoder_checkpoint)
         input_size = (224, 224)
     elif model_name == "ResNet_subVideo_KeyFrame":
-        model_ft = ResNet_subVideo_KeyFrame(num_classes=num_classes, pretrained=use_pretrained, resnet50=True,
+        model_ft = ResNet_subVideo_KeyFrame(num_classes=num_classes, pretrained=use_pretrained, resnet50=base_name,
                                            feature_extract=feature_extract, Encoder_CheckPoint=encoder_checkpoint)
         input_size = (224, 224)
     elif model_name == "ResNet_subVideo_KeyFrameOnly":

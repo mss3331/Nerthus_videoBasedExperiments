@@ -1,6 +1,7 @@
 import torchvision.models as models
 import torch
 import torch.nn as nn
+import helpers
 import numpy as np
 from .MLP_Mixer import MlpBlock, MixerBlock
 #################### MLP #############################
@@ -623,7 +624,7 @@ class ResNet_subVideo_KeyFramePlusAllNormed(nn.Module):
         return output
 ################### KEYFRAME ################################
 class ResNet_subVideo_KeyFrame(nn.Module):
-    def __init__(self, num_classes=4, pretrained=False, resnet50=True,
+    def __init__(self, num_classes=4, pretrained=False, resnet50='resnet50',
                  feature_extract=False, Encoder_CheckPoint=None):
         super(ResNet_subVideo_KeyFrame, self).__init__()
         # Our 2D encoder, We can consider 3D encoder instead
@@ -1002,19 +1003,25 @@ class SubVideo_Encoder(nn.Module):
             for param in model.parameters():
                 param.requires_grad = False
 
-    def __init__(self, num_classes=4, pretrained=True, resnet50=True,
+    def __init__(self, num_classes=4, pretrained=True, resnet50='resnet50',
                  feature_extract=True,Encoder_CheckPoint=None):
         super(SubVideo_Encoder, self).__init__()
-        if resnet50:
-            self.original_ResNet = models.resnet50(pretrained=pretrained)
-        else:
-            self.original_ResNet = models.resnet101(pretrained=pretrained)
-        self.set_parameter_requires_grad(self.original_ResNet,
-                                         feature_extract=feature_extract)  # if True freeze all the parameters
+        ####### This code is used before 26-Jul-22 however due to AIHA reviewers' comments I have to test other Encoder arch
+        # if resnet50:
+        #     self.original_ResNet = models.resnet50(pretrained=pretrained)
+        # else:
+        #     self.original_ResNet = models.resnet101(pretrained=pretrained)
+        # self.set_parameter_requires_grad(self.original_ResNet,
+        #                                  feature_extract=feature_extract)  # if True freeze all the parameters
+        #
+        # # load the Encoder checkpoint if any
+        # if Encoder_CheckPoint:
+        #     self.original_ResNet = loadCheckpoint(self.original_ResNet,Encoder_CheckPoint, num_classes)
+        self.original_ResNet,_ = helpers.initialize_model(resnet50,num_classes,feature_extract,Encoder_CheckPoint,pretrained)
+        print("Transfering Weights for Encoder...")
+        print("best validation accuracy", Encoder_CheckPoint['best_val_acc'])
+        self.original_ResNet.load_state_dict(Encoder_CheckPoint['best_model_wts'])
 
-        # load the Encoder checkpoint if any
-        if Encoder_CheckPoint:
-            self.original_ResNet = loadCheckpoint(self.original_ResNet,Encoder_CheckPoint, num_classes)
         self.layers = list(self.original_ResNet.children())  # seperate the layers
         self.Encoder_out_features = self.layers[-1].in_features
         self.Encoder = nn.Sequential(*self.layers[:-1])  # combine all layers except the last fc layer
