@@ -1023,8 +1023,13 @@ class SubVideo_Encoder(nn.Module):
         self.original_ResNet.load_state_dict(Encoder_CheckPoint['best_model_wts'])
 
         self.layers = list(self.original_ResNet.children())  # seperate the layers
-        self.Encoder_out_features = self.layers[-1].in_features
-        self.Encoder = nn.Sequential(*self.layers[:-1])  # combine all layers except the last fc layer
+        if resnet50 =='resnet50':
+            self.Encoder_out_features = self.layers[-1].in_features
+            self.Encoder = nn.Sequential(*self.layers[:-1])  # combine all layers except the last fc layer
+        elif resnet50=='vgg':
+            self.Encoder_out_features = self.layers[-1][6].in_features
+            del self.layers[-1][6]
+            self.Encoder = nn.Sequential(*self.layers)  # combine all layers except the last fc layer
 
         # expected input is (batch, seq_len, input_size)=(3 subvideos, 25 frames, 2048 features)
         self.trail_gruUnit = nn.GRU(input_size=self.Encoder_out_features,
