@@ -130,11 +130,12 @@ if __name__ == '__main__':
     # ResNet_subVideo_FcHoriz, ResNet_subVideo_FcVert, ResNet_subVideo_MLP, ResNet_subVideo_MLPOnly
     # ResNet_subVideo_KeyFrame, ResNet_subVideo_KeyFrameOnly, ResNet_subVideo_Min,
     # ResNet_subVideo_KeyFramePlus, ResNet_subVideo_KeyFramePlus, ResNet_subVideo_KeyFramePlusRNormed
+    # KeyFramePlusRNormedToMatchGMag (proposed)
     # ResNet_subVideo_KeyFramePlusAllNormed, ResNet_subVideo_KeyFramePlusDimentioned, ResNet_subVideo_KeyFramePlusDimentionedV2_None,
     # ResNet_subVideo_KeyFramePlusDimentionedV2_R, ResNet_subVideo_KeyFramePlusDimentionedV2_G, ResNet_subVideo_KeyFramePlusDimentionedV2_RG
     # ResNet_subVideo_KeyFrameDimentionedAfterPlus]
     base_name = 'vgg'
-    model_name = "ResNet_subVideo_KeyFrame"
+    model_name = "KeyFramePlusRNormedToMatchGMag"
     # Number of classes in the dataset
     learning_rate = 0.001
     num_classes = 4
@@ -147,10 +148,10 @@ if __name__ == '__main__':
 
     batch_size = 4
     # batch_size = 100 #for frame level
-    sub_videoSize = 45  # each subvideo should contains 25 images
+    sub_videoSize = 25  # each subvideo should contains 25 images
     # batch_size = 100
     # batch_size = 32 #only for Zho
-    num_epochs = 100
+    num_epochs = 200
     # num_epochs = 1
     load_to_RAM = True
     load_to_RAM = False

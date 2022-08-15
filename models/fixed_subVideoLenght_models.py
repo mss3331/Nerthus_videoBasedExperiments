@@ -481,7 +481,7 @@ class ResNet_subVideo_KeyFramePlus(nn.Module):
 
         return output
 class KeyFramePlusRNormedToMatchGMag(nn.Module):
-    def __init__(self, num_classes=4, pretrained=False, resnet50=True,
+    def __init__(self, num_classes=4, pretrained=False, resnet50='resnet50',
                  feature_extract=False, alpha=1, Encoder_CheckPoint=None):
         super(KeyFramePlusRNormedToMatchGMag, self).__init__()
         # Our 2D encoder, We can consider 3D encoder instead
