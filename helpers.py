@@ -9,7 +9,7 @@ from models import RN, MyResNet, stridedConv, ZhoDenseNet, ResNet50_GRU, Owais, 
 from models.fixed_subVideoLenght_models import *
 from torchvision import datasets, models, transforms
 import matplotlib.pyplot as plt
-
+from models.Video_sota_models import *
 
 def set_parameter_requires_grad(model, feature_extracting):
     if feature_extracting:
@@ -292,7 +292,7 @@ def plot_result(num_epochs, results_dic, model_name, colab_dir):
 
     plt.rc('xtick', labelsize=20)
     plt.rc('ytick', labelsize=20)
-    font = {'family': 'normal',
+    font = {'family': 'sans-serif',
             'weight': 'bold',
             'size': 22}
     plt.rc('font', **font)
