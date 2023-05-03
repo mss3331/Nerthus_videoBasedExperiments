@@ -226,6 +226,15 @@ def initialize_model(model_name, num_classes, feature_extract, encoder_checkpoin
     elif model_name == "slow_r50":
         model_ft = slow_r50(num_classes=num_classes, pretrained=use_pretrained)
         input_size = (224, 224)
+    elif model_name == "c2d_r50":
+        model_ft = c2d_r50(num_classes=num_classes, pretrained=use_pretrained)
+        input_size = (224, 224)
+    elif model_name == "i3d_r50":
+        model_ft = i3d_r50(num_classes=num_classes, pretrained=use_pretrained)
+        input_size = (224, 224)
+    elif model_name == "csn_r101":
+        model_ft = csn_r101(num_classes=num_classes, pretrained=use_pretrained)
+        input_size = (224, 224)
     else:
         print("Invalid model name, exiting...")
         exit()
