@@ -1,6 +1,6 @@
 import torch
 import json
-from models.Video_sota_models import slow_r50
+from models.Video_sota_models import *
 from torchvision.transforms import Compose, Lambda
 from torchvision.transforms._transforms_video import (
     CenterCropVideo,
@@ -117,8 +117,9 @@ if __name__=='__main__':
     # #
     # out = model(data2)
     # print(out.shape)
-    ############## testing ready to use models ###############
-    model = slow_r50()
+
+    ############## testing models ready to use in Nerthus ###############
+    model = csn_r101()
     data = torch.randn((2,25,3,224,224))
     out = model(data)
     print(out.shape)

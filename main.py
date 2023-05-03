@@ -135,7 +135,7 @@ if __name__ == '__main__':
     # ResNet_subVideo_KeyFramePlusDimentionedV2_R, ResNet_subVideo_KeyFramePlusDimentionedV2_G, ResNet_subVideo_KeyFramePlusDimentionedV2_RG
     # ResNet_subVideo_KeyFrameDimentionedAfterPlus]
     # Video models [slow_r50, c2d_r50, i3d_r50, csn_r101]
-    base_name = 'vgg'
+    base_name = None
     # model_name = "KeyFramePlusRNormedToMatchGMag"
     model_name = "slow_r50"
     # Number of classes in the dataset
