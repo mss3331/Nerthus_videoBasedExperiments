@@ -223,6 +223,9 @@ def initialize_model(model_name, num_classes, feature_extract, encoder_checkpoin
         model_ft = KeyFramePlusRNormedToMatchGMag(num_classes=num_classes, pretrained=use_pretrained, resnet50=base_name,
                                            feature_extract=feature_extract, alpha=1, Encoder_CheckPoint=encoder_checkpoint)
         input_size = (224, 224)
+    elif model_name == "slow_r50":
+        model_ft = slow_r50(num_classes=num_classes, pretrained=use_pretrained)
+        input_size = (224, 224)
     else:
         print("Invalid model name, exiting...")
         exit()

@@ -134,8 +134,10 @@ if __name__ == '__main__':
     # ResNet_subVideo_KeyFramePlusAllNormed, ResNet_subVideo_KeyFramePlusDimentioned, ResNet_subVideo_KeyFramePlusDimentionedV2_None,
     # ResNet_subVideo_KeyFramePlusDimentionedV2_R, ResNet_subVideo_KeyFramePlusDimentionedV2_G, ResNet_subVideo_KeyFramePlusDimentionedV2_RG
     # ResNet_subVideo_KeyFrameDimentionedAfterPlus]
+    # Video models [slow_r50, c2d_r50, i3d_r50, csn_r101]
     base_name = 'vgg'
-    model_name = "KeyFramePlusRNormedToMatchGMag"
+    # model_name = "KeyFramePlusRNormedToMatchGMag"
+    model_name = "slow_r50"
     # Number of classes in the dataset
     learning_rate = 0.001
     num_classes = 4
@@ -186,7 +188,8 @@ if __name__ == '__main__':
 
     # checkpoint =torch.load(colab_dir+"/checkpoints/resnet50.pth")
     # for Nerthus 2-fold Nerthus_fold2_paperExp1_VideoBased_Shuffle_ResNet50_WeightedLoss achieved 82.3
-    encoder_checkpoint = torch.load(colab_dir+f"/checkpoints/{base_name}.pth")
+    # encoder_checkpoint = torch.load(colab_dir+f"/checkpoints/{base_name}.pth")
+    encoder_checkpoint = None
 
     # Flag for feature extracting. When False, we finetune the whole model,
     #   when True we only update the reshaped layer params
