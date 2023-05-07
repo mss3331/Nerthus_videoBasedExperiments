@@ -137,7 +137,7 @@ if __name__ == '__main__':
     # Video models [slow_r50, c2d_r50, i3d_r50, csn_r101]
     base_name = None
     # model_name = "KeyFramePlusRNormedToMatchGMag"
-    model_name = "c2d_r50"
+    model_name = "slow_r50"
     # Number of classes in the dataset
     learning_rate = 0.001
     num_classes = 4
@@ -183,7 +183,7 @@ if __name__ == '__main__':
     # wandbproject_name = "ICPR22"
 
     feature_extract = True
-    use_pretrained = True
+    use_pretrained = False
     half_freez = False
 
     # checkpoint =torch.load(colab_dir+"/checkpoints/resnet50.pth")
