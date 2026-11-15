@@ -1057,6 +1057,122 @@ class SubVideo_Encoder(nn.Module):
 
 
 
+class SubVideo_Encoder_Transformer(nn.Module):
+    '''The purpose of this Module is:
+    1- Convert subvideos into vectors
+    2- Combine the vectors for each subvideo using Transformer encoder
+    3- Pass the vectors and result of Transformer to a decoder Module'''
+
+    def set_parameter_requires_grad(self, model, feature_extract):
+        if feature_extract:
+            for param in model.parameters():
+                param.requires_grad = False
+
+    def __init__(self, num_classes=4, pretrained=True, resnet50='resnet50',
+                 feature_extract=True,Encoder_CheckPoint=None):
+        super(SubVideo_Encoder, self).__init__()
+
+        self.original_ResNet,_ = helpers.initialize_model(resnet50,num_classes,feature_extract,Encoder_CheckPoint,pretrained)
+        print("Transfering Weights for Encoder...")
+        print("best validation accuracy", Encoder_CheckPoint['best_val_acc'])
+        self.original_ResNet.load_state_dict(Encoder_CheckPoint['best_model_wts'])
+
+        self.layers = list(self.original_ResNet.children())  # seperate the layers
+        if resnet50 =='resnet50':
+            self.Encoder_out_features = self.layers[-1].in_features
+            self.Encoder = nn.Sequential(*self.layers[:-1])  # combine all layers except the last fc layer
+        elif resnet50=='vgg':
+            self.Encoder_out_features = self.layers[-1][6].in_features
+            del self.layers[-1][6]
+            self.Encoder = nn.Sequential(*self.layers[:-1],nn.Flatten(1),*self.layers[-1])  # combine all layers except the last fc layer
+
+        #################### Transformer Encoding Layer  ############################
+        # expected input is (batch, seq_len, input_size)=(3 subvideos, 25 frames, 2048 features)
+        # Transformer configuration
+        self.d_model = 256
+        self.max_frames = 25
+
+        # Project ResNet features to Transformer embedding dimension
+        self.input_projection = nn.Linear(
+            self.Encoder_out_features,
+            self.d_model
+        )
+
+        # Learnable positional encoding
+        self.positional_encoding = nn.Parameter(
+            torch.zeros(1, self.max_frames, self.d_model)
+        )
+
+        nn.init.normal_(self.positional_encoding, mean=0.0, std=0.02)
+
+        # Transformer Encoder layer
+        encoder_layer = nn.TransformerEncoderLayer(
+            d_model=self.d_model,
+            nhead=8,
+            dim_feedforward=512,
+            dropout=0.2,
+            batch_first=True
+        )
+
+        # Transformer Encoder
+        self.trail_transformer = nn.TransformerEncoder(
+            encoder_layer,
+            num_layers=2
+        )
+
+        # Project the aggregated representation back to ResNet feature dimension
+        self.output_projection = nn.Linear(
+            self.d_model,
+            self.Encoder_out_features
+        )
+        #------------------ End Transformer Ecnoding Layer -------------------------
+
+    def forward(self, x):
+        # Input: (subvideos, frames, C, H, W)
+
+        subvideos_num, frames_num, channels, H, W = x.shape
+
+        # Extract spatial features from all frames
+        x = x.flatten(0, 1)
+
+        x = self.Encoder(x)
+
+        # ResNet output: (B*T, 2048, 1, 1)
+        # VGG output may already be flattened
+        x = x.flatten(1)
+
+        # Restore temporal dimension
+        x = x.reshape(
+            subvideos_num,
+            frames_num,
+            self.Encoder_out_features
+        )
+
+        # Preserve original frame-level features
+        frame_features = x
+
+        # Project features to Transformer dimension
+        x = self.input_projection(x)
+
+        # Add positional information
+        x = x + self.positional_encoding[:, :frames_num, :]
+
+        # Transformer temporal modelling
+        x = self.trail_transformer(x)
+
+        # Temporal aggregation
+        x = x.mean(dim=1)
+
+        # Restore original feature dimension
+        x_transformer = self.output_projection(x)
+
+        output_dic = {
+            "x": frame_features,
+            "x_transformer": x_transformer
+        }
+
+        return output_dic
+
 def loadCheckpoint(encoder, Encoder_CheckPoint, num_classes):
     '''
         Encoder_CheckPoint = dict_keys(['best_epoch_num', 'best_model_wts', 'best_optimizer_wts', 'best_val_acc'])

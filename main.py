@@ -47,7 +47,9 @@ def run():
 
 
     # Initialize the model for this run
-    model_ft, input_size = helpers.initialize_model(model_name, num_classes, feature_extract, encoder_checkpoint, use_pretrained=use_pretrained,base_name=base_name)
+    model_ft, input_size = helpers.initialize_model(model_name, num_classes, feature_extract,
+                                                    encoder_checkpoint, use_pretrained=use_pretrained,
+                                                    base_name=base_name)
     # print(model_ft)
     # exit(0)
     # Send the model to GPU
@@ -108,12 +110,13 @@ if __name__ == '__main__':
     # torch.autograd.set_detect_anomaly(True)
     # data_dir = r"E:\Databases\Nerthus\frameBased\frameBased_randomShuffle2"
     # data_dir = "E:/Databases/Nerthus/SubSubVideoBased_not_splitted_into_trainVal"
-    data_dir = r"E:\Databases\Nerthus\VideoBased_ForImageBasedModels"
+    # data_dir = r"E:\Databases\Nerthus\VideoBased_ForImageBasedModels"
+    data_dir = "/media/mahmood/PhD/Databases/Nerthus/VideoBased_ForImageBasedModels"
     # data_dir = r"E:\Databases\kvasir-dataset-v2"
     # Colab
     colab_dir = "."
-    run_in_colab = True
-    # run_in_colab = False
+    # run_in_colab = True
+    run_in_colab = False
     if run_in_colab:
         # data_dir = "/content/SubSubVideoBased_not_splitted_into_trainVal"
         # data_dir = "/content/VideoBased_ForImageBasedModels"
@@ -136,8 +139,8 @@ if __name__ == '__main__':
     # ResNet_subVideo_KeyFrameDimentionedAfterPlus]
     # Video models [slow_r50, c2d_r50, i3d_r50, csn_r101]
     base_name = None
-    # model_name = "KeyFramePlusRNormedToMatchGMag"
-    model_name = "slow_r50"
+    model_name = "KeyFramePlusRNormedToMatchGMag"
+    # model_name = "slow_r50"
     # Number of classes in the dataset
     learning_rate = 0.001
     num_classes = 4
