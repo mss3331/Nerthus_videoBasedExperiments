@@ -482,13 +482,20 @@ class ResNet_subVideo_KeyFramePlus(nn.Module):
         return output
 class KeyFramePlusRNormedToMatchGMag(nn.Module):
     def __init__(self, num_classes=4, pretrained=False, resnet50='resnet50',
-                 feature_extract=False, alpha=1, Encoder_CheckPoint=None):
+                 feature_extract=False, alpha=1, Encoder_CheckPoint=None,Transformer=False):
         super(KeyFramePlusRNormedToMatchGMag, self).__init__()
-        # Our 2D encoder, We can consider 3D encoder instead
-        self.SubVideo_Encoder = SubVideo_Encoder(num_classes=num_classes, pretrained=pretrained, resnet50=resnet50,
+        # Transformer is used to IEEE question regards choosing GRU
+        if Transformer:
+            self.SubVideo_Encoder = SubVideo_Encoder_Transformer(num_classes=num_classes, pretrained=pretrained, resnet50=resnet50,
                                         feature_extract=feature_extract,Encoder_CheckPoint=Encoder_CheckPoint)
+        else:
+            self.SubVideo_Encoder = SubVideo_Encoder(num_classes=num_classes, pretrained=pretrained, resnet50=resnet50,
+                                                     feature_extract=feature_extract,
+                                                     Encoder_CheckPoint=Encoder_CheckPoint)
         self.encoder_out_features = self.SubVideo_Encoder.Encoder_out_features # probabily 2048
-        self.normGRU = nn.BatchNorm1d(self.encoder_out_features)
+
+        self.normLayer = nn.BatchNorm1d(self.encoder_out_features)
+
 
         self.Key = nn.Linear(self.encoder_out_features,1)# the highest key will determine the output vector
         self.normKeyFrame = nn.BatchNorm1d(self.encoder_out_features) # I am expecting to have one vector with size
@@ -500,12 +507,13 @@ class KeyFramePlusRNormedToMatchGMag(nn.Module):
 
     def forward(self, x):
         # *************this is default code*************
-
+        # The sequence SubVideo_Encoder could be GRU or Transformer depends on the initialization
         output_dic = self.SubVideo_Encoder(x)
         x_encoder = output_dic["x"]  # x=(subvideos, frames"vectors", Encoder_out_features)
         x_shape = x_encoder.shape
-        x_gru = output_dic["x_gru"]  # x_gru = (subvideos, Encoder_out_features)
-        g = self.normGRU(x_gru)
+        # retrieve x_gru if found, otherwise retrieve x_transformer
+        x_sequence =  output_dic.get("x_gru", output_dic.get("x_transformer"))   # x_sequence = (subvideos, Encoder_out_features)
+        g = self.normLayer(x_sequence)
 
         # ************ your non-sequence code ********************
         #(subvideos, frames"vectors", Encoder_out_features) ->

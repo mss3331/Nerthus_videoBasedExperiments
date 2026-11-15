@@ -134,6 +134,7 @@ if __name__ == '__main__':
     # ResNet_subVideo_KeyFrame, ResNet_subVideo_KeyFrameOnly, ResNet_subVideo_Min,
     # ResNet_subVideo_KeyFramePlus, ResNet_subVideo_KeyFramePlus, ResNet_subVideo_KeyFramePlusRNormed
     # KeyFramePlusRNormedToMatchGMag (proposed)
+    # KeyFramePlusRNormedToMatchGMagTransformer
     # ResNet_subVideo_KeyFramePlusAllNormed, ResNet_subVideo_KeyFramePlusDimentioned, ResNet_subVideo_KeyFramePlusDimentionedV2_None,
     # ResNet_subVideo_KeyFramePlusDimentionedV2_R, ResNet_subVideo_KeyFramePlusDimentionedV2_G, ResNet_subVideo_KeyFramePlusDimentionedV2_RG
     # ResNet_subVideo_KeyFrameDimentionedAfterPlus]
