@@ -139,8 +139,8 @@ if __name__ == '__main__':
     # ResNet_subVideo_KeyFramePlusDimentionedV2_R, ResNet_subVideo_KeyFramePlusDimentionedV2_G, ResNet_subVideo_KeyFramePlusDimentionedV2_RG
     # ResNet_subVideo_KeyFrameDimentionedAfterPlus]
     # Video models [slow_r50, c2d_r50, i3d_r50, csn_r101]
-    base_name = None
-    model_name = "KeyFramePlusRNormedToMatchGMag"
+    base_name = 'resnet50'
+    model_name = "KeyFramePlusRNormedToMatchGMagTransformer"
     # model_name = "slow_r50"
     # Number of classes in the dataset
     learning_rate = 0.001
@@ -157,7 +157,7 @@ if __name__ == '__main__':
     sub_videoSize = 25  # each subvideo should contains 25 images
     # batch_size = 100
     # batch_size = 32 #only for Zho
-    num_epochs = 200
+    num_epochs = 2
     # num_epochs = 1
     load_to_RAM = True
     load_to_RAM = False
@@ -192,8 +192,8 @@ if __name__ == '__main__':
 
     # checkpoint =torch.load(colab_dir+"/checkpoints/resnet50.pth")
     # for Nerthus 2-fold Nerthus_fold2_paperExp1_VideoBased_Shuffle_ResNet50_WeightedLoss achieved 82.3
-    # encoder_checkpoint = torch.load(colab_dir+f"/checkpoints/{base_name}.pth")
-    encoder_checkpoint = None
+    encoder_checkpoint = torch.load(colab_dir+f"/checkpoints/{base_name}.pth")
+    # encoder_checkpoint = None
 
     # Flag for feature extracting. When False, we finetune the whole model,
     #   when True we only update the reshaped layer params
@@ -201,7 +201,7 @@ if __name__ == '__main__':
     wandb.init(
         project=wandbproject_name,
         entity="mss3331",
-        name=Experimentname,
+        name='Adding transformer for IEEE round3 testing the code locally',
         # Track hyperparameters and run metadata
         config={
             "fold_seed":fold_seed,
