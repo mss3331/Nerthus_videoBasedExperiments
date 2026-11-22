@@ -1078,7 +1078,7 @@ class SubVideo_Encoder_Transformer(nn.Module):
 
     def __init__(self, num_classes=4, pretrained=True, resnet50='resnet50',
                  feature_extract=True,Encoder_CheckPoint=None):
-        super(SubVideo_Encoder, self).__init__()
+        super(SubVideo_Encoder_Transformer, self).__init__()
 
         self.original_ResNet,_ = helpers.initialize_model(resnet50,num_classes,feature_extract,Encoder_CheckPoint,pretrained)
         print("Transfering Weights for Encoder...")

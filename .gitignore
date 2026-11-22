@@ -1,0 +1,17 @@
+
+# Python compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Model checkpoints
+checkpoints/
+*.pth
+
+# Weights & Biases (W&B)
+wandb/
+
+# Environment files
+.env
+.venv/
+venv/

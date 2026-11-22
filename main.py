@@ -7,7 +7,7 @@ import train_model
 import numpy as np
 import torch.optim as optim
 import wandb
-wandb.login(key="38818beaffe50c5403d3f87b288d36d1b38372f8")
+wandb.login(key="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")
 
 def print_hyperparameters():
     print("learning_rate {}\n,num_classes {}\n,batch_size {}\n"
@@ -187,7 +187,7 @@ if __name__ == '__main__':
     # wandbproject_name = "ICPR22"
 
     feature_extract = True
-    use_pretrained = False
+    use_pretrained = True
     half_freez = False
 
     # checkpoint =torch.load(colab_dir+"/checkpoints/resnet50.pth")
