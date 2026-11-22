@@ -115,8 +115,8 @@ if __name__ == '__main__':
     # data_dir = r"E:\Databases\kvasir-dataset-v2"
     # Colab
     colab_dir = "."
-    # run_in_colab = True
-    run_in_colab = False
+    run_in_colab = True
+    # run_in_colab = False
     if run_in_colab:
         # data_dir = "/content/SubSubVideoBased_not_splitted_into_trainVal"
         # data_dir = "/content/VideoBased_ForImageBasedModels"
@@ -157,7 +157,7 @@ if __name__ == '__main__':
     sub_videoSize = 25  # each subvideo should contains 25 images
     # batch_size = 100
     # batch_size = 32 #only for Zho
-    num_epochs = 2
+    num_epochs = 200
     # num_epochs = 1
     load_to_RAM = True
     load_to_RAM = False
@@ -201,7 +201,7 @@ if __name__ == '__main__':
     wandb.init(
         project=wandbproject_name,
         entity="mss3331",
-        name='Adding transformer for IEEE round3 testing the code locally',
+        name='YOUR_EXPERIMENT_NAME',
         # Track hyperparameters and run metadata
         config={
             "fold_seed":fold_seed,

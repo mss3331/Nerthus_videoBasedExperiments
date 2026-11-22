@@ -222,6 +222,7 @@ def initialize_model(model_name, num_classes, feature_extract, encoder_checkpoin
     elif model_name == "KeyFramePlusRNormedToMatchGMag":
         model_ft = KeyFramePlusRNormedToMatchGMag(num_classes=num_classes, pretrained=use_pretrained, resnet50=base_name,
                                            feature_extract=feature_extract, alpha=1, Encoder_CheckPoint=encoder_checkpoint)
+        input_size = (224, 224)
     elif model_name == "KeyFramePlusRNormedToMatchGMagTransformer":
         model_ft = KeyFramePlusRNormedToMatchGMag(num_classes=num_classes, pretrained=use_pretrained,
                                                   resnet50=base_name,
@@ -326,4 +327,3 @@ def plot_result(num_epochs, results_dic, model_name, colab_dir):
     plt.savefig(colab_dir + "/results/" + model_name + ".png")
     plt.clf()
     plt.close('all')
-
